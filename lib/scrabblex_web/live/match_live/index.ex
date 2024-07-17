@@ -6,7 +6,7 @@ defmodule ScrabblexWeb.MatchLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, stream(socket, :matches, Games.list_matches())}
+    {:ok, stream(socket, :matches, Games.list_matches(socket.assigns.current_user))}
   end
 
   @impl true

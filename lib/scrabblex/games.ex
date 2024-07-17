@@ -4,9 +4,21 @@ defmodule Scrabblex.Games do
   """
 
   import Ecto.Query, warn: false
+  alias Scrabblex.Games.Player
   alias Scrabblex.Repo
 
   alias Scrabblex.Games.Match
+  alias Scrabblex.Accounts.User
+
+  @doc """
+  Returns the list of matches scoped by user
+  """
+  def list_matches(%User{id: user_id}) do
+    query = from m in Match, join: p in Player, on: m.id == p.match_id and p.user_id == ^user_id
+
+    Repo.all(query)
+    |> Repo.preload(players: [:user])
+  end
 
   @doc """
   Returns the list of matches.
@@ -20,7 +32,7 @@ defmodule Scrabblex.Games do
   def list_matches do
     Match
     |> Repo.all()
-    |> Repo.preload(:players)
+    |> Repo.preload(players: [:user])
   end
 
   @doc """
@@ -37,7 +49,7 @@ defmodule Scrabblex.Games do
       ** (Ecto.NoResultsError)
 
   """
-  def get_match!(id), do: Repo.get!(Match, id) |> Repo.preload(:players)
+  def get_match!(id), do: Repo.get!(Match, id) |> Repo.preload(players: [:user])
 
   @doc """
   Creates a match.
@@ -52,9 +64,15 @@ defmodule Scrabblex.Games do
 
   """
   def create_match(attrs \\ %{}) do
-    %Match{}
-    |> Match.create_changeset(attrs)
-    |> Repo.insert()
+    result =
+      %Match{}
+      |> Match.create_changeset(attrs)
+      |> Repo.insert()
+
+    case result do
+      {:ok, match} -> {:ok, Repo.preload(match, players: [:user])}
+      error -> error
+    end
   end
 
   @doc """

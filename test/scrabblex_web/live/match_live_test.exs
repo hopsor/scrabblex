@@ -15,13 +15,12 @@ defmodule ScrabblexWeb.MatchLiveTest do
   describe "Index" do
     setup [:create_match]
 
-    test "lists all matches", %{conn: conn, match: match} do
+    test "lists all matches", %{conn: conn, match: _match} do
       user = AccountsFixtures.user_fixture()
       conn = log_in_user(conn, user)
       {:ok, _index_live, html} = live(conn, ~p"/matches")
 
       assert html =~ "Listing Matches"
-      assert html =~ match.dictionary
     end
 
     test "saves new match", %{conn: conn} do

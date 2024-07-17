@@ -1,11 +1,13 @@
 defmodule Scrabblex.Games.Player do
   use Ecto.Schema
   import Ecto.Changeset
+  alias Scrabblex.Games.Match
+  alias Scrabblex.Accounts.User
 
   schema "players" do
     field :owner, :boolean, default: false
-    field :match_id, :id
-    field :user_id, :id
+    belongs_to :match, Match
+    belongs_to :user, User
 
     timestamps(type: :utc_datetime)
   end

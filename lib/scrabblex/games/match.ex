@@ -41,4 +41,6 @@ defmodule Scrabblex.Games.Match do
   end
 
   def valid_dictionaries, do: @valid_dictionaries
+
+  def owner(%__MODULE__{players: players}), do: Enum.find(players, &(&1.owner == true))
 end

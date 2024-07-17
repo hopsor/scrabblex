@@ -12,6 +12,14 @@ defmodule Scrabblex.GamesTest do
 
     @invalid_attrs %{dictionary: nil}
 
+    test "list_matches/1 returns all matches scoped by user" do
+      match1 = match_fixture()
+      _match2 = match_fixture()
+
+      owner_player = Match.owner(match1)
+      assert Games.list_matches(owner_player.user) == [match1]
+    end
+
     test "list_matches/0 returns all matches" do
       match = match_fixture()
       assert Games.list_matches() == [match]
