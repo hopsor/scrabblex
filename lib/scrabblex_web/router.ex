@@ -23,6 +23,16 @@ defmodule ScrabblexWeb.Router do
     get "/", PageController, :home
   end
 
+  scope "/", ScrabblexWeb do
+    pipe_through [:browser, :require_authenticated_user]
+
+    live_session :default, on_mount: ScrabblexWeb.UserLiveAuth do
+      live "/matches", MatchLive.Index, :index
+      live "/matches/new", MatchLive.Index, :new
+      live "/matches/:id", MatchLive.Show, :show
+    end
+  end
+
   # Other scopes may use custom stacks.
   # scope "/api", ScrabblexWeb do
   #   pipe_through :api
