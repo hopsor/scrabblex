@@ -33,7 +33,7 @@ defmodule Scrabblex.Games.Match do
   def create_changeset(match, attrs) do
     match
     |> cast(attrs, [:dictionary])
-    |> cast_assoc(:players)
+    |> cast_assoc(:players, with: &Scrabblex.Games.Player.owner_changeset/2)
     |> put_change(:status, "created")
     |> validate_required(:dictionary)
     |> validate_inclusion(:dictionary, @valid_dictionaries)
