@@ -15,7 +15,14 @@ defmodule Scrabblex.Games.Player do
   @doc false
   def changeset(player, attrs) do
     player
-    |> cast(attrs, [:owner, :user_id])
-    |> validate_required([:owner, :user_id])
+    |> cast(attrs, [:owner, :user_id, :match_id])
+    |> validate_required([:owner, :user_id, :match_id])
+  end
+
+  def owner_changeset(player, attrs) do
+    player
+    |> cast(attrs, [:user_id])
+    |> put_change(:owner, true)
+    |> validate_required([:user_id])
   end
 end

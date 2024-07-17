@@ -3,10 +3,9 @@ defmodule Scrabblex.GamesTest do
 
   alias Scrabblex.Accounts.User
   alias Scrabblex.Games
-  alias Scrabblex.Games.Player
 
   describe "matches" do
-    alias Scrabblex.Games.Match
+    alias Scrabblex.Games.{Match, Player}
 
     import Scrabblex.{AccountsFixtures, GamesFixtures}
 
@@ -46,16 +45,11 @@ defmodule Scrabblex.GamesTest do
   end
 
   describe "players" do
-    alias Scrabblex.Games.Player
+    alias Scrabblex.Games.{Match, Player}
 
     import Scrabblex.{AccountsFixtures, GamesFixtures}
 
     @invalid_attrs %{owner: nil}
-
-    test "list_players/0 returns all players" do
-      player = player_fixture()
-      assert Games.list_players() == [player]
-    end
 
     test "get_player!/1 returns the player with given id" do
       player = player_fixture()
@@ -64,8 +58,9 @@ defmodule Scrabblex.GamesTest do
 
     test "create_player/1 with valid data creates a player" do
       %User{id: user_id} = user_fixture()
+      %Match{id: match_id} = match_fixture()
 
-      valid_attrs = %{user_id: user_id, owner: false}
+      valid_attrs = %{match_id: match_id, user_id: user_id, owner: false}
 
       assert {:ok, %Player{} = player} = Games.create_player(valid_attrs)
       assert player.user_id == user_id

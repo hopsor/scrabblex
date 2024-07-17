@@ -125,19 +125,6 @@ defmodule Scrabblex.Games do
   alias Scrabblex.Games.Player
 
   @doc """
-  Returns the list of players.
-
-  ## Examples
-
-      iex> list_players()
-      [%Player{}, ...]
-
-  """
-  def list_players do
-    Repo.all(Player)
-  end
-
-  @doc """
   Gets a single player.
 
   Raises `Ecto.NoResultsError` if the Player does not exist.
