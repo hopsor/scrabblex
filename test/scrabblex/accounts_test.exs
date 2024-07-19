@@ -49,21 +49,24 @@ defmodule Scrabblex.AccountsTest do
   end
 
   describe "register_user/1" do
-    test "requires email and password to be set" do
+    test "requires email, password and name to be set" do
       {:error, changeset} = Accounts.register_user(%{})
 
       assert %{
                password: ["can't be blank"],
-               email: ["can't be blank"]
+               email: ["can't be blank"],
+               name: ["can't be blank"]
              } = errors_on(changeset)
     end
 
-    test "validates email and password when given" do
-      {:error, changeset} = Accounts.register_user(%{email: "not valid", password: "inval"})
+    test "validates email, password and name when given" do
+      {:error, changeset} =
+        Accounts.register_user(%{email: "not valid", password: "inval", name: "!nv@l!d"})
 
       assert %{
                email: ["must have the @ sign and no spaces"],
-               password: ["should be at least 6 character(s)"]
+               password: ["should be at least 6 character(s)"],
+               name: ["should have only regular characters (a-z) and numbers (0-9)"]
              } = errors_on(changeset)
     end
 
@@ -84,6 +87,28 @@ defmodule Scrabblex.AccountsTest do
       assert "has already been taken" in errors_on(changeset).email
     end
 
+    test "validates name uniqueness" do
+      %{name: name} = user_fixture()
+      {:error, changeset} = Accounts.register_user(%{name: name})
+      assert "has already been taken" in errors_on(changeset).name
+
+      # Now try with the upper cased name too, to check that name case is ignored.
+      {:error, changeset} = Accounts.register_user(%{name: String.upcase(name)})
+      assert "has already been taken" in errors_on(changeset).name
+    end
+
+    test "validates minimum values for name" do
+      too_short = "ab"
+      {:error, changeset} = Accounts.register_user(%{name: too_short})
+      assert "should be at least 3 character(s)" in errors_on(changeset).name
+    end
+
+    test "validates maximum values for name" do
+      too_long = String.duplicate("a", 21)
+      {:error, changeset} = Accounts.register_user(%{name: too_long})
+      assert "should be at most 20 character(s)" in errors_on(changeset).name
+    end
+
     test "registers users with a hashed password" do
       email = unique_user_email()
       {:ok, user} = Accounts.register_user(valid_user_attributes(email: email))
@@ -97,22 +122,24 @@ defmodule Scrabblex.AccountsTest do
   describe "change_user_registration/2" do
     test "returns a changeset" do
       assert %Ecto.Changeset{} = changeset = Accounts.change_user_registration(%User{})
-      assert changeset.required == [:password, :email]
+      assert changeset.required == [:name, :password, :email]
     end
 
     test "allows fields to be set" do
       email = unique_user_email()
       password = valid_user_password()
+      name = unique_user_name()
 
       changeset =
         Accounts.change_user_registration(
           %User{},
-          valid_user_attributes(email: email, password: password)
+          valid_user_attributes(email: email, password: password, name: name)
         )
 
       assert changeset.valid?
       assert get_change(changeset, :email) == email
       assert get_change(changeset, :password) == password
+      assert get_change(changeset, :name) == name
       assert is_nil(get_change(changeset, :hashed_password))
     end
   end
