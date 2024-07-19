@@ -7,6 +7,7 @@ defmodule Scrabblex.Accounts.User do
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :current_password, :string, virtual: true, redact: true
+    field :name, :string
     field :confirmed_at, :utc_datetime
 
     timestamps(type: :utc_datetime)
@@ -37,9 +38,10 @@ defmodule Scrabblex.Accounts.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    |> cast(attrs, [:email, :password])
+    |> cast(attrs, [:email, :password, :name])
     |> validate_email(opts)
     |> validate_password(opts)
+    |> validate_name(opts)
   end
 
   defp validate_email(changeset, opts) do
@@ -59,6 +61,16 @@ defmodule Scrabblex.Accounts.User do
     # |> validate_format(:password, ~r/[A-Z]/, message: "at least one upper case character")
     # |> validate_format(:password, ~r/[!?@#$%^&*_0-9]/, message: "at least one digit or punctuation character")
     |> maybe_hash_password(opts)
+  end
+
+  defp validate_name(changeset, opts) do
+    changeset
+    |> validate_required([:name])
+    |> validate_format(:name, ~r/^[a-zA-Z0-9]+$/,
+      message: "should have only regular characters (a-z) and numbers (0-9)"
+    )
+    |> validate_length(:name, min: 3, max: 20)
+    |> maybe_validate_unique_name(opts)
   end
 
   defp maybe_hash_password(changeset, opts) do
@@ -83,6 +95,16 @@ defmodule Scrabblex.Accounts.User do
       changeset
       |> unsafe_validate_unique(:email, Scrabblex.Repo)
       |> unique_constraint(:email)
+    else
+      changeset
+    end
+  end
+
+  defp maybe_validate_unique_name(changeset, opts) do
+    if Keyword.get(opts, :validate_name, true) do
+      changeset
+      |> unsafe_validate_unique(:name, Scrabblex.Repo)
+      |> unique_constraint(:name)
     else
       changeset
     end

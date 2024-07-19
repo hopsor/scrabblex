@@ -41,7 +41,8 @@ defmodule ScrabblexWeb.UserRegistrationLiveTest do
       {:ok, lv, _html} = live(conn, ~p"/users/register")
 
       email = unique_user_email()
-      form = form(lv, "#registration_form", user: valid_user_attributes(email: email))
+      name = unique_user_name()
+      form = form(lv, "#registration_form", user: valid_user_attributes(email: email, name: name))
       render_submit(form)
       conn = follow_trigger_action(form, conn)
 
@@ -64,6 +65,25 @@ defmodule ScrabblexWeb.UserRegistrationLiveTest do
         lv
         |> form("#registration_form",
           user: %{"email" => user.email, "password" => "valid_password"}
+        )
+        |> render_submit()
+
+      assert result =~ "has already been taken"
+    end
+
+    test "renders errors for duplicated name", %{conn: conn} do
+      {:ok, lv, _html} = live(conn, ~p"/users/register")
+
+      user = user_fixture(%{email: unique_user_email(), name: "john"})
+
+      result =
+        lv
+        |> form("#registration_form",
+          user: %{
+            "email" => unique_user_email(),
+            "password" => "valid_password",
+            "name" => user.name
+          }
         )
         |> render_submit()
 
