@@ -10,4 +10,4 @@
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
 
-Scrabblex.Accounts.register_user(%{email: "john@doe.org", password: "foobar"})
+Scrabblex.Accounts.register_user(%{email: "john@doe.org", password: "foobar", name: "john"})
