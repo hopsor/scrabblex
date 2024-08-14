@@ -2,24 +2,28 @@
   Listing Matches
   <:actions>
     <.link patch={~p"/matches/new"}>
-      <.button>New Match</.button>
+      <.button>
+        <.icon name="hero-plus" /> New Match
+      </.button>
     </.link>
   </:actions>
 </.header>
 
-<.table
-  id="matches"
-  rows={@streams.matches}
-  row_click={fn {_id, match} -> JS.navigate(~p"/matches/#{match}") end}
->
-  <:col :let={{_id, match}} label="Dictionary"><%= match.dictionary %></:col>
-  <:col :let={{_id, match}} label="Status"><%= match.status %></:col>
-  <:action :let={{_id, match}}>
-    <div class="sr-only">
-      <.link navigate={~p"/matches/#{match}"}>Show</.link>
-    </div>
-  </:action>
-</.table>
+<div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+  <.table
+    id="matches"
+    rows={@streams.matches}
+    row_click={fn {_id, match} -> JS.navigate(~p"/matches/#{match}") end}
+  >
+    <:col :let={{_id, match}} label="Dictionary"><%= match.dictionary %></:col>
+    <:col :let={{_id, match}} label="Status"><%= match.status %></:col>
+    <:action :let={{_id, match}}>
+      <div class="sr-only">
+        <.link navigate={~p"/matches/#{match}"}>Show</.link>
+      </div>
+    </:action>
+  </.table>
+</div>
 
 <.modal :if={@live_action == :new} id="match-modal" show on_cancel={JS.patch(~p"/matches")}>
   <.live_component

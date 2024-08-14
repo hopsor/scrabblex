@@ -427,17 +427,19 @@ defmodule ScrabblexWeb.CoreComponents do
 
   def header(assigns) do
     ~H"""
-    <header class={[@actions != [] && "flex items-center justify-between gap-6", @class]}>
-      <div>
-        <h1 class="text-lg font-semibold leading-8 text-zinc-800">
-          <%= render_slot(@inner_block) %>
-        </h1>
-        <p :if={@subtitle != []} class="mt-2 text-sm leading-6 text-zinc-600">
-          <%= render_slot(@subtitle) %>
-        </p>
-      </div>
-      <div class="flex-none"><%= render_slot(@actions) %></div>
-    </header>
+    <div class="bg-white p-8 shadow">
+      <header class={[@actions != [] && "lg:flex lg:items-center lg:justify-between", @class]}>
+        <div class="min-w-0 flex-1">
+          <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+            <%= render_slot(@inner_block) %>
+          </h1>
+          <p :if={@subtitle != []} class="mt-2 text-sm leading-6 text-zinc-600">
+            <%= render_slot(@subtitle) %>
+          </p>
+        </div>
+        <div class="mt-5 flex lg:ml-4 lg:mt-0"><%= render_slot(@actions) %></div>
+      </header>
+    </div>
     """
   end
 
@@ -672,5 +674,101 @@ defmodule ScrabblexWeb.CoreComponents do
   """
   def translate_errors(errors, field) when is_list(errors) do
     for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
+  end
+
+  @doc """
+  Returns a button triggered dropdown with aria keyboard and focus supporrt.
+
+  Accepts the follow slots:
+
+    * `:id` - The id to uniquely identify this dropdown
+    * `:img` - The optional img to show beside the button title
+    * `:title` - The button title
+
+  ## Examples
+
+      <.dropdown id={@id}>
+        <:img src={@current_user.avatar_url}/>
+        <:title><%= @current_user.name %></:title>
+
+        <:link navigate={profile_path(@current_user)}>View Profile</:link>
+        <:link navigate={~p"/profile/settings"}Settings</:link>
+      </.dropdown>
+  """
+  attr :id, :string, required: true
+
+  slot :img do
+    attr :src, :string
+  end
+
+  slot :title
+
+  slot :link do
+    attr :navigate, :string
+    attr :href, :string
+    attr :method, :any
+  end
+
+  def dropdown(assigns) do
+    ~H"""
+    <!-- User account dropdown -->
+    <div class="relative ml-3">
+      <div>
+        <button
+          id={@id}
+          type="button"
+          class="relative flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+          phx-click={show_dropdown("##{@id}-dropdown")}
+          phx-hook="Menu"
+          data-active-class="bg-gray-100"
+          aria-haspopup="true"
+        >
+          <span class="absolute -inset-1.5"></span>
+          <span class="sr-only">Open user menu</span>
+          <%= for img <- @img do %>
+            <img class="h-8 w-8 rounded-full" alt="" {assigns_to_attributes(img)} />
+          <% end %>
+        </button>
+      </div>
+      <div
+        id={"#{@id}-dropdown"}
+        phx-click-away={hide_dropdown("##{@id}-dropdown")}
+        class="hidden z-10 mx-3 origin-top absolute right-0 left-0 mt-1 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200"
+        role="menu"
+        aria-labelledby={@id}
+      >
+        <div
+          class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+          role="none"
+        >
+          <%= for link <- @link do %>
+            <.link tabindex="-1" role="menuitem" class="block px-4 py-2 text-sm text-gray-700" {link}>
+              <%= render_slot(link) %>
+            </.link>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    """
+  end
+
+  def show_dropdown(to) do
+    JS.show(
+      to: to,
+      transition:
+        {"transition ease-out duration-120", "transform opacity-0 scale-95",
+         "transform opacity-100 scale-100"}
+    )
+    |> JS.set_attribute({"aria-expanded", "true"}, to: to)
+  end
+
+  def hide_dropdown(to) do
+    JS.hide(
+      to: to,
+      transition:
+        {"transition ease-in duration-120", "transform opacity-100 scale-100",
+         "transform opacity-0 scale-95"}
+    )
+    |> JS.remove_attribute("aria-expanded", to: to)
   end
 end
