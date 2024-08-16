@@ -48,6 +48,22 @@ defmodule Scrabblex.AccountsTest do
     end
   end
 
+  describe "get_users/1" do
+    test "returns empty list if ids can't be found" do
+      assert Accounts.get_users([123, 456]) == []
+    end
+
+    test "returns the users with the given ids" do
+      %{id: id1} = user_fixture()
+      %{id: id2} = user_fixture()
+      %{id: id3} = user_fixture()
+      results = Accounts.get_users([id1, id2]) |> Enum.map(& &1.id)
+
+      assert Enum.all?([id1, id2], &(&1 in results))
+      refute id3 in results
+    end
+  end
+
   describe "register_user/1" do
     test "requires email, password and name to be set" do
       {:error, changeset} = Accounts.register_user(%{})
