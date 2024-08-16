@@ -52,6 +52,7 @@ defmodule ScrabblexWeb.MatchLive.LobbyComponent do
 
       <button
         :if={@joinable?}
+        id="btn_join"
         phx-click="join"
         phx-disable-with="Joining..."
         phx-target={@myself}
@@ -61,6 +62,7 @@ defmodule ScrabblexWeb.MatchLive.LobbyComponent do
       </button>
       <button
         :if={@leavable?}
+        id="btn_leave"
         phx-click="leave"
         phx-disable-with="Leaving..."
         phx-target={@myself}

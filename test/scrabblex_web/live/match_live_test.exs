@@ -16,6 +16,8 @@ defmodule ScrabblexWeb.MatchLiveTest do
   # More info here: https://hexdocs.pm/phoenix/Phoenix.Presence.html#module-testing-with-presence
   defp presence_callback(_) do
     on_exit(fn ->
+      Process.sleep(100)
+
       for pid <- ScrabblexWeb.Presence.fetchers_pids() do
         ref = Process.monitor(pid)
         assert_receive {:DOWN, ^ref, _, _, _}, 1000
@@ -91,10 +93,10 @@ defmodule ScrabblexWeb.MatchLiveTest do
     } do
       [owner_player] = match.players
       conn = log_in_user(conn, owner_player.user)
-      {:ok, _show_live, html} = live(conn, ~p"/matches/#{match}")
+      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
 
-      refute html =~ "Join"
-      refute html =~ "Leave"
+      refute show_live |> element("#btn_join") |> has_element?()
+      refute show_live |> element("#btn_leave") |> has_element?()
     end
 
     test "after someone connect I will see him online", %{conn: conn, match: match} do
