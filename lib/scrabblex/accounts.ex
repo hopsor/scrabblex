@@ -60,6 +60,28 @@ defmodule Scrabblex.Accounts do
   """
   def get_user!(id), do: Repo.get!(User, id)
 
+  @doc """
+  Gets multiple users.
+
+  Raises `Ecto.NoResultsError` if the User does not exist.
+
+  ## Examples
+
+      iex> get_users([123, 456])
+      [%User{}, ...]
+
+      iex> get_users(789)
+      []
+
+  """
+  def get_users(ids) do
+    query =
+      from u in User,
+        where: u.id in ^ids
+
+    query |> Repo.all()
+  end
+
   ## User registration
 
   @doc """

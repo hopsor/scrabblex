@@ -1,28 +1,9 @@
-<.header>
-  Match <%= @match.id %>
-  <:subtitle>This is a match record from your database.</:subtitle>
-  <:actions></:actions>
-</.header>
-
-<.list>
-  <:item title="Dictionary"><%= @match.dictionary %></:item>
-  <:item title="Status"><%= @match.status %></:item>
-</.list>
-
-<.back navigate={~p"/matches"}>Back to matches</.back>
-
-<.modal
-  :if={@live_action == :edit}
-  id="match-modal"
-  show
-  on_cancel={JS.patch(~p"/matches/#{@match}")}
->
-  <.live_component
-    module={ScrabblexWeb.MatchLive.FormComponent}
-    id={@match.id}
-    title={@page_title}
-    action={@live_action}
-    match={@match}
-    patch={~p"/matches/#{@match}"}
-  />
-</.modal>
+<.live_component
+  :if={@match.status == "created"}
+  module={ScrabblexWeb.MatchLive.LobbyComponent}
+  id={@match.id}
+  match={@match}
+  current_user={@current_user}
+  presences={@presences}
+  events_topic={@events_topic}
+/>

@@ -16,6 +16,7 @@ defmodule Scrabblex.Application do
       {Finch, name: Scrabblex.Finch},
       # Start a worker by calling: Scrabblex.Worker.start_link(arg)
       # {Scrabblex.Worker, arg},
+      ScrabblexWeb.Presence,
       # Start to serve requests, typically the last entry
       ScrabblexWeb.Endpoint
     ]
