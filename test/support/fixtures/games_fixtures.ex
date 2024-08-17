@@ -25,16 +25,12 @@ defmodule Scrabblex.GamesFixtures do
   Generate a player.
   """
   def player_fixture(attrs \\ %{}) do
-    user = Scrabblex.AccountsFixtures.user_fixture()
-    match = match_fixture()
-
     {:ok, player} =
-      attrs
-      |> Enum.into(%{
+      %{
         owner: false,
-        user_id: user.id,
-        match_id: match.id
-      })
+        user_id: attrs[:user_id] || Scrabblex.AccountsFixtures.user_fixture() |> Map.get(:id),
+        match_id: attrs[:match_id] || match_fixture() |> Map.get(:id)
+      }
       |> Scrabblex.Games.create_player()
 
     player
