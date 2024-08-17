@@ -9,76 +9,80 @@ defmodule ScrabblexWeb.MatchLive.LobbyComponent do
   def render(assigns) do
     ~H"""
     <div>
-      <h1>Lobby</h1>
+      <.header>New Match: Lobby</.header>
 
-      <div id="lobby_users">
-        <div
-          :for={lobby_user <- @lobby_users}
-          id={"lobby_user_#{lobby_user.user.id}"}
-          class="flex min-w-0 gap-x-4"
-        >
-          <div class="relative flex-none">
-            <img
-              class="w-10 h-10 rounded-full"
-              src="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
-              alt=""
-            />
-            <span class={[
-              "bottom-0 left-7 absolute w-3.5 h-3.5 border-2 border-white dark:border-gray-800 rounded-full",
-              lobby_user.online == true && "bg-green-400 online",
-              lobby_user.online == false && "bg-red-400 offline"
-            ]}>
-            </span>
-          </div>
+      <div id="lobby_users" class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <div class="bg-white rounded-lg mb-4">
+          <div
+            :for={lobby_user <- @lobby_users}
+            id={"lobby_user_#{lobby_user.user.id}"}
+            class="flex min-w-0 gap-x-4 p-4 border-b border-gray-200 items-center last:border-b-0"
+          >
+            <div class="relative flex-none">
+              <img
+                class="w-10 h-10 rounded-full"
+                src="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
+                alt=""
+              />
+              <span class={[
+                "bottom-0 left-7 absolute w-3.5 h-3.5 border-2 border-white dark:border-gray-800 rounded-full",
+                lobby_user.online == true && "bg-green-400 online",
+                lobby_user.online == false && "bg-red-400 offline"
+              ]}>
+              </span>
+            </div>
 
-          <div class="min-w-0 flex-auto">
-            <p class="text-sm font-semibold leading-6 text-gray-900">
-              <%= lobby_user.user.name %>
-            </p>
+            <div class="min-w-0 flex-auto">
+              <p class="text-sm font-semibold leading-6 text-gray-900">
+                <%= lobby_user.user.name %>
+              </p>
 
-            <span
-              :if={lobby_user.owner}
+              <span
+                :if={lobby_user.owner}
+                class="inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-800 ring-1 ring-inset ring-yellow-600/20"
+              >
+                Owner 
+              </span>
+            </div>
+
+            <div
+              :if={lobby_user.joined}
               class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20"
             >
-              Owner
-            </span>
-          </div>
-
-          <div :if={lobby_user.joined}>
-            <.icon name="hero-check" /> Joined
+              <.icon name="hero-check" /> Joined
+            </div>
           </div>
         </div>
+        <button
+          :if={@joinable?}
+          id="btn_join"
+          phx-click="join"
+          phx-disable-with="Joining..."
+          phx-target={@myself}
+          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Join
+        </button>
+        <button
+          :if={@leavable?}
+          id="btn_leave"
+          phx-click="leave"
+          phx-disable-with="Leaving..."
+          phx-target={@myself}
+          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Leave
+        </button>
+        <button
+          :if={@startable?}
+          phx-click="start"
+          phx-disable-with="Starting..."
+          phx-target={@myself}
+          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Start
+        </button>
       </div>
-
-      <button
-        :if={@joinable?}
-        id="btn_join"
-        phx-click="join"
-        phx-disable-with="Joining..."
-        phx-target={@myself}
-        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-      >
-        Join
-      </button>
-      <button
-        :if={@leavable?}
-        id="btn_leave"
-        phx-click="leave"
-        phx-disable-with="Leaving..."
-        phx-target={@myself}
-        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-      >
-        Leave
-      </button>
-      <button
-        :if={@startable?}
-        phx-click="start"
-        phx-disable-with="Starting..."
-        phx-target={@myself}
-        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-      >
-        Start
-      </button>
     </div>
     """
   end
