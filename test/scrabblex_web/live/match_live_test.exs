@@ -5,8 +5,9 @@ defmodule ScrabblexWeb.MatchLiveTest do
   import Scrabblex.{AccountsFixtures, GamesFixtures}
 
   alias Scrabblex.Games
+  alias Scrabblex.Games.Match
 
-  @create_attrs %{dictionary: "fise"}
+  @create_attrs %{dictionary: "fise2"}
 
   defp create_match(_) do
     match = match_fixture()
@@ -157,6 +158,26 @@ defmodule ScrabblexWeb.MatchLiveTest do
       send(show_live.pid, %{event: "player_deleted", payload: player})
 
       refute show_live |> element("#lobby_user_#{user.id}") |> has_element?()
+    end
+
+    test "after the match it's started players are shown the game board and the lobby is gone", %{
+      conn: conn,
+      match: match
+    } do
+      user = user_fixture()
+      player = player_fixture(user_id: user.id, match_id: match.id)
+      conn = log_in_user(conn, user)
+
+      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+      updated_match = %Match{match | players: match.players ++ [player]}
+      {:ok, started_match} = Games.start_match(updated_match)
+
+      send(show_live.pid, %{event: "match_started", payload: started_match})
+
+      rendered_view = render(show_live)
+
+      assert rendered_view =~ "Game Board"
+      refute rendered_view =~ "Lobby"
     end
   end
 end

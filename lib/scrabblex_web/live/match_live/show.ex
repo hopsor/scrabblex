@@ -61,7 +61,7 @@ defmodule ScrabblexWeb.MatchLive.Show do
 
   @impl true
   def handle_info(%{event: event, payload: _payload}, socket)
-      when event in ~w(player_created player_deleted) do
+      when event in ~w(player_created player_deleted match_started) do
     {:noreply,
      socket
      |> assign(:match, Games.get_match!(socket.assigns.match.id))}

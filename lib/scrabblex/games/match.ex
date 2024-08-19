@@ -12,12 +12,14 @@ defmodule Scrabblex.Games.Match do
 
   use Ecto.Schema
   import Ecto.Changeset
+  alias Scrabblex.Games.Tile
 
-  @valid_dictionaries ~w(fise)
+  @valid_dictionaries ~w(fise2)
 
   schema "matches" do
     field :dictionary, :string
     field :status, :string
+    embeds_many :bag, Tile
     has_many :players, Scrabblex.Games.Player
 
     timestamps(type: :utc_datetime)
@@ -38,6 +40,14 @@ defmodule Scrabblex.Games.Match do
     |> validate_required(:dictionary)
     |> validate_inclusion(:dictionary, @valid_dictionaries)
     |> validate_length(:players, is: 1)
+  end
+
+  def start_changeset(match, attrs) do
+    match
+    |> cast(attrs, [])
+    |> cast_embed(:bag, required: true)
+    |> put_assoc(:players, attrs[:players])
+    |> put_change(:status, "started")
   end
 
   def valid_dictionaries, do: @valid_dictionaries

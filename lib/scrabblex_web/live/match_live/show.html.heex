@@ -7,3 +7,10 @@
   presences={@presences}
   events_topic={@events_topic}
 />
+
+<.live_component
+  :if={@match.status == "started"}
+  module={ScrabblexWeb.MatchLive.GameBoardComponent}
+  id={@match.id}
+  match={@match}
+/>
