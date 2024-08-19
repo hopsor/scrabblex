@@ -123,6 +123,11 @@ defmodule ScrabblexWeb.MatchLive.LobbyComponent do
     leave_match(socket)
   end
 
+  @impl true
+  def handle_event("start", _params, socket) do
+    start_match(socket)
+  end
+
   defp join_match(socket) do
     match_id = socket.assigns.match.id
     user_id = socket.assigns.current_user.id
@@ -149,6 +154,21 @@ defmodule ScrabblexWeb.MatchLive.LobbyComponent do
         broadcast(events_topic, "player_deleted", player)
 
         {:noreply, socket |> put_flash(:info, "Left successfully")}
+
+      _error ->
+        {:noreply, put_flash(socket, :error, "Something went wrong")}
+    end
+  end
+
+  def start_match(socket) do
+    match = socket.assigns.match
+    events_topic = socket.assigns.events_topic
+
+    case Games.start_match(match) do
+      {:ok, match} ->
+        broadcast(events_topic, "match_started", match)
+
+        {:noreply, socket |> put_flash(:info, "Game started!")}
 
       _error ->
         {:noreply, put_flash(socket, :error, "Something went wrong")}
