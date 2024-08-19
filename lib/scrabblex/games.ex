@@ -138,6 +138,7 @@ defmodule Scrabblex.Games do
       Repo.update(changeset)
     end
   end
+
   def start_match(%Match{status: _}), do: {:error, :match_already_started}
 
   @doc """

@@ -24,7 +24,7 @@ defmodule Scrabblex.Games.BagBuilderTest do
 
       {:ok, _hands, remaining} = BagBuilder.init_hands(bag, players)
 
-      assert length(remaining) == 100 - 7*2
+      assert length(remaining) == 100 - 7 * 2
     end
   end
 end
