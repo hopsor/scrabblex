@@ -135,7 +135,12 @@ defmodule Scrabblex.Games do
           players: players_changeset
         })
 
-      Repo.update(changeset)
+      changeset
+      |> Repo.update()
+      |> case do
+        {:ok, match} -> {:ok, Repo.preload(match, players: :user)}
+        error -> error
+      end
     end
   end
 
