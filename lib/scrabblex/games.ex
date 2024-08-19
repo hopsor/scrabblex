@@ -4,10 +4,9 @@ defmodule Scrabblex.Games do
   """
 
   import Ecto.Query, warn: false
-  alias Scrabblex.Games.Player
   alias Scrabblex.Repo
 
-  alias Scrabblex.Games.Match
+  alias Scrabblex.Games.{BagBuilder, Match, Player}
   alias Scrabblex.Accounts.User
 
   @doc """
@@ -108,6 +107,38 @@ defmodule Scrabblex.Games do
   def delete_match(%Match{} = match) do
     Repo.delete(match)
   end
+
+  @doc """
+  Starts a match.
+
+  Changes it's status to started, builds a bag and hands out 7 tiles to each player
+
+  ## Examples
+
+      iex> start_match(match)
+      {:ok, %Match{}}
+  """
+  def start_match(%Match{status: "created"} = match) do
+    with {:ok, initial_bag} <- BagBuilder.build(match.dictionary),
+         {:ok, hands, remaining_bag} <- BagBuilder.init_hands(initial_bag, match.players) do
+      players_changeset =
+        hands
+        |> Enum.with_index()
+        |> Enum.map(fn {hand, index} ->
+          player = Enum.at(match.players, index)
+          Player.start_changeset(player, %{hand: hand})
+        end)
+
+      changeset =
+        Match.start_changeset(match, %{
+          bag: remaining_bag,
+          players: players_changeset
+        })
+
+      Repo.update(changeset)
+    end
+  end
+  def start_match(%Match{status: _}), do: {:error, :match_already_started}
 
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking match changes.
