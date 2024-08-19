@@ -13,7 +13,7 @@ defmodule Scrabblex.GamesFixtures do
     {:ok, match} =
       attrs
       |> Enum.into(%{
-        dictionary: "fise",
+        dictionary: "fise2",
         players: [%{user_id: owner.id, owner: true}]
       })
       |> Scrabblex.Games.create_match()

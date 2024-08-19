@@ -6,7 +6,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
 
   alias Scrabblex.Games
 
-  @create_attrs %{dictionary: "fise"}
+  @create_attrs %{dictionary: "fise2"}
 
   defp create_match(_) do
     match = match_fixture()
