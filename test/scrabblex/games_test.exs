@@ -31,16 +31,48 @@ defmodule Scrabblex.GamesTest do
 
     test "create_match/1 with valid data creates a match" do
       %User{id: owner_id} = user_fixture()
-      valid_attrs = %{dictionary: "fise", players: [%{user_id: owner_id, owner: true}]}
+      valid_attrs = %{dictionary: "fise2", players: [%{user_id: owner_id, owner: true}]}
 
       assert {:ok, %Match{} = match} = Games.create_match(valid_attrs)
-      assert match.dictionary == "fise"
+      assert match.dictionary == "fise2"
       assert match.status == "created"
       assert [%Player{user_id: ^owner_id}] = match.players
     end
 
     test "create_match/1 with invalid data returns error changeset" do
       assert {:error, %Ecto.Changeset{}} = Games.create_match(@invalid_attrs)
+    end
+
+    test "start_match/1 when the match status is different of `created` returns :match_already_started error" do
+      match = match_fixture()
+      started_match = %Match{match | status: "started"}
+
+      assert {:error, :match_already_started} == Games.start_match(started_match)
+    end
+
+    test "start_match/1 when the match is valid it changes the status to `started`" do
+      match = match_fixture()
+      player_fixture(match_id: match.id)
+
+      assert {:ok, %Match{status: "started"}} = Games.start_match(match)
+    end
+
+    test "start_match/1 when the match is valid it hands out 7 random tiles to every player" do
+      match = match_fixture()
+      player_fixture(match_id: match.id)
+      {:ok, %Match{players: players}} = Games.start_match(match)
+
+      Enum.each(players, fn player ->
+        assert length(player.hand) == 7
+      end)
+    end
+
+    test "start_match/1 when the match is valid it fills the bag with tiles" do
+      match = match_fixture()
+      player_fixture(match_id: match.id)
+      {:ok, started_match} = Games.start_match(match)
+
+      assert length(started_match.bag) > 0
     end
   end
 
