@@ -6,6 +6,7 @@ defmodule Scrabblex.Games.Player do
 
   schema "players" do
     field :owner, :boolean, default: false
+    field :score, :integer, default: 0
     belongs_to :match, Match
     belongs_to :user, User
     embeds_many :hand, Tile
