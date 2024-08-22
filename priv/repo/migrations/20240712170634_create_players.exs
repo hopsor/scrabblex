@@ -7,6 +7,7 @@ defmodule Scrabblex.Repo.Migrations.CreatePlayers do
       add :match_id, references(:matches, on_delete: :delete_all), null: false
       add :user_id, references(:users, on_delete: :nothing), null: false
       add :hand, :map
+      add :score, :integer
 
       timestamps(type: :utc_datetime)
     end
