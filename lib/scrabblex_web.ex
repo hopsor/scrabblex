@@ -42,9 +42,9 @@ defmodule ScrabblexWeb do
         formats: [:html, :json],
         layouts: [html: ScrabblexWeb.Layouts]
 
-      import Plug.Conn
-      import ScrabblexWeb.Gettext
+      use Gettext, backend: ScrabblexWeb.Gettext
 
+      import Plug.Conn
       unquote(verified_routes())
     end
   end
@@ -81,11 +81,13 @@ defmodule ScrabblexWeb do
 
   defp html_helpers do
     quote do
+      # Translation
+      use Gettext, backend: ScrabblexWeb.Gettext
+
       # HTML escaping functionality
       import Phoenix.HTML
       # Core UI components and translation
       import ScrabblexWeb.CoreComponents
-      import ScrabblexWeb.Gettext
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS
