@@ -16,8 +16,8 @@ defmodule ScrabblexWeb.CoreComponents do
   """
   use Phoenix.Component
 
+  use Gettext, backend: ScrabblexWeb.Gettext
   alias Phoenix.LiveView.JS
-  import ScrabblexWeb.Gettext
 
   @doc """
   Renders a modal.
