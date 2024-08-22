@@ -7,7 +7,7 @@ defmodule Scrabblex.Games.BoardLayoutTest do
     test "returns a list of 15*15 tuples with {x, y, slot_type}" do
       result = BoardLayout.get()
 
-      assert length(result) == 15*15
+      assert length(result) == 15 * 15
 
       Enum.each(result, fn {x, y, value} ->
         assert x >= 0 && x < 15
