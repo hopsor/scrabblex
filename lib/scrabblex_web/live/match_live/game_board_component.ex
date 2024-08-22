@@ -4,7 +4,7 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
   @impl true
   def render(assigns) do
     ~H"""
-    <div>
+    <div id="game_board">
       <.header>Game Board</.header>
 
       <div class="max-w-5xl mx-auto">
@@ -22,13 +22,19 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
               <% end %>
             </div>
 
-            <div id="hand" class="flex flex-row justify-center gap-x-1 mt-5">
+            <div
+              id="hand"
+              class="grid grid-cols-7 gap-2 dropzone max-w-md mx-auto mt-5"
+              phx-hook="Drag"
+            >
               <div
                 :for={tile <- @current_player.hand}
-                class="basis-1/7 bg-yellow-200 rounded-md w-14 h-14 flex flex-col-reverse"
+                class="bg-yellow-200 rounded-md aspect-square w-full h-auto relative draggable shadow-inner"
               >
-                <div class="text-xl font-bold text-center basis-5/6 "><%= tile.value %></div>
-                <div class="text-xs text-right basis-1/6"><%= tile.score %></div>
+                <div class="text-md font-bold text-center absolute inset-0 h-full w-full flex items-center justify-center">
+                  <%= tile.value %>
+                </div>
+                <div class="text-xs text-right absolute right-0.5 top-0.5"><%= tile.score %></div>
               </div>
             </div>
 
@@ -85,5 +91,10 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
      socket
      |> assign(:current_player, current_player)
      |> assign(:match, match)}
+  end
+
+  @impl true
+  def handle_event("drop_tile", _params, socket) do
+    {:noreply, socket}
   end
 end

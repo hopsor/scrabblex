@@ -5,10 +5,13 @@ defmodule ScrabblexWeb.MatchLive.BoardSlotComponent do
   def render(assigns) do
     ~H"""
     <div class={[
-      "aspect-square h-auto flex items-center justify-center rounded-lg text-white font-bold",
-      @background
+      "aspect-square h-auto flex items-center justify-center rounded-lg relative",
+      @background,
+      "dropzone"
     ]}>
-      <p><%= @value %></p>
+      <div :if={@value} class="absolute text-white font-bold">
+        <%= @value %>
+      </div>
     </div>
     """
   end
