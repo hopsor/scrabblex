@@ -193,6 +193,7 @@ defmodule Scrabblex.Games do
     %Player{}
     |> Player.changeset(attrs)
     |> Repo.insert()
+    |> Repo.preload(:user)
   end
 
   @doc """
