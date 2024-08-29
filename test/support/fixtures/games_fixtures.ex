@@ -4,9 +4,18 @@ defmodule Scrabblex.GamesFixtures do
   entities via the `Scrabblex.Games` context.
   """
 
+  alias Scrabblex.Games
+  alias Scrabblex.Games.Tile
+
   @doc """
   Generate a match.
   """
+  def match_fixture(attrs, :started) do
+    match = match_fixture(attrs)
+    {:ok, started_match} = Games.start_match(match)
+    started_match
+  end
+
   def match_fixture(attrs \\ %{}) do
     owner = Scrabblex.AccountsFixtures.user_fixture()
 
@@ -16,7 +25,7 @@ defmodule Scrabblex.GamesFixtures do
         dictionary: "fise2",
         players: [%{user_id: owner.id, owner: true}]
       })
-      |> Scrabblex.Games.create_match()
+      |> Games.create_match()
 
     match
   end
@@ -34,5 +43,17 @@ defmodule Scrabblex.GamesFixtures do
       |> Scrabblex.Games.create_player()
 
     player
+  end
+
+  @doc """
+  Generate a tile.
+  """
+  def tile_fixture(attrs \\ %{}) do
+    %Tile{
+      score: attrs[:score] || 1,
+      value: attrs[:value] || "A",
+      wildcard: attrs[:wildcard] || false,
+      position: attrs[:position] || nil
+    }
   end
 end

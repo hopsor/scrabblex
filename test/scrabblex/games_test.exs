@@ -74,6 +74,10 @@ defmodule Scrabblex.GamesTest do
 
       assert length(started_match.bag) > 0
     end
+
+    @tag skip: "Pending to implement"
+    test "start_match/1 when the match hasn't enough players it returns {:error, :not_enough_players} error" do
+    end
   end
 
   describe "players" do
@@ -103,18 +107,28 @@ defmodule Scrabblex.GamesTest do
       assert {:error, %Ecto.Changeset{}} = Games.create_player(@invalid_attrs)
     end
 
-    test "update_player/2 with valid data updates the player" do
-      player = player_fixture()
-      update_attrs = %{owner: false}
+    test "update_player_hand/2 with valid data updates the player" do
+      %Match{players: [player | _]} = match_fixture(%{}, :started)
 
-      assert {:ok, %Player{} = player} = Games.update_player(player, update_attrs)
-      assert player.owner == false
+      shuffled_hand = Enum.shuffle(player.hand)
+      hand_changesets = Enum.map(shuffled_hand, &Games.change_tile/1)
+
+      {:ok, updated_player} = Games.update_player_hand(player, hand_changesets)
+
+      assert updated_player.hand == shuffled_hand
     end
 
-    test "update_player/2 with invalid data returns error changeset" do
-      player = player_fixture()
-      assert {:error, %Ecto.Changeset{}} = Games.update_player(player, @invalid_attrs)
-      assert player == Games.get_player!(player.id)
+    test "update_player_hand/2 based on stale data returns {:error, :stale_player}" do
+      %Match{players: [player | _]} = match_fixture(%{}, :started)
+      stale_player = %Player{player | lock_version: 0}
+      shuffled_hand = Enum.shuffle(stale_player.hand)
+      hand_changesets = shuffled_hand |> Enum.map(&Games.change_tile/1)
+
+      assert Games.update_player_hand(stale_player, hand_changesets) == {:error, :stale_player}
+    end
+
+    @tag skip: "TODO: add after plays are already implemented"
+    test "update_player_hand/2 when tiles are in already occupied positions returns {:error, :positions_already_filled}" do
     end
 
     test "delete_player/1 deletes the player" do
@@ -126,6 +140,11 @@ defmodule Scrabblex.GamesTest do
     test "change_player/1 returns a player changeset" do
       player = player_fixture()
       assert %Ecto.Changeset{} = Games.change_player(player)
+    end
+
+    test "change_tile/1 returns a tile changeset" do
+      tile = tile_fixture()
+      assert %Ecto.Changeset{} = Games.change_tile(tile)
     end
   end
 end
