@@ -67,6 +67,12 @@ defmodule ScrabblexWeb.MatchLive.Show do
      |> assign(:match, Games.get_match!(socket.assigns.match.id))}
   end
 
+  def handle_info({:updated_player, _player}, socket) do
+    {:noreply,
+     socket
+     |> assign(:match, Games.get_match!(socket.assigns.match.id))}
+  end
+
   defp page_title(:show), do: "Show Match"
   defp page_title(:edit), do: "Edit Match"
 end
