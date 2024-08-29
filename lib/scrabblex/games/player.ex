@@ -7,6 +7,8 @@ defmodule Scrabblex.Games.Player do
   schema "players" do
     field :owner, :boolean, default: false
     field :score, :integer, default: 0
+    field :lock_version, :integer, default: 1
+
     belongs_to :match, Match
     belongs_to :user, User
     embeds_many :hand, Tile
@@ -25,6 +27,13 @@ defmodule Scrabblex.Games.Player do
     player
     |> cast(attrs, [])
     |> cast_embed(:hand, required: true)
+  end
+
+  def hand_changeset(player, hand) do
+    player
+    |> cast(%{}, [])
+    |> put_embed(:hand, hand)
+    |> optimistic_lock(:lock_version)
   end
 
   def owner_changeset(player, attrs) do

@@ -1,35 +1,33 @@
 defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
   use ScrabblexWeb, :live_component
 
+  alias Scrabblex.Games
+  alias ScrabblexWeb.MatchLive.TileComponent
+
   @impl true
   def render(assigns) do
     ~H"""
-    <div>
+    <div id="game_board" phx-hook="Drag" phx-target={@myself}>
       <.header>Game Board</.header>
 
       <div class="max-w-5xl mx-auto">
         <div class="flex flex-row">
           <div class="basis-8/12 p-4">
             <div id="board_wrapper" class="grid grid-cols-15 gap-1">
-              <%= for {x, y, value} <- @board_layout do %>
+              <%= for {row, column, value} <- @board_layout do %>
                 <.live_component
                   module={ScrabblexWeb.MatchLive.BoardSlotComponent}
-                  x={x}
-                  y={y}
+                  row={row}
+                  column={column}
                   value={value}
-                  id={"slot_#{x}_#{y}"}
+                  hand={@current_player.hand}
+                  id={"slot_#{row}_#{column}"}
                 />
               <% end %>
             </div>
 
-            <div id="hand" class="flex flex-row justify-center gap-x-1 mt-5">
-              <div
-                :for={tile <- @current_player.hand}
-                class="basis-1/7 bg-yellow-200 rounded-md w-14 h-14 flex flex-col-reverse"
-              >
-                <div class="text-xl font-bold text-center basis-5/6 "><%= tile.value %></div>
-                <div class="text-xs text-right basis-1/6"><%= tile.score %></div>
-              </div>
+            <div id="hand" class="grid grid-cols-7 gap-2 dropzone min-w-full max-w-md mx-auto mt-5">
+              <TileComponent.tile :for={tile <- @parked_tiles} tile={tile} />
             </div>
 
             <div id="actions" class="mt-5 text-center">
@@ -80,10 +78,74 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
   @impl true
   def update(%{match: match, current_user: current_user}, socket) do
     current_player = Enum.find(match.players, &(&1.user_id == current_user.id))
+    parked_tiles = Enum.filter(current_player.hand, &is_nil(&1.position))
 
     {:ok,
      socket
      |> assign(:current_player, current_player)
+     |> assign(:parked_tiles, parked_tiles)
      |> assign(:match, match)}
+  end
+
+  @impl true
+  def handle_event(
+        "drop_tile",
+        %{"id" => tile_id, "boardPosition" => %{"row" => row, "column" => column}},
+        socket
+      ) do
+    current_player = socket.assigns.current_player
+
+    hand_changesets =
+      Enum.map(current_player.hand, fn tile ->
+        if tile.id == tile_id do
+          Games.change_tile(tile, %{position: %{row: row, column: column}})
+        else
+          Games.change_tile(tile)
+        end
+      end)
+
+    submit_player_update(socket, hand_changesets)
+  end
+
+  def handle_event(
+        "drop_tile",
+        %{"id" => tile_id, "handIndex" => new_index},
+        socket
+      ) do
+    current_player = socket.assigns.current_player
+
+    current_index = Enum.find_index(current_player.hand, &(&1.id == tile_id))
+    tile = Enum.find(current_player.hand, &(&1.id == tile_id))
+
+    reordered_hand =
+      current_player.hand
+      |> List.delete_at(current_index)
+      |> List.insert_at(new_index, tile)
+
+    hand_changesets =
+      Enum.map(reordered_hand, fn tile ->
+        if tile.id == tile_id do
+          Games.change_tile(tile, %{position: nil})
+        else
+          Games.change_tile(tile)
+        end
+      end)
+
+    submit_player_update(socket, hand_changesets)
+  end
+
+  defp submit_player_update(socket, hand_changesets) do
+    current_player = socket.assigns.current_player
+
+    with {:ok, player} <- Games.update_player_hand(current_player, hand_changesets) do
+      send(self(), {:updated_player, player})
+      {:noreply, socket}
+    else
+      {:error, :stale_player} ->
+        {:noreply,
+         socket
+         |> put_flash(:error, "Your data was stale. Reloading the page to fetch fresh data")
+         |> push_navigate(to: ~p"/matches/#{socket.assigns.match}")}
+    end
   end
 end

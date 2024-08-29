@@ -6,7 +6,7 @@ defmodule Scrabblex.Games do
   import Ecto.Query, warn: false
   alias Scrabblex.Repo
 
-  alias Scrabblex.Games.{BagBuilder, Match, Player}
+  alias Scrabblex.Games.{BagBuilder, Match, Player, Tile}
   alias Scrabblex.Accounts.User
 
   @doc """
@@ -175,7 +175,7 @@ defmodule Scrabblex.Games do
       ** (Ecto.NoResultsError)
 
   """
-  def get_player!(id), do: Repo.get!(Player, id)
+  def get_player!(id), do: Repo.get!(Player, id) |> Repo.preload(:user)
 
   @doc """
   Creates a player.
@@ -193,24 +193,34 @@ defmodule Scrabblex.Games do
     %Player{}
     |> Player.changeset(attrs)
     |> Repo.insert()
+    |> case do
+      {:ok, player} -> {:ok, Repo.preload(player, :user)}
+      error -> error
+    end
   end
 
   @doc """
-  Updates a player.
+  Updates a player's hand.
 
   ## Examples
 
-      iex> update_player(player, %{field: new_value})
+      iex> update_player_hand(player, hand_changesets)
       {:ok, %Player{}}
 
-      iex> update_player(player, %{field: bad_value})
+      iex> update_player_hand(player, hand_changesets)
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_player(%Player{} = player, attrs) do
+  def update_player_hand(%Player{} = player, hand) do
     player
-    |> Player.changeset(attrs)
+    |> Player.hand_changeset(hand)
     |> Repo.update()
+    |> case do
+      {:ok, updated_player} -> {:ok, Repo.preload(updated_player, :user)}
+      error -> error
+    end
+  rescue
+    Ecto.StaleEntryError -> {:error, :stale_player}
   end
 
   @doc """
@@ -240,5 +250,9 @@ defmodule Scrabblex.Games do
   """
   def change_player(%Player{} = player, attrs \\ %{}) do
     Player.changeset(player, attrs)
+  end
+
+  def change_tile(%Tile{} = tile, attrs \\ %{}) do
+    Tile.changeset(tile, attrs)
   end
 end

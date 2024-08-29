@@ -9,8 +9,14 @@ defmodule ScrabblexWeb.MatchLiveTest do
 
   @create_attrs %{dictionary: "fise2"}
 
-  defp create_match(_) do
+  # TODO: Refactor
+  defp create_match(_context) do
     match = match_fixture()
+    %{match: match}
+  end
+
+  defp create_started_match(_context) do
+    match = match_fixture(%{}, :started)
     %{match: match}
   end
 
@@ -178,6 +184,96 @@ defmodule ScrabblexWeb.MatchLiveTest do
 
       assert rendered_view =~ "Game Board"
       refute rendered_view =~ "Lobby"
+    end
+  end
+
+  describe "Show / Game Board" do
+    setup [:create_started_match, :presence_callback]
+
+    test "loading the component shows current score and my hand", %{
+      conn: conn,
+      match: %Match{players: [player1 | _] = players} = match
+    } do
+      conn = log_in_user(conn, player1.user)
+      {:ok, show_live, html} = live(conn, ~p"/matches/#{match}")
+
+      Enum.each(players, fn player ->
+        assert html =~ "#{player.user.name}"
+        assert html =~ "#{player.score}"
+      end)
+
+      element = element(show_live, "#hand")
+
+      Enum.each(player1.hand, fn tile ->
+        assert render(element) =~ tile.value
+      end)
+    end
+
+    test "after player drops a tile in the board it triggers the update", %{
+      conn: conn,
+      match: %Match{players: [player1 | _]} = match
+    } do
+      [tile | _] = player1.hand
+      conn = log_in_user(conn, player1.user)
+      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+
+      show_live
+      |> element("#game_board")
+      |> render_hook("drop_tile", %{
+        "id" => tile.id,
+        "boardPosition" => %{
+          "row" => 0,
+          "column" => 0
+        }
+      })
+
+      assert show_live
+             |> element(
+               ~s{#board_wrapper .slot[data-row="0"][data-column="0"] .tile[data-id="#{tile.id}"]}
+             )
+             |> has_element?()
+    end
+
+    test "after the player drops a tile in the hand it triggers the update", %{
+      conn: conn,
+      match: %Match{players: [player1 | _]} = match
+    } do
+      [tile | _] = player1.hand
+      conn = log_in_user(conn, player1.user)
+      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+
+      show_live
+      |> element("#game_board")
+      |> render_hook("drop_tile", %{
+        "id" => tile.id,
+        "handIndex" => 6
+      })
+
+      assert show_live
+             |> element(~s{#hand .tile:last-child[data-id="#{tile.id}"]})
+             |> has_element?()
+    end
+
+    test "after the player drops a tile anywhere with a stale session it reloads the page", %{
+      conn: conn,
+      match: %Match{players: [player | _]} = match
+    } do
+      [tile | _] = player.hand
+      conn = log_in_user(conn, player.user)
+      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+
+      # We simulate a hand update in a different session
+      shuffled_hand = Enum.shuffle(player.hand)
+      hand_changesets = Enum.map(shuffled_hand, &Games.change_tile/1)
+      Games.update_player_hand(player, hand_changesets)
+
+      assert {:error, {:live_redirect, _}} =
+               show_live
+               |> element("#game_board")
+               |> render_hook("drop_tile", %{
+                 "id" => tile.id,
+                 "handIndex" => 6
+               })
     end
   end
 end

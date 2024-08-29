@@ -1,20 +1,30 @@
 defmodule ScrabblexWeb.MatchLive.BoardSlotComponent do
   use ScrabblexWeb, :live_component
 
+  alias ScrabblexWeb.MatchLive.TileComponent
+
   @impl true
   def render(assigns) do
     ~H"""
-    <div class={[
-      "aspect-square h-auto flex items-center justify-center rounded-lg text-white font-bold",
-      @background
-    ]}>
-      <p><%= @value %></p>
+    <div
+      class={[
+        "slot aspect-square h-auto flex items-center justify-center rounded-lg relative",
+        @background,
+        "dropzone"
+      ]}
+      data-row={@row}
+      data-column={@column}
+    >
+      <div :if={@value} class="absolute text-white font-bold">
+        <%= @value %>
+      </div>
+      <TileComponent.tile :if={@tile} tile={@tile} />
     </div>
     """
   end
 
   @impl true
-  def update(%{value: value}, socket) do
+  def update(%{value: value, row: row, column: column, hand: hand}, socket) do
     background =
       case value do
         "3W" -> "bg-red-500"
@@ -25,9 +35,17 @@ defmodule ScrabblexWeb.MatchLive.BoardSlotComponent do
         _ -> "bg-gray-300"
       end
 
+    tile =
+      hand
+      |> Enum.filter(&(!is_nil(&1.position)))
+      |> Enum.find(&(&1.position.row == row && &1.position.column == column))
+
     {:ok,
      socket
      |> assign(:background, background)
-     |> assign(:value, value)}
+     |> assign(:row, row)
+     |> assign(:column, column)
+     |> assign(:value, value)
+     |> assign(:tile, tile)}
   end
 end
