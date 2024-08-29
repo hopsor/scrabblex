@@ -12,30 +12,26 @@ export default {
         draggable: ".draggable",
         ghostClass: "sortable-ghost",
         group: "shared",
-        onStart: function (evt) {
-          console.log("dragstart");
-        },
         onEnd: function (evt) {
-          const payload = {
-            id: evt.item.dataset.id,
-            from: {
-              area: evt.from.id,
-              x: parseInt(evt.from.dataset.xCoord),
-              y: parseInt(evt.from.dataset.yCoord),
-            },
-            to: {
-              area: evt.to.id,
-              x: parseInt(evt.to.dataset.xCoord),
-              y: parseInt(evt.to.dataset.yCoord),
-            },
-          };
-
-          hook.pushEventTo("game_board", "drop_tile", payload);
+          if (evt.to.id == "hand") {
+            hook.pushEventTo("#game_board", "drop_tile", {
+              id: evt.item.dataset.id,
+              handIndex: evt.newIndex,
+            });
+          } else {
+            hook.pushEventTo("#game_board", "drop_tile", {
+              id: evt.item.dataset.id,
+              boardPosition: {
+                row: parseInt(evt.to.dataset.row),
+                column: parseInt(evt.to.dataset.column),
+              },
+            });
+          }
         },
         onMove: function (evt) {
           if (
             evt.to.classList.contains("slot") &&
-            evt.to.childElementCount > 0
+            evt.to.querySelector(".tile")
           ) {
             return false;
           }
