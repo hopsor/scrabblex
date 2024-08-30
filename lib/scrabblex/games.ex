@@ -6,7 +6,7 @@ defmodule Scrabblex.Games do
   import Ecto.Query, warn: false
   alias Scrabblex.Repo
 
-  alias Scrabblex.Games.{BagBuilder, Match, Player, Tile}
+  alias Scrabblex.Games.{BagBuilder, Lexicon, Match, Player, Tile}
   alias Scrabblex.Accounts.User
 
   @doc """
@@ -16,22 +16,7 @@ defmodule Scrabblex.Games do
     query = from m in Match, join: p in Player, on: m.id == p.match_id and p.user_id == ^user_id
 
     Repo.all(query)
-    |> Repo.preload(players: [:user])
-  end
-
-  @doc """
-  Returns the list of matches.
-
-  ## Examples
-
-      iex> list_matches()
-      [%Match{}, ...]
-
-  """
-  def list_matches do
-    Match
-    |> Repo.all()
-    |> Repo.preload(players: [:user])
+    |> Repo.preload([:lexicon, players: [:user]])
   end
 
   @doc """
@@ -48,7 +33,7 @@ defmodule Scrabblex.Games do
       ** (Ecto.NoResultsError)
 
   """
-  def get_match!(id), do: Repo.get!(Match, id) |> Repo.preload(players: [:user])
+  def get_match!(id), do: Repo.get!(Match, id) |> Repo.preload([:lexicon, players: [:user]])
 
   @doc """
   Creates a match.
@@ -69,7 +54,7 @@ defmodule Scrabblex.Games do
       |> Repo.insert()
 
     case result do
-      {:ok, match} -> {:ok, Repo.preload(match, players: [:user])}
+      {:ok, match} -> {:ok, Repo.preload(match, [:lexicon, players: [:user]])}
       error -> error
     end
   end
@@ -119,7 +104,7 @@ defmodule Scrabblex.Games do
       {:ok, %Match{}}
   """
   def start_match(%Match{status: "created"} = match) do
-    with {:ok, initial_bag} <- BagBuilder.build(match.dictionary),
+    with {:ok, initial_bag} <- BagBuilder.build(match.lexicon.name),
          {:ok, hands, remaining_bag} <- BagBuilder.init_hands(initial_bag, match.players) do
       players_changeset =
         hands
@@ -138,7 +123,7 @@ defmodule Scrabblex.Games do
       changeset
       |> Repo.update()
       |> case do
-        {:ok, match} -> {:ok, Repo.preload(match, players: :user)}
+        {:ok, match} -> {:ok, Repo.preload(match, [:lexicon, players: [:user]])}
         error -> error
       end
     end
@@ -252,7 +237,30 @@ defmodule Scrabblex.Games do
     Player.changeset(player, attrs)
   end
 
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking tile changes.
+
+  ## Examples
+
+      iex> change_tile(tile)
+      %Ecto.Changeset{data: %Tile{}}
+
+  """
   def change_tile(%Tile{} = tile, attrs \\ %{}) do
     Tile.changeset(tile, attrs)
+  end
+
+  @doc """
+  Returns the list of lexicons.
+
+  ## Examples
+
+      iex> list_lexicons()
+      [%Lexicon{}, ...]
+
+  """
+  def list_lexicons() do
+    Lexicon
+    |> Repo.all()
   end
 end
