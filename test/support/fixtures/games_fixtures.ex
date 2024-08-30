@@ -4,8 +4,9 @@ defmodule Scrabblex.GamesFixtures do
   entities via the `Scrabblex.Games` context.
   """
 
+  alias Scrabblex.Repo
   alias Scrabblex.Games
-  alias Scrabblex.Games.Tile
+  alias Scrabblex.Games.{Lexicon, Tile}
 
   @doc """
   Generate a match.
@@ -20,11 +21,10 @@ defmodule Scrabblex.GamesFixtures do
     owner = Scrabblex.AccountsFixtures.user_fixture()
 
     {:ok, match} =
-      attrs
-      |> Enum.into(%{
-        dictionary: "fise2",
+      %{
+        lexicon_id: attrs[:lexicon_id] || lexicon_fixture() |> Map.get(:id),
         players: [%{user_id: owner.id, owner: true}]
-      })
+      }
       |> Games.create_match()
 
     match
@@ -55,5 +55,19 @@ defmodule Scrabblex.GamesFixtures do
       wildcard: attrs[:wildcard] || false,
       position: attrs[:position] || nil
     }
+  end
+
+  @doc """
+  Generate a lexicon
+  """
+  def lexicon_fixture(attrs \\ %{}) do
+    {:ok, lexicon} =
+      %Lexicon{}
+      |> Scrabblex.Games.Lexicon.changeset(
+        Enum.into(attrs, %{name: "FISE-2", language: "es", flag: "🇪🇦"})
+      )
+      |> Repo.insert()
+
+    lexicon
   end
 end
