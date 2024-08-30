@@ -36,7 +36,7 @@ defmodule Scrabblex.Games.PlayValidatorTest do
         ]
       }
 
-      match = %Match{turn: 0, players: [player]}
+      match = %Match{turn: 1, players: [player]}
 
       assert PlayValidator.validate(match, player) == {:error, :tiles_not_aligned}
     end
