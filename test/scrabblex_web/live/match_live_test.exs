@@ -273,5 +273,41 @@ defmodule ScrabblexWeb.MatchLiveTest do
                  "handIndex" => 6
                })
     end
+
+    # TODO: Improve. The tiles in the hand are all already on the deck. Change the test so that before
+    #       clicking the button some tiles are placed in the board.
+    test "after the player clicks on the recover button all tiles on the board are brought back to the deck",
+         %{conn: conn, match: %Match{players: [player | _]} = match} do
+      conn = log_in_user(conn, player.user)
+      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+
+      show_live
+      |> element("#btn_recover")
+      |> render_click()
+
+      Enum.map(player.hand, fn tile ->
+        assert show_live
+               |> element(~s{#hand .tile[data-id="#{tile.id}"]})
+               |> has_element?()
+      end)
+    end
+
+    # TODO: Improve. Figure out a way to mock the inner `Enum.shuffle` of the event handler so that we
+    #       can compare that the shuffling action is reflected in the rendered html
+    test "after the player clicks on the shuffle button tiles on the deck are randomly rearranged",
+         %{conn: conn, match: %Match{players: [player | _]} = match} do
+      conn = log_in_user(conn, player.user)
+      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+
+      show_live
+      |> element("#btn_shuffle")
+      |> render_click()
+
+      Enum.map(player.hand, fn tile ->
+        assert show_live
+               |> element(~s{#hand .tile[data-id="#{tile.id}"]})
+               |> has_element?()
+      end)
+    end
   end
 end
