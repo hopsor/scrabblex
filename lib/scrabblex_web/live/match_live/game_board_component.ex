@@ -34,6 +34,12 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
               <.button>
                 <.icon name="hero-check-circle" /> Submit word
               </.button>
+              <.button id="btn_shuffle" phx-click="shuffle" phx-target={@myself}>
+                <.icon name="hero-arrows-right-left" /> Shuffle tiles
+              </.button>
+              <.button id="btn_recover" phx-click="recover" phx-target={@myself}>
+                <.icon name="hero-inbox-arrow-down" /> Recover
+              </.button>
             </div>
           </div>
           <div class="basis-4/12">
@@ -130,6 +136,27 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
           Games.change_tile(tile)
         end
       end)
+
+    submit_player_update(socket, hand_changesets)
+  end
+
+  def handle_event("shuffle", _params, socket) do
+    hand = socket.assigns.current_player.hand
+
+    hand_changesets =
+      hand
+      |> Enum.shuffle()
+      |> Enum.map(&Games.change_tile/1)
+
+    submit_player_update(socket, hand_changesets)
+  end
+
+  def handle_event("recover", _params, socket) do
+    hand = socket.assigns.current_player.hand
+
+    hand_changesets =
+      hand
+      |> Enum.map(&Games.change_tile(&1, %{position: nil}))
 
     submit_player_update(socket, hand_changesets)
   end
