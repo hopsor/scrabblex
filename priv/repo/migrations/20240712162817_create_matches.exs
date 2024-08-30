@@ -3,9 +3,9 @@ defmodule Scrabblex.Repo.Migrations.CreateMatches do
 
   def change do
     create table(:matches) do
-      add :dictionary, :string
       add :status, :string
       add :bag, :map
+      add :lexicon_id, references(:lexicons, on_delete: :nothing), null: false
 
       timestamps(type: :utc_datetime)
     end
