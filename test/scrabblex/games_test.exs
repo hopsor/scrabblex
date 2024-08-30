@@ -4,24 +4,30 @@ defmodule Scrabblex.GamesTest do
   alias Scrabblex.Accounts.User
   alias Scrabblex.Games
 
+  describe "lexicons" do
+    alias Scrabblex.Games.{Lexicon}
+
+    import Scrabblex.GamesFixtures
+
+    test "list_lexicons/0 returns all lexicons" do
+      lexicon = lexicon_fixture()
+      assert Games.list_lexicons() == [lexicon]
+    end
+  end
+
   describe "matches" do
-    alias Scrabblex.Games.{Match, Player}
+    alias Scrabblex.Games.{Lexicon, Match, Player}
 
     import Scrabblex.{AccountsFixtures, GamesFixtures}
 
-    @invalid_attrs %{dictionary: nil}
+    @invalid_attrs %{lexicon_id: nil}
 
     test "list_matches/1 returns all matches scoped by user" do
       match1 = match_fixture()
-      _match2 = match_fixture()
+      _match2 = match_fixture(lexicon_id: match1.lexicon_id)
 
       owner_player = Match.owner(match1)
       assert Games.list_matches(owner_player.user) == [match1]
-    end
-
-    test "list_matches/0 returns all matches" do
-      match = match_fixture()
-      assert Games.list_matches() == [match]
     end
 
     test "get_match!/1 returns the match with given id" do
@@ -31,10 +37,11 @@ defmodule Scrabblex.GamesTest do
 
     test "create_match/1 with valid data creates a match" do
       %User{id: owner_id} = user_fixture()
-      valid_attrs = %{dictionary: "fise2", players: [%{user_id: owner_id, owner: true}]}
+      %Lexicon{id: lexicon_id} = lexicon_fixture()
+      valid_attrs = %{lexicon_id: lexicon_id, players: [%{user_id: owner_id, owner: true}]}
 
       assert {:ok, %Match{} = match} = Games.create_match(valid_attrs)
-      assert match.dictionary == "fise2"
+      assert match.lexicon_id == lexicon_id
       assert match.status == "created"
       assert [%Player{user_id: ^owner_id}] = match.players
     end

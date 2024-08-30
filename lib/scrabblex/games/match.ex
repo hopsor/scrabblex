@@ -12,14 +12,12 @@ defmodule Scrabblex.Games.Match do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias Scrabblex.Games.Tile
-
-  @valid_dictionaries ~w(fise2)
+  alias Scrabblex.Games.{Lexicon, Tile}
 
   schema "matches" do
-    field :dictionary, :string
     field :status, :string
     embeds_many :bag, Tile
+    belongs_to :lexicon, Lexicon
     has_many :players, Scrabblex.Games.Player
 
     timestamps(type: :utc_datetime)
@@ -28,17 +26,16 @@ defmodule Scrabblex.Games.Match do
   @doc false
   def changeset(match, attrs) do
     match
-    |> cast(attrs, [:dictionary, :status])
-    |> validate_required([:dictionary, :status])
+    |> cast(attrs, [:lexicon_id, :status])
+    |> validate_required([:lexicon_id, :status])
   end
 
   def create_changeset(match, attrs) do
     match
-    |> cast(attrs, [:dictionary])
+    |> cast(attrs, [:lexicon_id])
     |> cast_assoc(:players, with: &Scrabblex.Games.Player.owner_changeset/2)
     |> put_change(:status, "created")
-    |> validate_required(:dictionary)
-    |> validate_inclusion(:dictionary, @valid_dictionaries)
+    |> validate_required(:lexicon_id)
     |> validate_length(:players, is: 1)
   end
 
@@ -49,8 +46,6 @@ defmodule Scrabblex.Games.Match do
     |> put_assoc(:players, attrs[:players])
     |> put_change(:status, "started")
   end
-
-  def valid_dictionaries, do: @valid_dictionaries
 
   def owner(%__MODULE__{players: players}), do: Enum.find(players, &(&1.owner == true))
 end

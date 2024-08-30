@@ -7,8 +7,6 @@ defmodule ScrabblexWeb.MatchLiveTest do
   alias Scrabblex.Games
   alias Scrabblex.Games.Match
 
-  @create_attrs %{dictionary: "fise2"}
-
   # TODO: Refactor
   defp create_match(_context) do
     match = match_fixture()
@@ -43,7 +41,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
       assert html =~ "Listing Matches"
     end
 
-    test "saves new match", %{conn: conn} do
+    test "saves new match", %{conn: conn, match: match} do
       user = user_fixture()
       conn = log_in_user(conn, user)
       {:ok, index_live, _html} = live(conn, ~p"/matches")
@@ -55,7 +53,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
 
       assert {:ok, _view, html} =
                index_live
-               |> form("#match-form", match: @create_attrs)
+               |> form("#match-form", match: %{lexicon_id: match.lexicon_id})
                |> render_submit()
                |> follow_redirect(conn)
 

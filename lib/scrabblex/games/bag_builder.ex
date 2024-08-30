@@ -1,7 +1,7 @@
 defmodule Scrabblex.Games.BagBuilder do
-  def build(dictionary) do
+  def build(lexicon_name) do
     bag =
-      dictionary
+      lexicon_name
       |> distribution()
       |> Enum.flat_map(fn {letter, %{available: available, score: score}} ->
         %{
@@ -26,7 +26,7 @@ defmodule Scrabblex.Games.BagBuilder do
     {:ok, initial_hands, remaining_bag}
   end
 
-  defp distribution("fise2") do
+  defp distribution("FISE-2") do
     %{
       "A" => %{score: 1, available: 12},
       "E" => %{score: 1, available: 12},

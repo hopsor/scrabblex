@@ -19,18 +19,23 @@ defmodule ScrabblexWeb.MatchLive.FormComponent do
         phx-change="validate"
         phx-submit="save"
       >
-        <.input
-          field={@form[:dictionary]}
-          type="select"
-          label="Dictionary"
-          options={Scrabblex.Games.Match.valid_dictionaries()}
-        />
+        <.input field={@form[:lexicon_id]} type="select" label="Lexicon" options={@lexicon_options} />
         <:actions>
           <.button phx-disable-with="Saving...">Save Match</.button>
         </:actions>
       </.simple_form>
     </div>
     """
+  end
+
+  @impl true
+  def mount(socket) do
+    lexicon_options =
+      Scrabblex.Games.list_lexicons()
+      |> Enum.map(&{"#{&1.name} (#{&1.flag})", &1.id})
+      |> Enum.into(%{})
+
+    {:ok, assign(socket, :lexicon_options, lexicon_options)}
   end
 
   @impl true
