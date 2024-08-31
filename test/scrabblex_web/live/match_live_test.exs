@@ -309,5 +309,25 @@ defmodule ScrabblexWeb.MatchLiveTest do
                |> has_element?()
       end)
     end
+
+    test "when loading the board and it's my turn I see the submit button", %{
+      conn: conn,
+      match: %Match{players: [player | _]} = match
+    } do
+      conn = log_in_user(conn, player.user)
+      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+
+      assert show_live |> element("#btn_submit_play") |> has_element?()
+    end
+
+    test "when loading the board and it isn't my turn I don't see the submit button", %{
+      conn: conn,
+      match: %Match{players: [_, player]} = match
+    } do
+      conn = log_in_user(conn, player.user)
+      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+
+      refute show_live |> element("#btn_submit_play") |> has_element?()
+    end
   end
 end
