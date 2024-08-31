@@ -6,14 +6,18 @@ defmodule Scrabblex.GamesFixtures do
 
   alias Scrabblex.Repo
   alias Scrabblex.Games
-  alias Scrabblex.Games.{Lexicon, Tile}
+  alias Scrabblex.Games.{Match, Lexicon, Tile}
 
   @doc """
   Generate a match.
   """
   def match_fixture(attrs, :started) do
     match = match_fixture(attrs)
-    {:ok, started_match} = Games.start_match(match)
+    new_player = player_fixture(%{match_id: match.id})
+
+    {:ok, started_match} =
+      Games.start_match(%Match{match | players: match.players ++ [new_player]})
+
     started_match
   end
 
