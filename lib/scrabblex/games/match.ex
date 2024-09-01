@@ -12,13 +12,15 @@ defmodule Scrabblex.Games.Match do
 
   use Ecto.Schema
   import Ecto.Changeset
-  alias Scrabblex.Games.{Lexicon, Tile}
+  alias Scrabblex.Games.{Lexicon, Play, Player, Tile}
 
   schema "matches" do
     field :status, :string
+    field :turn, :integer
     embeds_many :bag, Tile
     belongs_to :lexicon, Lexicon
-    has_many :players, Scrabblex.Games.Player
+    has_many :players, Player
+    has_many :plays, Play
 
     timestamps(type: :utc_datetime)
   end
@@ -35,6 +37,7 @@ defmodule Scrabblex.Games.Match do
     |> cast(attrs, [:lexicon_id])
     |> cast_assoc(:players, with: &Scrabblex.Games.Player.owner_changeset/2)
     |> put_change(:status, "created")
+    |> put_change(:turn, 0)
     |> validate_required(:lexicon_id)
     |> validate_length(:players, is: 1)
   end

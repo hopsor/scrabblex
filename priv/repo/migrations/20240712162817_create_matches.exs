@@ -6,6 +6,7 @@ defmodule Scrabblex.Repo.Migrations.CreateMatches do
       add :status, :string
       add :bag, :map
       add :lexicon_id, references(:lexicons, on_delete: :nothing), null: false
+      add :turn, :integer, default: 0
 
       timestamps(type: :utc_datetime)
     end

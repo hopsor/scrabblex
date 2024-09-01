@@ -31,7 +31,12 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
             </div>
 
             <div id="actions" class="mt-5 text-center">
-              <.button>
+              <.button
+                :if={@can_submit}
+                id="btn_submit_play"
+                phx-click="submit_play"
+                phx-target={@myself}
+              >
                 <.icon name="hero-check-circle" /> Submit word
               </.button>
               <.button id="btn_shuffle" phx-click="shuffle" phx-target={@myself}>
@@ -83,14 +88,23 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
 
   @impl true
   def update(%{match: match, current_user: current_user}, socket) do
-    current_player = Enum.find(match.players, &(&1.user_id == current_user.id))
+    {current_player, current_player_index} =
+      match.players
+      |> Enum.with_index()
+      |> Enum.find(fn {player, _index} ->
+        player.user_id == current_user.id
+      end)
+
     parked_tiles = Enum.filter(current_player.hand, &is_nil(&1.position))
+
+    can_submit = rem(match.turn, length(match.players)) == current_player_index
 
     {:ok,
      socket
      |> assign(:current_player, current_player)
      |> assign(:parked_tiles, parked_tiles)
-     |> assign(:match, match)}
+     |> assign(:match, match)
+     |> assign(:can_submit, can_submit)}
   end
 
   @impl true
@@ -159,6 +173,10 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
       |> Enum.map(&Games.change_tile(&1, %{position: nil}))
 
     submit_player_update(socket, hand_changesets)
+  end
+
+  def handle_event("submit_play", _, socket) do
+    {:noreply, socket}
   end
 
   defp submit_player_update(socket, hand_changesets) do

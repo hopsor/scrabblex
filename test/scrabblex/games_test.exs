@@ -43,6 +43,7 @@ defmodule Scrabblex.GamesTest do
       assert {:ok, %Match{} = match} = Games.create_match(valid_attrs)
       assert match.lexicon_id == lexicon_id
       assert match.status == "created"
+      assert match.turn == 0
       assert [%Player{user_id: ^owner_id}] = match.players
     end
 
