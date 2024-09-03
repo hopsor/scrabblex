@@ -43,7 +43,7 @@ defmodule Scrabblex.Games.WordScanner do
   def scan(
         existing_tiles,
         new_tiles,
-        :horizontal
+        _alignment
       ) do
     layout =
       Scrabblex.Games.BoardLayout.get()
