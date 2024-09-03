@@ -6,7 +6,14 @@ defmodule Scrabblex.Games do
   import Ecto.Query, warn: false
   alias Scrabblex.Repo
 
-  alias Scrabblex.Games.{BagBuilder, Lexicon, Match, Player, Tile}
+  alias Scrabblex.Games.{
+    Bag,
+    Lexicon,
+    Match,
+    Player,
+    Tile
+  }
+
   alias Scrabblex.Accounts.User
 
   @doc """
@@ -104,8 +111,8 @@ defmodule Scrabblex.Games do
       {:ok, %Match{}}
   """
   def start_match(%Match{status: "created"} = match) do
-    with {:ok, initial_bag} <- BagBuilder.build(match.lexicon.name),
-         {:ok, hands, remaining_bag} <- BagBuilder.init_hands(initial_bag, match.players) do
+    with {:ok, initial_bag} <- Bag.new(match.lexicon.name),
+         {:ok, hands, remaining_bag} <- Bag.init_hands(initial_bag, match.players) do
       players_changeset =
         hands
         |> Enum.with_index()
