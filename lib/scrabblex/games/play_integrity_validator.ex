@@ -1,14 +1,24 @@
 defmodule Scrabblex.Games.PlayIntegrityValidator do
   @moduledoc """
-  PlayIntegrityValidator module takes a Match and one of its Player and validates that the tiles provided for
-  the next play meet the conditions.
+  PlayIntegrityValidator module takes a Maptrix representing the tiles already committed to the board and
+  also a list with the tiles the player is about to commit.
 
-  The validations performed here are only related to the positions occupied by the tiles. There will
-  be a different module in charge of scanning the words composed by the tiles in play in a further step.
+  The validations performed here will only be about checking that the player tiles are properly positioned
+  following the contiguity rules that are expected in a Scrabble game. The validation function also checks
+  that the proposed tiles cross the center when the board is empty.
   """
   alias Scrabblex.Games.Tile
   alias Scrabblex.Games.Position
 
+  @doc """
+  Returns `{:ok, alignment}` when the tiles provided by the player are valid.
+
+  Otherwise it'll return one of the following errors:
+
+  - `{:error, :empty_play}`: When the player tile list is empty.
+  - `{:error, :center_not_found}`: When the board is empty and players tiles don't cross the center
+  - `{:error, :contiguity_error}`: When the board and the player tiles aren't contiguous.
+  """
   def validate(_, []), do: {:error, :empty_play}
 
   def validate(played_tiles_matrix, playing_tiles) do
