@@ -6,7 +6,7 @@ defmodule Scrabblex.GamesFixtures do
 
   alias Scrabblex.Repo
   alias Scrabblex.Games
-  alias Scrabblex.Games.{Match, Lexicon, Tile}
+  alias Scrabblex.Games.{Match, Lexicon, LexiconEntry, Tile}
 
   @doc """
   Generate a match.
@@ -73,5 +73,12 @@ defmodule Scrabblex.GamesFixtures do
       |> Repo.insert()
 
     lexicon
+  end
+
+  def lexicon_entry_fixture(attrs \\ %{}) do
+    {:ok, lexicon_entry} =
+      %LexiconEntry{} |> LexiconEntry.changeset(Enum.into(attrs, %{})) |> Repo.insert()
+
+    lexicon_entry
   end
 end
