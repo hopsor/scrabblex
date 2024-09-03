@@ -68,6 +68,61 @@ defmodule Scrabblex.Games.WordScannerTest do
   end
 
   describe "scan/3 when the board has tiles" do
+    test "returns one or more words when the player is providing just one" do
+      existing_tiles =
+        %Match{
+          plays: [
+            %Play{
+              tiles: [
+                %Tile{score: 1, value: "F", position: %Position{row: 7, column: 6}},
+                %Tile{score: 1, value: "O", position: %Position{row: 7, column: 7}},
+                %Tile{score: 1, value: "O", position: %Position{row: 7, column: 8}}
+              ],
+              type: "play"
+            },
+            %Play{
+              tiles: [
+                %Tile{score: 1, value: "O", position: %Position{row: 8, column: 6}},
+                %Tile{score: 1, value: "O", position: %Position{row: 9, column: 6}}
+              ],
+              type: "play"
+            }
+          ]
+        }
+        |> Maptrix.from_match()
+
+      new_tiles =
+        %Player{
+          hand: [
+            %Tile{score: 1, value: "R", position: %Position{row: 8, column: 7}}
+          ]
+        }
+        |> Maptrix.from_player()
+
+      alignment = :single
+
+      assert WordScanner.scan(existing_tiles, new_tiles, alignment) ==
+               {:ok,
+                [
+                  %Word{
+                    value: "OR",
+                    score: 2,
+                    positions: [
+                      %Position{row: 8, column: 6},
+                      %Position{row: 8, column: 7}
+                    ]
+                  },
+                  %Word{
+                    value: "OR",
+                    score: 2,
+                    positions: [
+                      %Position{row: 7, column: 7},
+                      %Position{row: 8, column: 7}
+                    ]
+                  }
+                ]}
+    end
+
     test "returns one word when appending tiles to an existing word exclusively extending its length" do
       existing_tiles =
         %Match{
