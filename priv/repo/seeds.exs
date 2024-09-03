@@ -22,7 +22,9 @@ fise_changeset = Lexicon.changeset(%Lexicon{}, %{name: "FISE-2", language: "es",
 |> File.stream!()
 |> Stream.chunk_every(500)
 |> Stream.each(fn chunk ->
-  batch = Enum.map(chunk, &[name: String.trim(&1), lexicon_id: fise_lexicon.id])
+  batch =
+    Enum.map(chunk, &[name: String.trim(&1) |> String.upcase(), lexicon_id: fise_lexicon.id])
+
   Scrabblex.Repo.insert_all(LexiconEntry, batch)
 end)
 |> Enum.map(fn _ -> :ok end)
