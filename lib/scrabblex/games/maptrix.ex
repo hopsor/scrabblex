@@ -4,12 +4,14 @@ defmodule Scrabblex.Games.Maptrix do
 
   In essence it takes different structures containing tiles or other things like the layout and returns a map.
 
-  The map keys are the coordinates {row, column} of each element we are interested in.
+  The map keys are the coordinates {row, column} of each element we are interested in. This is a super
+  convenient way to work with matrixes as the different modules are constantly looking at what's in each
+  coordinate so we need a quick and easy way to do so.
   """
   alias Scrabblex.Games.{Match, Player, Play}
 
   @doc """
-
+  Returns a map with all the tiles belonging to the plays already committed
   """
   def from_match(%Match{plays: plays}) do
     plays
@@ -23,7 +25,7 @@ defmodule Scrabblex.Games.Maptrix do
   end
 
   @doc """
-
+  Returns a map with as many entries as tiles with positions has the player
   """
   def from_player(%Player{} = player) do
     player
@@ -33,6 +35,9 @@ defmodule Scrabblex.Games.Maptrix do
     end)
   end
 
+  @doc """
+  Returns a map with as many entries as boosters has the layout
+  """
   def from_board_layout(board_layout) do
     board_layout
     |> Enum.reject(fn {_, _, value} ->
