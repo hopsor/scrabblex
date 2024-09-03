@@ -42,4 +42,6 @@ defmodule Scrabblex.Games.Player do
     |> put_change(:owner, true)
     |> validate_required([:user_id])
   end
+
+  def playing_tiles(%__MODULE__{hand: tiles}), do: Enum.filter(tiles, &(!is_nil(&1.position)))
 end

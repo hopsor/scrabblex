@@ -1,32 +1,35 @@
-defmodule Scrabblex.Games.PlayValidator do
+defmodule Scrabblex.Games.PlayIntegrityValidator do
   @moduledoc """
-  PlayValidator module takes a Match and one of its Player and validates that the tiles provided for
-  the next play meet the conditions.
+  PlayIntegrityValidator module takes a Maptrix representing the tiles already committed to the board and
+  also a list with the tiles the player is about to commit.
 
-  The validations performed here are only related to the positions occupied by the tiles. There will
-  be a different module in charge of scanning the words composed by the tiles in play in a further step.
+  The validations performed here will only be about checking that the player tiles are properly positioned
+  following the contiguity rules that are expected in a Scrabble game. The validation function also checks
+  that the proposed tiles cross the center when the board is empty.
   """
-  alias Scrabblex.Games.{Match, Play, Player, Tile}
-  alias Scrabblex.Games.Tile.Position
+  alias Scrabblex.Games.Tile
+  alias Scrabblex.Games.Position
 
-  def validate(%Match{} = match, %Player{} = player) do
-    with {:ok, playing_tiles} <- get_playing_tiles(player),
-         {:ok, maptrix} <- build_maptrix(match),
-         :ok <- valid_center?(maptrix, playing_tiles),
+  @doc """
+  Returns `{:ok, alignment}` when the tiles provided by the player are valid.
+
+  Otherwise it'll return one of the following errors:
+
+  - `{:error, :empty_play}`: When the player tile list is empty.
+  - `{:error, :center_not_found}`: When the board is empty and players tiles don't cross the center
+  - `{:error, :contiguity_error}`: When the board and the player tiles aren't contiguous.
+  """
+  def validate(_, []), do: {:error, :empty_play}
+
+  def validate(played_tiles_matrix, playing_tiles) do
+    with :ok <- valid_center?(played_tiles_matrix, playing_tiles),
          {:ok, alignment} <- check_alignment(playing_tiles),
-         :ok <- valid_contiguity?(maptrix, playing_tiles, alignment) do
-      :ok
+         :ok <- valid_contiguity?(played_tiles_matrix, playing_tiles, alignment) do
+      {:ok, alignment}
     end
   end
 
-  defp get_playing_tiles(%Player{hand: tiles}) do
-    case Enum.filter(tiles, &(!is_nil(&1.position))) do
-      [] -> {:error, :empty_play}
-      playing_tiles -> {:ok, playing_tiles}
-    end
-  end
-
-  defp valid_center?(maptrix, tiles) when map_size(maptrix) == 0 do
+  defp valid_center?(played_tiles_matrix, tiles) when map_size(played_tiles_matrix) == 0 do
     if Enum.any?(tiles, &(&1.position.row == 7 && &1.position.column == 7)) do
       :ok
     else
@@ -37,7 +40,7 @@ defmodule Scrabblex.Games.PlayValidator do
   defp valid_center?(_, _tiles), do: :ok
 
   defp valid_contiguity?(
-         maptrix,
+         played_tiles_matrix,
          [%Tile{position: %Position{row: fixable_row, column: fixable_column}} | _] = tiles,
          alignment
        ) do
@@ -51,18 +54,18 @@ defmodule Scrabblex.Games.PlayValidator do
     gaps = find_gaps(moving_coord_sorted_indexes)
 
     contiguity =
-      case {gaps, maptrix} do
-        {[], maptrix} when map_size(maptrix) == 0 ->
+      case {gaps, played_tiles_matrix} do
+        {[], played_tiles_matrix} when map_size(played_tiles_matrix) == 0 ->
           true
 
-        {[], maptrix} ->
+        {[], played_tiles_matrix} ->
           # Contiguity is confirmed by checking that at least one tile is adjacent with tiles from previous plays
           Enum.any?(tiles, fn %Tile{position: %Position{row: x, column: y}} ->
             [{x + 1, y}, {x - 1, y}, {x, y + 1}, {x, y - 1}]
-            |> Enum.any?(&Map.has_key?(maptrix, &1))
+            |> Enum.any?(&Map.has_key?(played_tiles_matrix, &1))
           end)
 
-        {gaps, maptrix} ->
+        {gaps, played_tiles_matrix} ->
           # Contiguity is confirmed checking that ALL the gaps contain tiles from previous plays
           gaps
           |> Enum.map(fn gap_index ->
@@ -72,7 +75,7 @@ defmodule Scrabblex.Games.PlayValidator do
               {fixable_row, gap_index}
             end
           end)
-          |> Enum.all?(&Map.has_key?(maptrix, &1))
+          |> Enum.all?(&Map.has_key?(played_tiles_matrix, &1))
       end
 
     if contiguity == true, do: :ok, else: {:error, :contiguity_error}
@@ -96,19 +99,5 @@ defmodule Scrabblex.Games.PlayValidator do
       true ->
         {:error, :contiguity_error}
     end
-  end
-
-  defp build_maptrix(%Match{plays: plays}) do
-    maptrix =
-      plays
-      |> Enum.filter(&(&1.type == "play"))
-      |> Enum.flat_map(fn %Play{tiles: tiles} ->
-        Enum.map(tiles, fn tile ->
-          {{tile.position.row, tile.position.column}, tile}
-        end)
-      end)
-      |> Enum.into(%{})
-
-    {:ok, maptrix}
   end
 end

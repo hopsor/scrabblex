@@ -1,7 +1,8 @@
 defmodule Scrabblex.Games.Play do
   use Ecto.Schema
   import Ecto.Changeset
-  alias Scrabblex.Games.{Match, Player, Tile}
+
+  alias Scrabblex.Games.{Match, Player, Position, Tile}
 
   @valid_types ~w(play skip exchange)
 
@@ -17,6 +18,7 @@ defmodule Scrabblex.Games.Play do
     embeds_many :words, Word do
       field :value, :string
       field :score, :integer
+      embeds_many :positions, Position
     end
 
     timestamps(type: :utc_datetime)
@@ -35,6 +37,7 @@ defmodule Scrabblex.Games.Play do
   defp word_changeset(schema, params) do
     schema
     |> cast(params, [:value, :score])
+    |> cast_embed(:positions)
     |> validate_required([:value, :score])
   end
 end
