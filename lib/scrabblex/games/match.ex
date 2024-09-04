@@ -17,7 +17,7 @@ defmodule Scrabblex.Games.Match do
   schema "matches" do
     field :status, :string
     field :turn, :integer
-    embeds_many :bag, Tile
+    embeds_many :bag, Tile, on_replace: :delete
     belongs_to :lexicon, Lexicon
     has_many :players, Player
     has_many :plays, Play
@@ -48,6 +48,13 @@ defmodule Scrabblex.Games.Match do
     |> cast_embed(:bag, required: true)
     |> put_assoc(:players, attrs[:players])
     |> put_change(:status, "started")
+  end
+
+  def turn_changeset(match, attrs) do
+    match
+    |> cast(attrs, [:turn, :status])
+    |> put_embed(:bag, attrs[:bag])
+    |> validate_required([:turn])
   end
 
   def owner(%__MODULE__{players: players}), do: Enum.find(players, &(&1.owner == true))

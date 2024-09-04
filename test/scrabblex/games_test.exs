@@ -24,10 +24,11 @@ defmodule Scrabblex.GamesTest do
 
     test "list_matches/1 returns all matches scoped by user" do
       match1 = match_fixture()
+      match1_id = match1.id
       _match2 = match_fixture(lexicon_id: match1.lexicon_id)
 
       owner_player = Match.owner(match1)
-      assert Games.list_matches(owner_player.user) == [match1]
+      assert [%Match{id: ^match1_id}] = Games.list_matches(owner_player.user)
     end
 
     test "get_match!/1 returns the match with given id" do
@@ -153,6 +154,187 @@ defmodule Scrabblex.GamesTest do
     test "change_tile/1 returns a tile changeset" do
       tile = tile_fixture()
       assert %Ecto.Changeset{} = Games.change_tile(tile)
+    end
+  end
+
+  describe "plays with valid requirements" do
+    alias Scrabblex.Games.{Match, Tile, Play, Player, Position, Word}
+    import Scrabblex.GamesFixtures
+
+    setup :setup_valid_requirements
+
+    test "create_play/2 with valid requirements returns the new play", %{
+      match: match,
+      player: player
+    } do
+      turn = match.turn
+
+      assert {:ok,
+              %{
+                play: %Play{
+                  score: 3,
+                  turn: ^turn,
+                  type: "play",
+                  tiles: [
+                    %{value: "F", score: 1, position: %Position{row: 7, column: 6}},
+                    %{value: "O", score: 1, position: %Position{row: 7, column: 7}},
+                    %{value: "O", score: 1, position: %Position{row: 7, column: 8}}
+                  ],
+                  words: [
+                    %Word{
+                      value: "FOO",
+                      score: 3,
+                      positions: [
+                        %Position{row: 7, column: 6},
+                        %Position{row: 7, column: 7},
+                        %Position{row: 7, column: 8}
+                      ]
+                    }
+                  ]
+                }
+              }} = Games.create_play(match, player)
+    end
+
+    test "create_play/2 with valid requirements updates the player score", %{
+      match: match,
+      player: player
+    } do
+      assert {:ok,
+              %{
+                player: %Player{score: 3}
+              }} = Games.create_play(match, player)
+    end
+
+    test "create_play/2 with valid requirements replaces the tiles played in player's hand with new ones from the bag",
+         %{
+           match: match,
+           player: player
+         } do
+      tile_ids_to_play =
+        Enum.reject(player.hand, &is_nil(&1.position)) |> Enum.map(& &1.id)
+
+      {:ok, %{player: updated_player, match: updated_match}} = Games.create_play(match, player)
+
+      # Assert the player hand tiles doesn't contain anymore the played tiles
+      assert Enum.all?(updated_player.hand, fn tile ->
+               !Enum.member?(tile_ids_to_play, tile.id)
+             end)
+
+      # Assert the player hand is refilled
+      assert length(updated_player.hand) == 7
+
+      # Assert the match bag has gone down by as many tiles as the player dropped in the board
+      assert length(updated_match.bag) == length(match.bag) - length(tile_ids_to_play)
+    end
+
+    test "create_play/2 with valid requirements while the bag is empty and the players hand gets empty changes the state of the match to finished",
+         %{match: match, player: player} do
+      empty_bag_match = %Match{match | bag: []}
+
+      player_with_final_hand = %Player{
+        player
+        | hand: Enum.reject(player.hand, &is_nil(&1.position))
+      }
+
+      assert {:ok, %{match: %Match{status: "finished"}}} =
+               Games.create_play(empty_bag_match, player_with_final_hand)
+    end
+
+    def setup_valid_requirements(_ctx) do
+      match = match_fixture(%{}, :started)
+      %Match{players: [player1, _], lexicon_id: lexicon_id} = match
+      lexicon_entry_fixture(%{name: "FOO", lexicon_id: lexicon_id})
+
+      {:ok, player} =
+        Games.update_player_hand(player1, [
+          Games.change_tile(%Tile{}, %{
+            value: "F",
+            score: 1,
+            wildcard: false,
+            position: %{row: 7, column: 6}
+          }),
+          Games.change_tile(%Tile{}, %{
+            value: "O",
+            score: 1,
+            wildcard: false,
+            position: %{row: 7, column: 7}
+          }),
+          Games.change_tile(%Tile{}, %{
+            value: "O",
+            score: 1,
+            wildcard: false,
+            position: %{row: 7, column: 8}
+          }),
+          Games.change_tile(%Tile{}, %{value: "B", score: 1, wildcard: false}),
+          Games.change_tile(%Tile{}, %{value: "A", score: 1, wildcard: false}),
+          Games.change_tile(%Tile{}, %{value: "R", score: 1, wildcard: false}),
+          Games.change_tile(%Tile{}, %{value: "Z", score: 1, wildcard: false})
+        ])
+
+      {:ok, %{match: match, player: player}}
+    end
+  end
+
+  describe "plays with invalid requirements" do
+    alias Scrabblex.Games.{Match, Tile, Player, Position}
+    import Scrabblex.GamesFixtures
+
+    test "create_play/2 with non contiguous tiles returns {:error, :contiguity_error}" do
+      match = %Match{plays: []}
+
+      player = %Player{
+        hand: [
+          %Tile{
+            value: "F",
+            score: 1,
+            wildcard: false,
+            position: %Position{row: 7, column: 6}
+          },
+          %Tile{
+            value: "O",
+            score: 1,
+            wildcard: false,
+            position: %Position{row: 7, column: 7}
+          },
+          %Tile{
+            value: "O",
+            score: 1,
+            wildcard: false,
+            position: %Position{row: 7, column: 9}
+          }
+        ]
+      }
+
+      assert Games.create_play(match, player) == {:error, :contiguity_error}
+    end
+
+    test "create_play/2 with contiguous tiles but words not belonging to the lexicon returns {:error, :words_not_found, unmatched_entries} error" do
+      match = %Match{plays: [], lexicon_id: 1}
+
+      player = %Player{
+        hand: [
+          %Tile{
+            value: "F",
+            score: 1,
+            wildcard: false,
+            position: %Position{row: 7, column: 6}
+          },
+          %Tile{
+            value: "O",
+            score: 1,
+            wildcard: false,
+            position: %Position{row: 7, column: 7}
+          },
+          %Tile{
+            value: "O",
+            score: 1,
+            wildcard: false,
+            position: %Position{row: 7, column: 8}
+          }
+        ]
+      }
+
+      assert Games.create_play(match, player) == {:error, :words_not_found, ~w(FOO)}
     end
   end
 end

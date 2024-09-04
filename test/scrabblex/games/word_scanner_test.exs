@@ -3,7 +3,7 @@ defmodule Scrabblex.Games.WordScannerTest do
 
   alias Scrabblex.Games.{Maptrix, Match, Player, Play, Tile, WordScanner}
   alias Scrabblex.Games.Position
-  alias Scrabblex.Games.Play.Word
+  alias Scrabblex.Games.Word
 
   describe "scan/3 when the board is empty" do
     test "returns a list of Word when the tiles are horizontal" do
