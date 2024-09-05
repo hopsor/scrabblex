@@ -329,5 +329,48 @@ defmodule ScrabblexWeb.MatchLiveTest do
 
       refute show_live |> element("#btn_submit_play") |> has_element?()
     end
+
+    test "after the player submits the play the board renders it", %{
+      conn: conn,
+      match: %Match{players: [player | _], lexicon_id: lexicon_id} = match
+    } do
+      tiles = Enum.take(player.hand, 3)
+
+      # Creates the lexicon entry
+      lexicon_entry_value =
+        tiles
+        |> Enum.reduce("", fn tile, acc ->
+          acc <> tile.value
+        end)
+
+      lexicon_entry_fixture(%{name: lexicon_entry_value, lexicon_id: lexicon_id})
+
+      # Puts the tiles in the center horizontally
+      hand_changesets =
+        player.hand
+        |> Enum.with_index()
+        |> Enum.map(fn {tile, index} ->
+          if index < 3 do
+            Games.change_tile(tile, %{position: %{row: 7, column: 6 + index}})
+          else
+            Games.change_tile(tile)
+          end
+        end)
+
+      Games.update_player_hand(player, hand_changesets)
+
+      conn = log_in_user(conn, player.user)
+      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+
+      show_live
+      |> element("#btn_submit_play")
+      |> render_click()
+
+      Enum.all?(tiles, fn tile ->
+        assert show_live
+               |> element(~s{#board_wrapper .tile[data-id="#{tile.id}"]})
+               |> has_element?()
+      end)
+    end
   end
 end
