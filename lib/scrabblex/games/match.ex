@@ -19,8 +19,8 @@ defmodule Scrabblex.Games.Match do
     field :turn, :integer
     embeds_many :bag, Tile, on_replace: :delete
     belongs_to :lexicon, Lexicon
-    has_many :players, Player
-    has_many :plays, Play
+    has_many :players, Player, preload_order: [:inserted_at]
+    has_many :plays, Play, preload_order: [:inserted_at]
 
     timestamps(type: :utc_datetime)
   end
