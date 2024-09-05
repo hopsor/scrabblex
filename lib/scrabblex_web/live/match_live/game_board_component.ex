@@ -2,6 +2,7 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
   use ScrabblexWeb, :live_component
 
   alias Scrabblex.Games
+  alias Scrabblex.Games.{Maptrix, Match, Player}
   alias ScrabblexWeb.MatchLive.TileComponent
 
   @impl true
@@ -14,20 +15,25 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
         <div class="flex flex-row">
           <div class="basis-8/12 p-4">
             <div id="board_wrapper" class="grid grid-cols-15 gap-1">
-              <%= for {row, column, value} <- @board_layout do %>
+              <%= for {row, column, booster, tile, played} <- @board_cells do %>
                 <.live_component
                   module={ScrabblexWeb.MatchLive.BoardSlotComponent}
                   row={row}
                   column={column}
-                  value={value}
-                  hand={@current_player.hand}
+                  booster={booster}
                   id={"slot_#{row}_#{column}"}
+                  tile={tile}
+                  played={played}
                 />
               <% end %>
             </div>
 
             <div id="hand" class="grid grid-cols-7 gap-2 dropzone min-w-full max-w-md mx-auto mt-5">
-              <TileComponent.tile :for={tile <- @parked_tiles} tile={tile} />
+              <TileComponent.tile
+                :for={tile <- @parked_tiles}
+                tile={tile}
+                draggable_class="draggable"
+              />
             </div>
 
             <div id="actions" class="mt-5 text-center">
@@ -82,12 +88,12 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
 
   @impl true
   def mount(socket) do
-    board_layout = Scrabblex.Games.BoardLayout.get()
-    {:ok, assign(socket, :board_layout, board_layout)}
+    board_cells = board_cells()
+    {:ok, assign(socket, :board_cells, board_cells)}
   end
 
   @impl true
-  def update(%{match: match, current_user: current_user}, socket) do
+  def update(%{match: match, current_user: current_user, events_topic: events_topic}, socket) do
     {current_player, current_player_index} =
       match.players
       |> Enum.with_index()
@@ -99,12 +105,16 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
 
     can_submit = rem(match.turn, length(match.players)) == current_player_index
 
+    board_cells = board_cells(match, current_player)
+
     {:ok,
      socket
      |> assign(:current_player, current_player)
      |> assign(:parked_tiles, parked_tiles)
      |> assign(:match, match)
-     |> assign(:can_submit, can_submit)}
+     |> assign(:can_submit, can_submit)
+     |> assign(:board_cells, board_cells)
+     |> assign(:events_topic, events_topic)}
   end
 
   @impl true
@@ -176,7 +186,15 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
   end
 
   def handle_event("submit_play", _, socket) do
-    {:noreply, socket}
+    with {:ok, %{play: play}} <-
+           Games.create_play(socket.assigns.match, socket.assigns.current_player) do
+      ScrabblexWeb.Endpoint.broadcast(socket.assigns.events_topic, "play_created", play)
+
+      {:noreply, socket}
+    else
+      _ ->
+        {:noreply, socket}
+    end
   end
 
   defp submit_player_update(socket, hand_changesets) do
@@ -192,5 +210,31 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
          |> put_flash(:error, "Your data was stale. Reloading the page to fetch fresh data")
          |> push_navigate(to: ~p"/matches/#{socket.assigns.match}")}
     end
+  end
+
+  defp board_cells() do
+    Scrabblex.Games.BoardLayout.get()
+    |> Enum.map(fn {row, column, booster} ->
+      {row, column, booster, nil, nil}
+    end)
+  end
+
+  defp board_cells(%Match{} = match, %Player{} = player) do
+    plays_matrix = Maptrix.from_match(match)
+    player_matrix = Maptrix.from_player(player)
+
+    board_cells()
+    |> Enum.map(fn {row, column, booster, _, _} ->
+      {tile, played} =
+        case Map.get(plays_matrix, {row, column}) do
+          nil ->
+            {Map.get(player_matrix, {row, column}), false}
+
+          tile_played ->
+            {tile_played, true}
+        end
+
+      {row, column, booster, tile, played}
+    end)
   end
 end
