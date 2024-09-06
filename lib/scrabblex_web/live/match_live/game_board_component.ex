@@ -192,8 +192,8 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
 
       {:noreply, socket}
     else
-      _ ->
-        {:noreply, socket}
+      error ->
+        {:noreply, put_flash!(socket, :error, submit_play_error_message(error))}
     end
   end
 
@@ -236,5 +236,27 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
 
       {row, column, booster, tile, played}
     end)
+  end
+
+  # TODO: Consider using gettext
+  defp submit_play_error_message({:error, :empty_play}) do
+    "You must put some tiles on the board!"
+  end
+
+  defp submit_play_error_message({:error, :contiguity_error}) do
+    "All tiles should be adjacent"
+  end
+
+  defp submit_play_error_message({:error, :center_not_found}) do
+    "At the beginning the first word must cross the center of the board"
+  end
+
+  defp submit_play_error_message({:error, :words_not_found, words}) do
+    formatted_words = Enum.join(words, ", ")
+    "Invalid words: #{formatted_words}"
+  end
+
+  defp submit_play_error_message(_) do
+    "Unknown error"
   end
 end

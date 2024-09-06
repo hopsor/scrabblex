@@ -372,5 +372,19 @@ defmodule ScrabblexWeb.MatchLiveTest do
                |> has_element?()
       end)
     end
+
+    test "after the player submits the play and fails the error is flashed", %{
+      conn: conn,
+      match: %Match{players: [player | _]} = match
+    } do
+      conn = log_in_user(conn, player.user)
+      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+
+      show_live
+      |> element("#btn_submit_play")
+      |> render_click()
+
+      assert render(show_live) =~ "You must put some tiles on the board!"
+    end
   end
 end
