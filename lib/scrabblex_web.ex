@@ -54,6 +54,8 @@ defmodule ScrabblexWeb do
       use Phoenix.LiveView,
         layout: {ScrabblexWeb.Layouts, :app}
 
+      on_mount ScrabblexWeb.Flash
+
       unquote(html_helpers())
     end
   end
@@ -61,6 +63,8 @@ defmodule ScrabblexWeb do
   def live_component do
     quote do
       use Phoenix.LiveComponent
+
+      import ScrabblexWeb.Flash, only: [put_flash!: 3]
 
       unquote(html_helpers())
     end

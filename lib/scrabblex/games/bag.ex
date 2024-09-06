@@ -1,5 +1,5 @@
-defmodule Scrabblex.Games.BagBuilder do
-  def build(lexicon_name) do
+defmodule Scrabblex.Games.Bag do
+  def new(lexicon_name) do
     bag =
       lexicon_name
       |> distribution()
@@ -24,6 +24,26 @@ defmodule Scrabblex.Games.BagBuilder do
     initial_hands = Enum.chunk_every(all_players_hands, 7)
 
     {:ok, initial_hands, remaining_bag}
+  end
+
+  @doc """
+  Given a bag (list of `%Tile{}`) and a demand (Integer) it substract as many tiles as demanded from the bag.
+
+  The return tuple expected is below:
+
+  {:ok, demanded_tiles, remainder}
+
+  In case there aren't enough tiles in the bag to satisfy the demand it will return as many as possible emptying the bag.
+  """
+  def draw_tiles([], _), do: {:ok, [], []}
+
+  def draw_tiles(bag, demand) do
+    {tiles_drawn, bag_remainder} =
+      bag
+      |> Enum.shuffle()
+      |> Enum.split(demand)
+
+    {:ok, tiles_drawn, bag_remainder}
   end
 
   defp distribution("FISE-2") do

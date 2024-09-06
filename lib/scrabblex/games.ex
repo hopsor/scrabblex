@@ -6,7 +6,20 @@ defmodule Scrabblex.Games do
   import Ecto.Query, warn: false
   alias Scrabblex.Repo
 
-  alias Scrabblex.Games.{BagBuilder, Lexicon, Match, Player, Tile}
+  alias Scrabblex.Games.{
+    Bag,
+    Lexicon,
+    LexiconResolver,
+    Match,
+    Maptrix,
+    Play,
+    Player,
+    PlayIntegrityValidator,
+    Tile,
+    Word,
+    WordScanner
+  }
+
   alias Scrabblex.Accounts.User
 
   @doc """
@@ -33,7 +46,8 @@ defmodule Scrabblex.Games do
       ** (Ecto.NoResultsError)
 
   """
-  def get_match!(id), do: Repo.get!(Match, id) |> Repo.preload([:lexicon, players: [:user]])
+  def get_match!(id),
+    do: Repo.get!(Match, id) |> Repo.preload([:plays, :lexicon, players: [:user]])
 
   @doc """
   Creates a match.
@@ -54,7 +68,7 @@ defmodule Scrabblex.Games do
       |> Repo.insert()
 
     case result do
-      {:ok, match} -> {:ok, Repo.preload(match, [:lexicon, players: [:user]])}
+      {:ok, match} -> {:ok, Repo.preload(match, [:plays, :lexicon, players: [:user]])}
       error -> error
     end
   end
@@ -104,8 +118,8 @@ defmodule Scrabblex.Games do
       {:ok, %Match{}}
   """
   def start_match(%Match{status: "created"} = match) do
-    with {:ok, initial_bag} <- BagBuilder.build(match.lexicon.name),
-         {:ok, hands, remaining_bag} <- BagBuilder.init_hands(initial_bag, match.players) do
+    with {:ok, initial_bag} <- Bag.new(match.lexicon.name),
+         {:ok, hands, remaining_bag} <- Bag.init_hands(initial_bag, match.players) do
       players_changeset =
         hands
         |> Enum.with_index()
@@ -123,7 +137,7 @@ defmodule Scrabblex.Games do
       changeset
       |> Repo.update()
       |> case do
-        {:ok, match} -> {:ok, Repo.preload(match, [:lexicon, players: [:user]])}
+        {:ok, match} -> {:ok, Repo.preload(match, [:plays, :lexicon, players: [:user]])}
         error -> error
       end
     end
@@ -251,6 +265,19 @@ defmodule Scrabblex.Games do
   end
 
   @doc """
+  Returns an `%Ecto.Changeset{}` for tracking word changes.
+
+  ## Examples
+
+      iex> change_word(word)
+      %Ecto.Changeset{data: %Word{}}
+
+  """
+  def change_word(%Word{} = word, attrs \\ %{}) do
+    Word.changeset(word, attrs)
+  end
+
+  @doc """
   Returns the list of lexicons.
 
   ## Examples
@@ -262,5 +289,71 @@ defmodule Scrabblex.Games do
   def list_lexicons() do
     Lexicon
     |> Repo.all()
+  end
+
+  @doc """
+  Creates a play based on a match and a given player
+
+  A successful create_play call will:
+
+  - Create a new play
+  - Update match increasing the turn and updating the bag removing drawn tiles
+    and setting the status to finished if conditions apply
+  - Update player removing the play tiles, adding the new ones drawn from the bag
+    and also adding the play points to his score
+  """
+  def create_play(%Match{} = match, %Player{} = player) do
+    played_tiles_matrix = Maptrix.from_match(match)
+    new_tiles_matrix = Maptrix.from_player(player)
+    new_tiles = Player.playing_tiles(player)
+
+    with {:ok, alignment} <- PlayIntegrityValidator.validate(played_tiles_matrix, new_tiles),
+         {:ok, words} <- WordScanner.scan(played_tiles_matrix, new_tiles_matrix, alignment),
+         :ok <- LexiconResolver.resolve(match, Enum.map(words, & &1.value)),
+         {:ok, tiles_drawn, bag_remainder} <- Bag.draw_tiles(match.bag, Enum.count(new_tiles)) do
+      Ecto.Multi.new()
+      |> Ecto.Multi.insert(
+        :play,
+        Play.changeset(%Play{}, %{
+          tiles: Enum.map(new_tiles, &change_tile/1),
+          words: Enum.map(words, &change_word/1),
+          turn: match.turn,
+          type: "play",
+          match_id: match.id,
+          player_id: player.id
+        })
+      )
+      |> Ecto.Multi.update(:match, fn _ ->
+        unplayed_tiles_count =
+          player.hand
+          |> Enum.filter(&is_nil(&1.position))
+          |> Enum.count()
+
+        match_changes = %{
+          turn: match.turn + 1,
+          bag: Enum.map(bag_remainder, &change_tile/1)
+        }
+
+        case Enum.count(tiles_drawn) + unplayed_tiles_count do
+          0 ->
+            Match.turn_changeset(match, Map.put(match_changes, :status, "finished"))
+
+          _ ->
+            Match.turn_changeset(match, match_changes)
+        end
+      end)
+      |> Ecto.Multi.update(:player, fn %{play: %Play{score: play_score}} ->
+        updated_hand =
+          player.hand
+          |> Enum.filter(&is_nil(&1.position))
+          |> Enum.concat(tiles_drawn)
+
+        Player.turn_changeset(player, %{
+          score: player.score + play_score,
+          hand: Enum.map(updated_hand, &change_tile/1)
+        })
+      end)
+      |> Repo.transaction()
+    end
   end
 end

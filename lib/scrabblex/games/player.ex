@@ -11,7 +11,7 @@ defmodule Scrabblex.Games.Player do
 
     belongs_to :match, Match
     belongs_to :user, User
-    embeds_many :hand, Tile
+    embeds_many :hand, Tile, on_replace: :delete
 
     timestamps(type: :utc_datetime)
   end
@@ -34,6 +34,14 @@ defmodule Scrabblex.Games.Player do
     |> cast(%{}, [])
     |> put_embed(:hand, hand)
     |> optimistic_lock(:lock_version)
+  end
+
+  def turn_changeset(player, attrs) do
+    player
+    |> cast(attrs, [:score])
+    |> put_embed(:hand, attrs[:hand])
+    |> optimistic_lock(:lock_version)
+    |> validate_required([:score])
   end
 
   def owner_changeset(player, attrs) do

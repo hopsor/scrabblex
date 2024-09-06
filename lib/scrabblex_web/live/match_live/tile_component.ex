@@ -5,7 +5,10 @@ defmodule ScrabblexWeb.MatchLive.TileComponent do
     ~H"""
     <div
       data-id={@tile.id}
-      class="tile bg-yellow-200 rounded-md aspect-square w-full h-auto relative draggable shadow-inner"
+      class={[
+        "tile bg-yellow-200 rounded-md aspect-square w-full h-auto relative shadow-inner",
+        @draggable_class
+      ]}
     >
       <div class="text-md font-bold text-center absolute inset-0 h-full w-full flex items-center justify-center">
         <%= @tile.value %>

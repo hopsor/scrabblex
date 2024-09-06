@@ -15,7 +15,7 @@
     rows={@streams.matches}
     row_click={fn {_id, match} -> JS.navigate(~p"/matches/#{match}") end}
   >
-    <:col :let={{_id, match}} label="Lexicon"><%= match.lexicon %></:col>
+    <:col :let={{_id, match}} label="Lexicon"><%= match.lexicon.name %></:col>
     <:col :let={{_id, match}} label="Status"><%= match.status %></:col>
     <:action :let={{_id, match}}>
       <div class="sr-only">

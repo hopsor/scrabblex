@@ -8,7 +8,7 @@ defmodule Scrabblex.Games.WordScanner do
   """
 
   alias Scrabblex.Games.{BoardLayout, Maptrix, Tile}
-  alias Scrabblex.Games.Play.Word
+  alias Scrabblex.Games.Word
 
   def scan(
         existing_tiles,
