@@ -46,7 +46,7 @@ defmodule Scrabblex.Games.Bag do
     {:ok, tiles_drawn, bag_remainder}
   end
 
-  defp distribution("FISE-2") do
+  def distribution("FISE-2") do
     %{
       "A" => %{score: 1, available: 12},
       "E" => %{score: 1, available: 12},

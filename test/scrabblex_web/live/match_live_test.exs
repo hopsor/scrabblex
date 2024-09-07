@@ -5,7 +5,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
   import Scrabblex.{AccountsFixtures, GamesFixtures}
 
   alias Scrabblex.Games
-  alias Scrabblex.Games.Match
+  alias Scrabblex.Games.{Match, Tile}
 
   # TODO: Refactor
   defp create_match(_context) do
@@ -385,6 +385,59 @@ defmodule ScrabblexWeb.MatchLiveTest do
       |> render_click()
 
       assert render(show_live) =~ "You must put some tiles on the board!"
+    end
+  end
+
+  describe "Show / Wildcard Edition" do
+    setup [:create_started_match, :presence_callback]
+
+    test "when a tile card is in players hand I can open the editor by clicking on it", %{
+      conn: conn,
+      match: %Match{players: [player | _]} = match
+    } do
+      {:ok, updated_player} =
+        Games.update_player_hand(player, [
+          Games.change_tile(%Tile{}, %{value: "*", wildcard: true, score: 0})
+        ])
+
+      wildcard_tile = Enum.at(updated_player.hand, 0)
+
+      conn = log_in_user(conn, player.user)
+      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+
+      show_live
+      |> element(~s{#hand .tile[data-id="#{wildcard_tile.id}"] a})
+      |> render_click()
+
+      assert_patch(show_live, ~p"/matches/#{match}/edit_wildcard/#{wildcard_tile}")
+    end
+
+    # TODO: Add test that refutes already played wildcard tiles don't redirect to the editor on click
+
+    test "when I click in a value in the wildcard editor I will see the tile updated in the hand",
+         %{
+           conn: conn,
+           match: %Match{players: [player | _]} = match
+         } do
+      {:ok, updated_player} =
+        Games.update_player_hand(player, [
+          Games.change_tile(%Tile{}, %{value: "*", wildcard: true, score: 0})
+        ])
+
+      wildcard_tile = Enum.at(updated_player.hand, 0)
+
+      conn = log_in_user(conn, player.user)
+      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}/edit_wildcard/#{wildcard_tile}")
+
+      show_live
+      |> element("#choices > div", "A")
+      |> render_click()
+
+      assert_patch(show_live, ~p"/matches/#{match}")
+
+      assert show_live
+             |> element(~s{#hand .tile[data-id="#{wildcard_tile.id}"]"}, "A")
+             |> has_element?()
     end
   end
 end

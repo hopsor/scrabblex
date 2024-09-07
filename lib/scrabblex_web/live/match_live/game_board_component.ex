@@ -24,6 +24,7 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
                   id={"slot_#{row}_#{column}"}
                   tile={tile}
                   played={played}
+                  match_id={@match.id}
                 />
               <% end %>
             </div>
@@ -32,7 +33,9 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
               <TileComponent.tile
                 :for={tile <- @parked_tiles}
                 tile={tile}
+                match_id={@match.id}
                 draggable_class="draggable"
+                played={false}
               />
             </div>
 
@@ -89,7 +92,7 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
   @impl true
   def mount(socket) do
     board_cells = board_cells()
-    {:ok, assign(socket, :board_cells, board_cells)}
+    {:ok, assign(socket, :board_cells, board_cells) |> assign(:wildcard, nil)}
   end
 
   @impl true
