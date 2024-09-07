@@ -19,13 +19,29 @@ defmodule ScrabblexWeb.MatchLive.BoardSlotComponent do
         <%= @booster %>
       </div>
 
-      <TileComponent.tile :if={@tile} tile={@tile} draggable_class={@draggable_class} />
+      <TileComponent.tile
+        :if={@tile}
+        tile={@tile}
+        draggable_class={@draggable_class}
+        match_id={@match_id}
+        played={@played}
+      />
     </div>
     """
   end
 
   @impl true
-  def update(%{booster: booster, row: row, column: column, tile: tile, played: played}, socket) do
+  def update(
+        %{
+          booster: booster,
+          row: row,
+          column: column,
+          tile: tile,
+          played: played,
+          match_id: match_id
+        },
+        socket
+      ) do
     background =
       case booster do
         "3W" -> "bg-red-500"
@@ -46,6 +62,8 @@ defmodule ScrabblexWeb.MatchLive.BoardSlotComponent do
      |> assign(:booster, booster)
      |> assign(:tile, tile)
      |> assign(:dropzone_class, dropzone_class)
-     |> assign(:draggable_class, draggable_class)}
+     |> assign(:draggable_class, draggable_class)
+     |> assign(:match_id, match_id)
+     |> assign(:played, played)}
   end
 end
