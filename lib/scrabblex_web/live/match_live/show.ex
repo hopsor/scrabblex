@@ -9,6 +9,7 @@ defmodule ScrabblexWeb.MatchLive.Show do
 
     socket =
       socket
+      |> assign(:match, Games.get_match!(match_id))
       |> assign(:events_topic, events_topic)
       |> assign(:presences, %{})
 
@@ -35,11 +36,26 @@ defmodule ScrabblexWeb.MatchLive.Show do
   end
 
   @impl true
-  def handle_params(%{"id" => id}, _, socket) do
-    {:noreply,
-     socket
-     |> assign(:page_title, page_title(socket.assigns.live_action))
-     |> assign(:match, Games.get_match!(id))}
+  def handle_params(params, _, socket) do
+    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+  end
+
+  defp apply_action(socket, :show, _params) do
+    socket
+    |> assign(:page_title, page_title(:show))
+    |> assign(:wildcard, nil)
+  end
+
+  defp apply_action(socket, :edit_wildcard, %{"wildcard_id" => wildcard_id}) do
+    current_player =
+      Enum.find(socket.assigns.match.players, &(&1.user_id == socket.assigns.current_user.id))
+
+    wildcard = Enum.find(current_player.hand, &(&1.id == wildcard_id))
+
+    socket
+    |> assign(:page_title, page_title(:edit_wildcard))
+    |> assign(:wildcard, wildcard)
+    |> assign(:current_player, current_player)
   end
 
   @impl true
@@ -74,5 +90,5 @@ defmodule ScrabblexWeb.MatchLive.Show do
   end
 
   defp page_title(:show), do: "Show Match"
-  defp page_title(:edit), do: "Edit Match"
+  defp page_title(:edit_wildcard), do: "Edit wildcard tile"
 end
