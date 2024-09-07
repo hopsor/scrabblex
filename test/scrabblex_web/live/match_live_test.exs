@@ -430,7 +430,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
       {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}/edit_wildcard/#{wildcard_tile}")
 
       show_live
-      |> element("#choices div", "A")
+      |> element("#choices > div", "A")
       |> render_click()
 
       assert_patch(show_live, ~p"/matches/#{match}")
