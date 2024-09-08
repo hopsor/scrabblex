@@ -3,8 +3,8 @@ defmodule Scrabblex.Repo.Migrations.CreatePlays do
 
   def change do
     create table(:plays) do
-      add :tiles, :map, null: false
-      add :words, :map, null: false
+      add :tiles, :map
+      add :words, :map
       add :score, :integer, null: false
       add :turn, :integer, null: false
       add :type, :string, null: false

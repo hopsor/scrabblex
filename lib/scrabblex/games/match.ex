@@ -50,11 +50,16 @@ defmodule Scrabblex.Games.Match do
     |> put_change(:status, "started")
   end
 
-  def turn_changeset(match, attrs) do
+  def play_changeset(match, attrs) do
     match
     |> cast(attrs, [:turn, :status])
     |> put_embed(:bag, attrs[:bag])
     |> validate_required([:turn])
+  end
+
+  def skip_turn_changeset(%__MODULE__{turn: turn} = match) do
+    match
+    |> change(turn: turn + 1)
   end
 
   def owner(%__MODULE__{players: players}), do: Enum.find(players, &(&1.owner == true))

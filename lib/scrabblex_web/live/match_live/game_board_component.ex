@@ -48,6 +48,15 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
               >
                 <.icon name="hero-check-circle" /> Submit word
               </.button>
+              <.button
+                :if={@can_submit}
+                id="btn_skip_turn"
+                phx-click="skip_turn"
+                phx-target={@myself}
+                data-confirm="Are you sure you want to skip?"
+              >
+                <.icon name="hero-x-mark" /> Skip turn
+              </.button>
               <.button id="btn_shuffle" phx-click="shuffle" phx-target={@myself}>
                 <.icon name="hero-arrows-right-left" /> Shuffle tiles
               </.button>
@@ -191,6 +200,18 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
   def handle_event("submit_play", _, socket) do
     with {:ok, %{play: play}} <-
            Games.create_play(socket.assigns.match, socket.assigns.current_player) do
+      ScrabblexWeb.Endpoint.broadcast(socket.assigns.events_topic, "play_created", play)
+
+      {:noreply, socket}
+    else
+      error ->
+        {:noreply, put_flash!(socket, :error, submit_play_error_message(error))}
+    end
+  end
+
+  def handle_event("skip_turn", _, socket) do
+    with {:ok, %{play: play}} <-
+           Games.skip_turn(socket.assigns.match, socket.assigns.current_player) do
       ScrabblexWeb.Endpoint.broadcast(socket.assigns.events_topic, "play_created", play)
 
       {:noreply, socket}
