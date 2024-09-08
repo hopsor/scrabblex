@@ -440,4 +440,36 @@ defmodule ScrabblexWeb.MatchLiveTest do
              |> has_element?()
     end
   end
+
+  describe "Show match / skip turn" do
+    setup [:create_started_match, :presence_callback]
+
+    test "when it's my turn I can skip it", %{
+      conn: conn,
+      match: %Match{players: [player | _]} = match
+    } do
+      conn = log_in_user(conn, player.user)
+      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+
+      show_live
+      |> element("#btn_skip_turn")
+      |> render_click()
+
+      refute show_live
+             |> element("#btn_skip_turn")
+             |> has_element?()
+    end
+
+    test "when it isn't my turn I can't skip it", %{
+      conn: conn,
+      match: %Match{players: [_, player]} = match
+    } do
+      conn = log_in_user(conn, player.user)
+      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+
+      refute show_live
+             |> element("#btn_skip_turn")
+             |> has_element?()
+    end
+  end
 end
