@@ -23,8 +23,8 @@ defmodule Scrabblex.Games.Play do
   def changeset(play, attrs) do
     play
     |> cast(attrs, [:turn, :match_id, :type, :player_id])
-    |> put_embed(:tiles, attrs[:tiles])
-    |> put_embed(:words, attrs[:words])
+    |> put_embed(:tiles, attrs[:tiles] || [])
+    |> put_embed(:words, attrs[:words] || [])
     |> validate_required([:turn, :match_id, :type, :player_id])
     |> validate_inclusion(:type, @valid_types)
     |> compute_score()
@@ -32,8 +32,10 @@ defmodule Scrabblex.Games.Play do
 
   defp compute_score(changeset) do
     case changeset do
-      %Ecto.Changeset{valid?: true, changes: %{words: words}} ->
-        computed_score = words |> Enum.map(&get_field(&1, :score)) |> Enum.sum()
+      %Ecto.Changeset{valid?: true, changes: changes} ->
+        computed_score =
+          changes |> Map.get(:words, []) |> Enum.map(&get_field(&1, :score)) |> Enum.sum()
+
         put_change(changeset, :score, computed_score)
 
       _ ->
