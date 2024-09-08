@@ -336,10 +336,10 @@ defmodule Scrabblex.Games do
 
         case Enum.count(tiles_drawn) + unplayed_tiles_count do
           0 ->
-            Match.turn_changeset(match, Map.put(match_changes, :status, "finished"))
+            Match.play_changeset(match, Map.put(match_changes, :status, "finished"))
 
           _ ->
-            Match.turn_changeset(match, match_changes)
+            Match.play_changeset(match, match_changes)
         end
       end)
       |> Ecto.Multi.update(:player, fn %{play: %Play{score: play_score}} ->
@@ -355,5 +355,20 @@ defmodule Scrabblex.Games do
       end)
       |> Repo.transaction()
     end
+  end
+
+  def skip_turn(%Match{turn: turn} = match, %Player{} = player) do
+    Ecto.Multi.new()
+    |> Ecto.Multi.insert(
+      :play,
+      Play.changeset(%Play{}, %{
+        turn: turn,
+        player_id: player.id,
+        match_id: match.id,
+        type: "skip"
+      })
+    )
+    |> Ecto.Multi.update(:match, Match.skip_turn_changeset(match))
+    |> Repo.transaction()
   end
 end
