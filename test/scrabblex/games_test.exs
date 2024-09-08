@@ -157,7 +157,7 @@ defmodule Scrabblex.GamesTest do
     end
   end
 
-  describe "plays with valid requirements" do
+  describe "plays" do
     alias Scrabblex.Games.{Match, Tile, Play, Player, Position, Word}
     import Scrabblex.GamesFixtures
 
@@ -240,45 +240,6 @@ defmodule Scrabblex.GamesTest do
                Games.create_play(empty_bag_match, player_with_final_hand)
     end
 
-    def setup_valid_requirements(_ctx) do
-      match = match_fixture(%{}, :started)
-      %Match{players: [player1, _], lexicon_id: lexicon_id} = match
-      lexicon_entry_fixture(%{name: "FOO", lexicon_id: lexicon_id})
-
-      {:ok, player} =
-        Games.update_player_hand(player1, [
-          Games.change_tile(%Tile{}, %{
-            value: "F",
-            score: 1,
-            wildcard: false,
-            position: %{row: 7, column: 6}
-          }),
-          Games.change_tile(%Tile{}, %{
-            value: "O",
-            score: 1,
-            wildcard: false,
-            position: %{row: 7, column: 7}
-          }),
-          Games.change_tile(%Tile{}, %{
-            value: "O",
-            score: 1,
-            wildcard: false,
-            position: %{row: 7, column: 8}
-          }),
-          Games.change_tile(%Tile{}, %{value: "B", score: 1, wildcard: false}),
-          Games.change_tile(%Tile{}, %{value: "A", score: 1, wildcard: false}),
-          Games.change_tile(%Tile{}, %{value: "R", score: 1, wildcard: false}),
-          Games.change_tile(%Tile{}, %{value: "Z", score: 1, wildcard: false})
-        ])
-
-      {:ok, %{match: match, player: player}}
-    end
-  end
-
-  describe "plays with invalid requirements" do
-    alias Scrabblex.Games.{Match, Tile, Player, Position}
-    import Scrabblex.GamesFixtures
-
     test "create_play/2 with non contiguous tiles returns {:error, :contiguity_error}" do
       match = %Match{plays: []}
 
@@ -335,6 +296,50 @@ defmodule Scrabblex.GamesTest do
       }
 
       assert Games.create_play(match, player) == {:error, :words_not_found, ~w(FOO)}
+    end
+
+    test "skip_turn/2 with valid data returns the inserted play and the updated match", %{
+      match: match,
+      player: player
+    } do
+      expected_turn = match.turn + 1
+
+      assert {:ok, %{play: %Play{type: "skip"}, match: %Match{turn: ^expected_turn}}} =
+               Games.skip_turn(match, player)
+    end
+
+    def setup_valid_requirements(_ctx) do
+      match = match_fixture(%{}, :started)
+      %Match{players: [player1, _], lexicon_id: lexicon_id} = match
+      lexicon_entry_fixture(%{name: "FOO", lexicon_id: lexicon_id})
+
+      {:ok, player} =
+        Games.update_player_hand(player1, [
+          Games.change_tile(%Tile{}, %{
+            value: "F",
+            score: 1,
+            wildcard: false,
+            position: %{row: 7, column: 6}
+          }),
+          Games.change_tile(%Tile{}, %{
+            value: "O",
+            score: 1,
+            wildcard: false,
+            position: %{row: 7, column: 7}
+          }),
+          Games.change_tile(%Tile{}, %{
+            value: "O",
+            score: 1,
+            wildcard: false,
+            position: %{row: 7, column: 8}
+          }),
+          Games.change_tile(%Tile{}, %{value: "B", score: 1, wildcard: false}),
+          Games.change_tile(%Tile{}, %{value: "A", score: 1, wildcard: false}),
+          Games.change_tile(%Tile{}, %{value: "R", score: 1, wildcard: false}),
+          Games.change_tile(%Tile{}, %{value: "Z", score: 1, wildcard: false})
+        ])
+
+      {:ok, %{match: match, player: player}}
     end
   end
 end
