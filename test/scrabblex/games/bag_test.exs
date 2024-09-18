@@ -67,4 +67,21 @@ defmodule Scrabblex.Games.BagTest do
       assert {:error, :demand_exceeded} = Bag.draw_tiles(bag, 2, strict: true)
     end
   end
+
+  describe "reinstate_tiles/2" do
+    test "when there aren't wildcards it appends the given tiles to the bag" do
+      bag = [%Tile{id: "1", value: "A", wildcard: false}]
+      tiles = [%Tile{id: "1", value: "B", wildcard: false}]
+
+      assert Bag.reinstate_tiles(bag, tiles) == {:ok, bag ++ tiles}
+    end
+
+    test "when there are wildcards it appends the given tiles and set values of wildcards to an empty string" do
+      bag = [%Tile{id: "1", value: "A", wildcard: false}]
+      tiles = [%Tile{id: "1", value: "B", wildcard: true}]
+
+      assert Bag.reinstate_tiles(bag, tiles) ==
+               {:ok, bag ++ [%Tile{id: "1", value: "", wildcard: true}]}
+    end
+  end
 end
