@@ -2,6 +2,7 @@ defmodule ScrabblexWeb.MatchLive.ExchangeTilesComponent do
   use ScrabblexWeb, :live_component
 
   alias Scrabblex.Games
+  alias ScrabblexWeb.MatchLive.TileComponent
 
   def render(assigns) do
     ~H"""
@@ -11,17 +12,15 @@ defmodule ScrabblexWeb.MatchLive.ExchangeTilesComponent do
         <:subtitle>Pick the tiles you want to exchange</:subtitle>
       </.header>
 
-      <div id="choices" class="grid grid-cols-6 gap-4">
+      <div id="choices" class="grid grid-cols-7 gap-4">
         <div
           :for={tile <- @current_player.hand}
           phx-click="toggle_tile"
           phx-target={@myself}
           phx-value-tile-id={tile.id}
+          class={["rounded-md cursor-pointer", tile in @selected_tiles && "outline outline-blue-600"]}
         >
-          <%= tile.value %>
-          <div :if={tile in @selected_tiles}>
-            selected
-          </div>
+          <TileComponent.tile tile={tile} match_id={@match.id} draggable_class="" played={true} />
         </div>
       </div>
 
