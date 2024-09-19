@@ -37,7 +37,7 @@ defmodule Scrabblex.Games.Bag do
 
   In case there aren't enough tiles in the bag to satisfy the demand it will return as many as possible emptying the bag.
 
-  In case of providing the option `strict: false` if there weren't enough tiles to satisfy the demand it'll
+  When providing the option `strict: true`, if there weren't enough tiles to satisfy the demand then it'll
   return {:error, :demand_exceeded}
   """
   @draw_tiles_defaults %{strict: false}
