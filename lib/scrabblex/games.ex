@@ -330,7 +330,6 @@ defmodule Scrabblex.Games do
           |> Enum.count()
 
         match_changes = %{
-          turn: match.turn + 1,
           bag: Enum.map(bag_remainder, &change_tile/1)
         }
 
@@ -370,5 +369,39 @@ defmodule Scrabblex.Games do
     )
     |> Ecto.Multi.update(:match, Match.skip_turn_changeset(match))
     |> Repo.transaction()
+  end
+
+  def exchange_tiles(_, _, []), do: {:error, :empty_exchange}
+
+  def exchange_tiles(%Match{turn: turn} = match, %Player{} = player, selected_tiles) do
+    with :ok <- is_valid_turn?(match, player),
+         {:ok, tiles_drawn, remainder} <-
+           Bag.draw_tiles(match.bag, length(selected_tiles), strict: true),
+         {:ok, updated_bag} <- Bag.reinstate_tiles(remainder, selected_tiles) do
+      updated_bag_changesets = Enum.map(updated_bag, &change_tile/1)
+      hand_changesets = Enum.map((player.hand -- selected_tiles) ++ tiles_drawn, &change_tile/1)
+
+      Ecto.Multi.new()
+      |> Ecto.Multi.insert(
+        :play,
+        Play.changeset(%Play{}, %{
+          turn: turn,
+          player_id: player.id,
+          match_id: match.id,
+          type: "exchange"
+        })
+      )
+      |> Ecto.Multi.update(:player, Player.exchange_changeset(player, %{hand: hand_changesets}))
+      |> Ecto.Multi.update(
+        :match,
+        Match.exchange_tiles_changeset(match, %{bag: updated_bag_changesets})
+      )
+      |> Repo.transaction()
+    end
+  end
+
+  defp is_valid_turn?(%Match{turn: turn, players: players}, %Player{} = player) do
+    index = Enum.find_index(players, &(&1 == player))
+    if rem(turn, length(players)) == index, do: :ok, else: {:error, :invalid_turn}
   end
 end
