@@ -472,4 +472,80 @@ defmodule ScrabblexWeb.MatchLiveTest do
              |> has_element?()
     end
   end
+
+  describe "Show match / exchange tiles" do
+    setup [:create_started_match, :presence_callback]
+
+    test "when it is my turn I can see the button", %{
+      conn: conn,
+      match: %Match{players: [player | _]} = match
+    } do
+      conn = log_in_user(conn, player.user)
+      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+
+      assert show_live
+             |> element("#btn_exchange_tiles")
+             |> has_element?()
+    end
+
+    test "when it isn't my turn I can't see the button", %{
+      conn: conn,
+      match: %Match{players: [_, player]} = match
+    } do
+      conn = log_in_user(conn, player.user)
+      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+
+      refute show_live
+             |> element("#btn_exchange_tiles")
+             |> has_element?()
+    end
+
+    test "when it's my turn and the bag is empty I can't see the button", %{
+      conn: conn,
+      match: %Match{players: [player | _]} = match
+    } do
+      # TODO: Figure out a better way with fixtures
+      changeset = Ecto.Changeset.change(match, bag: [])
+      Scrabblex.Repo.update!(changeset)
+
+      conn = log_in_user(conn, player.user)
+      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+
+      refute show_live
+             |> element("#btn_exchange_tiles")
+             |> has_element?()
+    end
+
+    test "when I open the exchange tiles component and I don't have any tile selected the submit button is disabled",
+         %{
+           conn: conn,
+           match: %Match{players: [player | _]} = match
+         } do
+      conn = log_in_user(conn, player.user)
+      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}/exchange_tiles")
+
+      assert show_live
+             |> element("button#submit_exchange[disabled]")
+             |> has_element?()
+    end
+
+    test "when I open the exchange tile component and I have at least 1 tile selected I can submit",
+         %{
+           conn: conn,
+           match: %Match{players: [player | _]} = match
+         } do
+      conn = log_in_user(conn, player.user)
+      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}/exchange_tiles")
+
+      show_live
+      |> element("#choices > div:first-child")
+      |> render_click()
+
+      show_live
+      |> element("button#submit_exchange")
+      |> render_click()
+
+      assert_patch(show_live, ~p"/matches/#{match}")
+    end
+  end
 end

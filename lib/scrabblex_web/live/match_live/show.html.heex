@@ -9,7 +9,7 @@
 />
 
 <.live_component
-  :if={@match.status == "started"}
+  :if={@match.status == "started" || @match.status == "finished"}
   module={ScrabblexWeb.MatchLive.GameBoardComponent}
   id={@match.id}
   match={@match}
@@ -29,5 +29,20 @@
     match={@match}
     current_player={@current_player}
     wildcard={@wildcard}
+  />
+</.modal>
+
+<.modal
+  :if={@live_action == :exchange_tiles}
+  id="exchange_tiles-modal"
+  show
+  on_cancel={JS.patch(~p"/matches/#{@match}")}
+>
+  <.live_component
+    module={ScrabblexWeb.MatchLive.ExchangeTilesComponent}
+    match={@match}
+    current_player={@current_player}
+    events_topic={@events_topic}
+    id="exchange_tiles"
   />
 </.modal>

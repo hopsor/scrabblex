@@ -57,6 +57,11 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
               >
                 <.icon name="hero-x-mark" /> Skip turn
               </.button>
+              <.button :if={@can_exchange} id="btn_exchange_tiles">
+                <.link patch={~p"/matches/#{@match.id}/exchange_tiles"}>
+                  <.icon name="hero-arrow-path-rounded-square" /> Exchange tiles
+                </.link>
+              </.button>
               <.button id="btn_shuffle" phx-click="shuffle" phx-target={@myself}>
                 <.icon name="hero-arrows-right-left" /> Shuffle tiles
               </.button>
@@ -117,6 +122,8 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
 
     can_submit = rem(match.turn, length(match.players)) == current_player_index
 
+    can_exchange = can_submit && length(match.bag) > 0
+
     board_cells = board_cells(match, current_player)
 
     {:ok,
@@ -125,6 +132,7 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
      |> assign(:parked_tiles, parked_tiles)
      |> assign(:match, match)
      |> assign(:can_submit, can_submit)
+     |> assign(:can_exchange, can_exchange)
      |> assign(:board_cells, board_cells)
      |> assign(:events_topic, events_topic)}
   end
