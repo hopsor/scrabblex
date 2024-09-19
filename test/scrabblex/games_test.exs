@@ -16,7 +16,7 @@ defmodule Scrabblex.GamesTest do
   end
 
   describe "matches" do
-    alias Scrabblex.Games.{Lexicon, Match, Player}
+    alias Scrabblex.Games.{Lexicon, Match, Play, Player, Tile}
 
     import Scrabblex.{AccountsFixtures, GamesFixtures}
 
@@ -86,6 +86,89 @@ defmodule Scrabblex.GamesTest do
 
     @tag skip: "Pending to implement"
     test "start_match/1 when the match hasn't enough players it returns {:error, :not_enough_players} error" do
+    end
+
+    test "exchange_tiles/3 when it isn't given player's turn returns {:error, :invalid_turn}" do
+      match = match_fixture(%{}, :started)
+      %Match{players: [_, player]} = match
+      tiles = Enum.take(player.hand, 1)
+
+      assert Games.exchange_tiles(match, player, tiles) == {:error, :invalid_turn}
+    end
+
+    test "exchange_tiles/3 when player provides more tiles than the bag has available then it returns {:error, :demand_exceeded}" do
+      match = match_fixture(%{}, :started)
+      %Match{players: [player, _]} = match
+      tiles = Enum.take(player.hand, 1)
+
+      match_with_empty_bag = %Match{match | bag: []}
+
+      assert Games.exchange_tiles(match_with_empty_bag, player, tiles) ==
+               {:error, :demand_exceeded}
+    end
+
+    test "exchange_tiles/3 when player provides no tiles it returns {:error, :empty_exchange}" do
+      match = match_fixture(%{}, :started)
+      %Match{players: [player | _]} = match
+
+      assert Games.exchange_tiles(match, player, []) ==
+               {:error, :empty_exchange}
+    end
+
+    test "exchange_tiles/3 with valid conditions replaces as many random tiles as the player provided" do
+      match = match_fixture(%{}, :started)
+      %Match{players: [player | _]} = match
+      tiles = Enum.take(player.hand, 2)
+
+      {:ok, %{match: %Match{bag: updated_bag}, player: updated_player}} =
+        Games.exchange_tiles(match, player, tiles)
+
+      bag_tile_ids = Enum.map(updated_bag, & &1.id)
+      updated_player_tile_ids = Enum.map(updated_player.hand, & &1.id)
+
+      assert Enum.all?(tiles, &(&1.id in bag_tile_ids))
+      refute Enum.any?(tiles, &(&1.id in updated_player_tile_ids))
+    end
+
+    test "exchange_tiles/3 with valid conditions creates a exchange play" do
+      match = match_fixture(%{}, :started)
+      %Match{players: [player | _]} = match
+      tiles = Enum.take(player.hand, 2)
+
+      assert {:ok, %{play: %Play{type: "exchange"}}} =
+               Games.exchange_tiles(match, player, tiles)
+    end
+
+    test "exchange_tiles/3 with valid conditions increments the turn" do
+      match = match_fixture(%{}, :started)
+      %Match{players: [player | _]} = match
+      tiles = Enum.take(player.hand, 2)
+
+      expected_turn = match.turn + 1
+
+      assert {:ok, %{match: %Match{turn: ^expected_turn}}} =
+               Games.exchange_tiles(match, player, tiles)
+    end
+
+    test "exchange_tiles/3 when a tile id is a wildcard exchanging it resets its value" do
+      match = match_fixture(%{}, :started)
+      %Match{players: [player, player2]} = match
+
+      wildcard = %Tile{id: "tile-id", wildcard: true, value: "A", score: 0, position: nil}
+
+      player_with_wildcard = %Player{
+        player
+        | hand: [wildcard]
+      }
+
+      {:ok, %{match: updated_match}} =
+        Games.exchange_tiles(
+          %Match{match | players: [player_with_wildcard, player2]},
+          player_with_wildcard,
+          [wildcard]
+        )
+
+      assert %Tile{value: ""} = Enum.find(updated_match.bag, &(&1.id == "tile-id"))
     end
   end
 

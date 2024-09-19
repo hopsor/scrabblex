@@ -31,6 +31,7 @@ defmodule ScrabblexWeb.Router do
       live "/matches/new", MatchLive.Index, :new
       live "/matches/:id", MatchLive.Show, :show
       live "/matches/:id/edit_wildcard/:wildcard_id", MatchLive.Show, :edit_wildcard
+      live "/matches/:id/exchange_tiles", MatchLive.Show, :exchange_tiles
     end
   end
 

@@ -44,6 +44,13 @@ defmodule Scrabblex.Games.Player do
     |> validate_required([:score])
   end
 
+  def exchange_changeset(player, attrs) do
+    player
+    |> cast(attrs, [])
+    |> put_embed(:hand, attrs[:hand])
+    |> optimistic_lock(:lock_version)
+  end
+
   def owner_changeset(player, attrs) do
     player
     |> cast(attrs, [:user_id])

@@ -16,6 +16,6 @@ defmodule Scrabblex.Games.Tile do
     tile
     |> cast(attrs, [:score, :value, :wildcard])
     |> cast_embed(:position)
-    |> validate_required([:score, :value, :wildcard])
+    |> validate_required([:score, :wildcard])
   end
 end

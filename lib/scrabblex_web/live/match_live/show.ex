@@ -58,6 +58,15 @@ defmodule ScrabblexWeb.MatchLive.Show do
     |> assign(:current_player, current_player)
   end
 
+  defp apply_action(socket, :exchange_tiles, _) do
+    current_player =
+      Enum.find(socket.assigns.match.players, &(&1.user_id == socket.assigns.current_user.id))
+
+    socket
+    |> assign(:page_title, page_title(:exchange_tiles))
+    |> assign(:current_player, current_player)
+  end
+
   @impl true
   def handle_info({ScrabblexWeb.Presence, {:join, presence}}, socket) do
     {:noreply,
@@ -91,4 +100,5 @@ defmodule ScrabblexWeb.MatchLive.Show do
 
   defp page_title(:show), do: "Show Match"
   defp page_title(:edit_wildcard), do: "Edit wildcard tile"
+  defp page_title(:exchange_tiles), do: "Exchange tiles"
 end
