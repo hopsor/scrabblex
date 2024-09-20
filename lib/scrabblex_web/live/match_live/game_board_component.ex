@@ -4,6 +4,7 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
   alias Scrabblex.Games
   alias Scrabblex.Games.{Maptrix, Match, Player}
   alias ScrabblexWeb.MatchLive.TileComponent
+  alias ScrabblexWeb.MatchLive.PlayLog
 
   @impl true
   def render(assigns) do
@@ -93,8 +94,15 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
                   </div>
                 </div>
               </div>
-              <!-- Play history div -->
-              <div></div>
+            </div>
+            <!-- Play history div -->
+            <div id="play_log" class="rounded-md bg-white p-3 my-4 text-gray-500 h-96 overflow-scroll">
+              <div class="text-xl pb-3 text-gray-400 font-bold">Play log</div>
+              <div :for={play <- @match.plays} class="border-b mb-1 pb-1 px-1 text-xs">
+                <PlayLog.play :if={play.type == "play"} play={play} />
+                <PlayLog.skip :if={play.type == "skip"} play={play} />
+                <PlayLog.exchange :if={play.type == "exchange"} play={play} />
+              </div>
             </div>
           </div>
         </div>
