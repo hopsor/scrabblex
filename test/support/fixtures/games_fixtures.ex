@@ -6,7 +6,7 @@ defmodule Scrabblex.GamesFixtures do
 
   alias Scrabblex.Repo
   alias Scrabblex.Games
-  alias Scrabblex.Games.{Match, Lexicon, LexiconEntry, Tile}
+  alias Scrabblex.Games.{Match, Lexicon, LexiconEntry, Play, Tile}
 
   @doc """
   Generate a match.
@@ -47,6 +47,24 @@ defmodule Scrabblex.GamesFixtures do
       |> Scrabblex.Games.create_player()
 
     player
+  end
+
+  @doc """
+  Generate a play.
+  """
+  def play_fixture(attrs \\ %{}) do
+    {:ok, play} =
+      Repo.insert(%Play{
+        score: attrs[:score] || 10,
+        turn: attrs[:turn] || 0,
+        type: attrs[:type] || "play",
+        player_id: attrs[:player_id],
+        match_id: attrs[:match_id],
+        tiles: attrs[:tiles] || [],
+        words: attrs[:words] || []
+      })
+
+    play
   end
 
   @doc """

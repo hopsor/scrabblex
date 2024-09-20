@@ -46,8 +46,11 @@ defmodule Scrabblex.Games do
       ** (Ecto.NoResultsError)
 
   """
-  def get_match!(id),
-    do: Repo.get!(Match, id) |> Repo.preload([:plays, :lexicon, players: [:user]])
+  def get_match!(id) do
+    Match
+    |> Repo.get!(id)
+    |> Repo.preload([:lexicon, players: [:user], plays: [player: :user]])
+  end
 
   @doc """
   Creates a match.

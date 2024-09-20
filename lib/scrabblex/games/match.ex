@@ -20,7 +20,7 @@ defmodule Scrabblex.Games.Match do
     embeds_many :bag, Tile, on_replace: :delete
     belongs_to :lexicon, Lexicon
     has_many :players, Player, preload_order: [:id]
-    has_many :plays, Play, preload_order: [:id]
+    has_many :plays, Play, preload_order: [desc: :id]
 
     timestamps(type: :utc_datetime)
   end
