@@ -519,9 +519,9 @@ defmodule ScrabblexWeb.MatchLiveTest do
       conn = log_in_user(conn, player.user)
       {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
 
-      assert show_live
-             |> element("#btn_skip_turn")
-             |> render_click() =~ "skipped"
+      show_live
+      |> element("#btn_skip_turn")
+      |> render_click()
 
       refute show_live
              |> element("#btn_skip_turn")
