@@ -337,13 +337,12 @@ defmodule ScrabblexWeb.MatchLiveTest do
       tiles = Enum.take(player.hand, 3)
 
       # Creates the lexicon entry
-      lexicon_entry_value =
-        tiles
-        |> Enum.reduce("", fn tile, acc ->
-          acc <> tile.value
-        end)
+      word = tiles |> Enum.map(& &1.value) |> Enum.join("")
 
-      lexicon_entry_fixture(%{name: lexicon_entry_value, lexicon_id: lexicon_id})
+      lexicon_entry_fixture(%{
+        name: word,
+        lexicon_id: lexicon_id
+      })
 
       # Puts the tiles in the center horizontally
       hand_changesets =
@@ -385,6 +384,75 @@ defmodule ScrabblexWeb.MatchLiveTest do
       |> render_click()
 
       assert render(show_live) =~ "You must put some tiles on the board!"
+    end
+  end
+
+  describe "Show / Game Board / Play log" do
+    setup [:create_started_match, :presence_callback]
+
+    test "when a play has been submitted I can see it in the play log", %{
+      conn: conn,
+      match: %Match{players: [player | _]} = match
+    } do
+      play_fixture(%{
+        player_id: player.id,
+        match_id: match.id,
+        score: 2,
+        tiles: [
+          %{value: "N", score: 1, position: %{row: 7, column: 7}},
+          %{value: "O", score: 1, position: %{row: 7, column: 8}}
+        ],
+        words: [%{value: "NO", score: 2, positions: [%{row: 7, column: 7}, %{row: 7, column: 8}]}]
+      })
+
+      conn = log_in_user(conn, player.user)
+      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+
+      assert show_live
+             |> element("#play_log div.play")
+             |> has_element?()
+    end
+
+    test "when a play has skipped his turn I can see it in the play log", %{
+      conn: conn,
+      match: %Match{players: [player | _]} = match
+    } do
+      play_fixture(%{
+        player_id: player.id,
+        match_id: match.id,
+        score: 0,
+        tiles: [],
+        words: [],
+        type: "skip"
+      })
+
+      conn = log_in_user(conn, player.user)
+      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+
+      assert show_live
+             |> element("#play_log div.skip")
+             |> has_element?()
+    end
+
+    test "when a play has exchanged tiles I can see it in the play log", %{
+      conn: conn,
+      match: %Match{players: [player | _]} = match
+    } do
+      play_fixture(%{
+        player_id: player.id,
+        match_id: match.id,
+        score: 0,
+        tiles: [],
+        words: [],
+        type: "exchange"
+      })
+
+      conn = log_in_user(conn, player.user)
+      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+
+      assert show_live
+             |> element("#play_log div.exchange")
+             |> has_element?()
     end
   end
 
@@ -451,9 +519,9 @@ defmodule ScrabblexWeb.MatchLiveTest do
       conn = log_in_user(conn, player.user)
       {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
 
-      show_live
-      |> element("#btn_skip_turn")
-      |> render_click()
+      assert show_live
+             |> element("#btn_skip_turn")
+             |> render_click() =~ "skipped"
 
       refute show_live
              |> element("#btn_skip_turn")
