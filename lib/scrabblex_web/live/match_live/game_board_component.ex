@@ -16,7 +16,7 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
             <!-- Score div -->
             <div :for={player <- @match.players} class="flex flex-col border-l last:border-r">
               <div class="flex items-stretch">
-                <div class="flex-none w-10 m-2">
+                <div class="grow h-auto flex flex-col items-center justify-center mt-2">
                   <img
                     class="w-10 h-10 rounded-full"
                     src="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
@@ -77,7 +77,7 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
 
       <div class="max-w-5xl mx-auto">
         <div class="flex flex-row">
-          <div class="basis-8/12 p-4">
+          <div class="basis-8/12 py-4 pr-4">
             <div id="board_wrapper" class="grid grid-cols-15 gap-1">
               <%= for {row, column, booster, tile, played} <- @board_cells do %>
                 <.live_component
@@ -94,7 +94,7 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
             </div>
           </div>
           <div class="basis-4/12">
-            <div id="hand" class="grid grid-cols-7 gap-2 dropzone min-w-full max-w-md mx-auto mt-5">
+            <div id="hand" class="grid grid-cols-7 gap-2 dropzone min-w-full max-w-md mx-auto mt-4">
               <TileComponent.tile
                 :for={tile <- @parked_tiles}
                 tile={tile}
@@ -149,7 +149,7 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
             <!-- Play history div -->
             <div
               id="play_log"
-              class="rounded-md bg-white p-3 my-4 text-gray-500 h-96 overflow-scroll mt-10"
+              class="rounded-md bg-white p-3 my-4 text-gray-500 h-96 overflow-scroll mt-4"
             >
               <div class="text-xl pb-3 text-gray-400 font-bold">Play log</div>
               <p :if={@match.plays == []} class="text-center py-5">The game just started!</p>
