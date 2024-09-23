@@ -17,7 +17,7 @@ defmodule ScrabblexWeb.MatchLive.TileComponent do
         <%= @tile.value %>
       </div>
 
-      <div class="text-xs text-right absolute right-0.5 top-0.5"><%= @tile.score %></div>
+      <div class="text-xs text-right absolute right-0.5 bottom-0.5"><%= @tile.score %></div>
 
       <div
         :if={@tile.wildcard && !@played}
