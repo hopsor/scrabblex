@@ -17,6 +17,12 @@ defmodule ScrabblexWeb.MatchLive.LobbyComponent do
             :for={lobby_user <- @lobby_users}
             id={"lobby_user_#{lobby_user.user.id}"}
             class="flex min-w-0 gap-x-4 p-4 border-b border-gray-200 items-center last:border-b-0"
+            phx-mounted={
+              JS.transition({"ease-in duration-500", "opacity-0", "opacity-100"}, time: 500)
+            }
+            phx-remove={
+              JS.transition({"ease-out duration-500", "opacity-100", "opacity-0"}, time: 500)
+            }
           >
             <div class="relative flex-none">
               <img
