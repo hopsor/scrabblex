@@ -6,46 +6,56 @@ defmodule ScrabblexWeb.UserRegistrationLive do
 
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-sm">
-      <.header class="text-center">
-        Register for an account
-        <:subtitle>
-          Already registered?
-          <.link navigate={~p"/users/log_in"} class="font-semibold text-brand hover:underline">
-            Log in
+    <div class="p-10">
+      <div class="mx-auto max-w-lg rounded-xl bg-white p-10">
+        <h1 class="text-3xl font-bold text-center">Register for an account</h1>
+
+        <.simple_form
+          for={@form}
+          id="registration_form"
+          phx-submit="save"
+          phx-change="validate"
+          phx-trigger-action={@trigger_submit}
+          action={~p"/users/log_in?_action=registered"}
+          method="post"
+        >
+          <.error :if={@check_errors}>
+            Oops, something went wrong! Please check the errors below.
+          </.error>
+
+          <.input field={@form[:email]} type="email" label="Email" required />
+          <.input field={@form[:password]} type="password" label="Password" required />
+          <.input field={@form[:name]} type="text" label="Username" required />
+
+          <:actions>
+            <.button phx-disable-with="Creating account..." class="w-full">Create an account</.button>
+          </:actions>
+        </.simple_form>
+
+        <div class="relative mt-6">
+          <div class="absolute flex items-center inset-0">
+            <div class="w-full border-t border-gray-200"></div>
+          </div>
+          <div class="flex relative justify-center leading-6">
+            <span class="px-4 bg-white">or continue with</span>
+          </div>
+        </div>
+
+        <.button class="w-full mt-6">
+          <.link href={~p"/auth/github"} class="inline-flex items-baseline">
+            <img src={~p"/images/github-mark-white.svg"} class="w-6 mr-2 self-center" />
+            <span>Login with Github</span>
           </.link>
-          to your account now.
-        </:subtitle>
-      </.header>
+        </.button>
+      </div>
 
-      <.simple_form
-        for={@form}
-        id="registration_form"
-        phx-submit="save"
-        phx-change="validate"
-        phx-trigger-action={@trigger_submit}
-        action={~p"/users/log_in?_action=registered"}
-        method="post"
-      >
-        <.error :if={@check_errors}>
-          Oops, something went wrong! Please check the errors below.
-        </.error>
-
-        <.input field={@form[:email]} type="email" label="Email" required />
-        <.input field={@form[:password]} type="password" label="Password" required />
-        <.input field={@form[:name]} type="text" label="Username" required />
-
-        <:actions>
-          <.button phx-disable-with="Creating account..." class="w-full">Create an account</.button>
-        </:actions>
-      </.simple_form>
-
-      <.button class="w-full mt-3">
-        <.link href={~p"/auth/github"} class="inline-flex items-baseline">
-          <img src={~p"/images/github-mark-white.svg"} class="w-6 mr-2 self-center" />
-          <span>Login with Github</span>
+      <div class="text-center mt-10 text-sm">
+        Already registered?
+        <.link navigate={~p"/users/log_in"} class="font-semibold text-brand hover:underline">
+          Log in
         </.link>
-      </.button>
+        to your account now.
+      </div>
     </div>
     """
   end
