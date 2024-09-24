@@ -39,6 +39,13 @@ defmodule ScrabblexWeb.UserRegistrationLive do
           <.button phx-disable-with="Creating account..." class="w-full">Create an account</.button>
         </:actions>
       </.simple_form>
+
+      <.button class="w-full mt-3">
+        <.link href={~p"/auth/github"} class="inline-flex items-baseline">
+          <img src={~p"/images/github-mark-white.svg"} class="w-6 mr-2 self-center" />
+          <span>Login with Github</span>
+        </.link>
+      </.button>
     </div>
     """
   end

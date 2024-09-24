@@ -45,6 +45,24 @@ defmodule Scrabblex.Accounts do
   end
 
   @doc """
+  Tries to find a user given an email. Otherwise it'll register it in the database.
+
+  Useful for registration/login flows using an identity provider such as Github.
+  """
+  def get_user_by_email_or_register(email, extra \\ %{}) when is_binary(email) do
+    case Repo.get_by(User, email: email) do
+      nil ->
+        # user needs some password, lets generate it and not tell them.
+        pw = :crypto.strong_rand_bytes(30) |> Base.encode64(padding: false)
+        {:ok, user} = register_user(Map.merge(extra, %{email: email, password: pw}))
+        user
+
+      user ->
+        user
+    end
+  end
+
+  @doc """
   Gets a single user.
 
   Raises `Ecto.NoResultsError` if the User does not exist.

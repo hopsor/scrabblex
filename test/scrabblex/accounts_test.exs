@@ -35,6 +35,20 @@ defmodule Scrabblex.AccountsTest do
     end
   end
 
+  describe "get_user_by_email_or_register/2" do
+    test "creates and returns a new user when there isn't any previously with the same email" do
+      assert %User{} =
+               Accounts.get_user_by_email_or_register("john@foobar.com", %{name: "johnfoo"})
+    end
+
+    test "doesn't create and returns the existing user when there already is one with the same email" do
+      user_fixture(%{email: "john@foobar.com"})
+
+      assert %User{} =
+               Accounts.get_user_by_email_or_register("john@foobar.com", %{name: "johnfoo"})
+    end
+  end
+
   describe "get_user!/1" do
     test "raises if id is invalid" do
       assert_raise Ecto.NoResultsError, fn ->

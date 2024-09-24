@@ -9,11 +9,8 @@ defmodule Scrabblex.Accounts.User do
     field :current_password, :string, virtual: true, redact: true
     field :name, :string
     field :confirmed_at, :utc_datetime
-
-    field :avatar_url, :string,
-      virtual: true,
-      default:
-        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+    field :avatar_url, :string
+    field :github_url, :string
 
     timestamps(type: :utc_datetime)
   end
@@ -43,7 +40,7 @@ defmodule Scrabblex.Accounts.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    |> cast(attrs, [:email, :password, :name])
+    |> cast(attrs, [:email, :password, :name, :avatar_url, :github_url])
     |> validate_email(opts)
     |> validate_password(opts)
     |> validate_name(opts)
