@@ -29,6 +29,12 @@ defmodule ScrabblexWeb.UserLoginLive do
           <.button phx-disable-with="Logging in..." class="w-full">
             Log in <span aria-hidden="true">→</span>
           </.button>
+          <.button class="w-full ">
+            <.link href={~p"/auth/github"} class="inline-flex items-baseline">
+              <img src={~p"/images/github-mark-white.svg"} class="w-6 mr-2 self-center" />
+              <span>Login with Github</span>
+            </.link>
+          </.button>
         </:actions>
       </.simple_form>
     </div>

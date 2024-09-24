@@ -94,4 +94,10 @@ defmodule ScrabblexWeb.Router do
       live "/users/confirm", UserConfirmationInstructionsLive, :new
     end
   end
+
+  scope "/auth/github", ScrabblexWeb do
+    pipe_through [:browser]
+    get "/", GithubAuthController, :request
+    get "/callback", GithubAuthController, :callback
+  end
 end
