@@ -22,7 +22,12 @@
     <:col :let={{_id, match}} label="Id"><%= match.id %></:col>
     <:col :let={{_id, match}} label="Participants">
       <div class="flex -space-x-2 overflow-hidden">
-        <.avatar :for={user <- Enum.map(match.players, & &1.user)} user={user} title={user.name} class="ring-2 ring-white" />
+        <.avatar
+          :for={user <- Enum.map(match.players, & &1.user)}
+          user={user}
+          title={user.name}
+          class="ring-2 ring-white"
+        />
       </div>
     </:col>
     <:col :let={{_id, match}} label="Created at"><%= match.inserted_at %></:col>

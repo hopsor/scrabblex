@@ -6,16 +6,22 @@
           <div class="my-3 text-sm">
             <.link href={~p"/"}>
               <div class="mb-1">
-                <div :for={character <- ["L", "I", "V", "E"]} class="inline-block rounded w-5 h-5 bg-gray-200 text-gray-800 mr-1 text-center font-bold">
+                <div
+                  :for={character <- ["L", "I", "V", "E"]}
+                  class="inline-block rounded w-5 h-5 bg-gray-200 text-gray-800 mr-1 text-center font-bold"
+                >
                   <%= character %>
                 </div>
               </div>
               <div>
-                <div :for={character <- ["W", "O", "R", "D", "S"]} class="inline-block rounded w-5 h-5 bg-gray-200 text-gray-800 mr-1 text-center font-bold">
+                <div
+                  :for={character <- ["W", "O", "R", "D", "S"]}
+                  class="inline-block rounded w-5 h-5 bg-gray-200 text-gray-800 mr-1 text-center font-bold"
+                >
                   <%= character %>
                 </div>
               </div>
-              </.link>
+            </.link>
           </div>
           <.nav_links :if={@current_user} active_tab={@active_tab} />
         </div>
