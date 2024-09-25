@@ -180,7 +180,9 @@ defmodule ScrabblexWeb.MatchLiveTest do
 
       rendered_view = render(show_live)
 
-      assert rendered_view =~ "Game Board"
+      assert rendered_view =~ "TILES LEFT"
+      assert rendered_view =~ "LEXICON"
+      assert rendered_view =~ "TURN #"
       refute rendered_view =~ "Lobby"
     end
   end

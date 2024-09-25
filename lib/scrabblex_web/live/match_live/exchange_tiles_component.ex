@@ -12,7 +12,7 @@ defmodule ScrabblexWeb.MatchLive.ExchangeTilesComponent do
         <:subtitle>Pick the tiles you want to exchange</:subtitle>
       </.header>
 
-      <div id="choices" class="grid grid-cols-7 gap-4">
+      <div id="choices" class="grid grid-cols-7 gap-4 mt-5">
         <div
           :for={tile <- @current_player.hand}
           phx-click="toggle_tile"
@@ -24,7 +24,7 @@ defmodule ScrabblexWeb.MatchLive.ExchangeTilesComponent do
         </div>
       </div>
 
-      <div>
+      <div class="mt-5">
         <.button
           id="submit_exchange"
           phx-click="submit"
@@ -33,7 +33,9 @@ defmodule ScrabblexWeb.MatchLive.ExchangeTilesComponent do
         >
           Submit exchange
         </.button>
-        <.link patch={~p"/matches/#{@match}"}>Cancel</.link>
+        <.button>
+          <.link patch={~p"/matches/#{@match}"}>Cancel</.link>
+        </.button>
       </div>
     </div>
     """

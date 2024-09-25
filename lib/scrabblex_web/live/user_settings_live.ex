@@ -5,13 +5,18 @@ defmodule ScrabblexWeb.UserSettingsLive do
 
   def render(assigns) do
     ~H"""
-    <.header class="text-center">
-      Account Settings
-      <:subtitle>Manage your account email address and password settings</:subtitle>
-    </.header>
+    <div class="bg-white shadow">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <.header class="text-center">
+          Account Settings
+          <:subtitle>Manage your account settings</:subtitle>
+        </.header>
+      </div>
+    </div>
 
-    <div class="space-y-12 divide-y">
-      <div>
+    <div class="max-w-6xl mx-auto grid grid-cols-2 gap-6 mt-6">
+      <div class="p-6 bg-white rounded-xl">
+        <h1 class="text-2xl font-bold">Change Email</h1>
         <.simple_form
           for={@email_form}
           id="email_form"
@@ -33,7 +38,8 @@ defmodule ScrabblexWeb.UserSettingsLive do
           </:actions>
         </.simple_form>
       </div>
-      <div>
+      <div class="p-6 bg-white rounded-xl">
+        <h1 class="text-2xl font-bold">Change Password</h1>
         <.simple_form
           for={@password_form}
           id="password_form"

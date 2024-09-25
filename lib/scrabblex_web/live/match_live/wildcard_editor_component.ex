@@ -12,7 +12,7 @@ defmodule ScrabblexWeb.MatchLive.WildcardEditorComponent do
         <:subtitle>Click on the desired value</:subtitle>
       </.header>
 
-      <div id="choices" class="grid grid-cols-6 gap-4">
+      <div id="choices" class="grid grid-cols-6 gap-4 mt-5">
         <div
           :for={choice <- @choices}
           phx-click="commit_wildcard_value"

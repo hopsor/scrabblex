@@ -1,10 +1,27 @@
 <div class="min-h-full">
-  <nav class="bg-gray-800">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-      <div class="flex h-16 items-center justify-between">
+  <nav class="bg-gray-800 shadow">
+    <div class="mx-auto max-w-7xl px-4">
+      <div class="flex items-center justify-between">
         <div class="flex items-center">
-          <div class="flex-shrink-0 text-white">
-            Scrabblex
+          <div class="my-3 text-sm">
+            <.link href={~p"/"}>
+              <div class="mb-1">
+                <div
+                  :for={character <- ["L", "I", "V", "E"]}
+                  class="inline-block rounded w-5 h-5 bg-gray-200 text-gray-800 mr-1 text-center font-bold"
+                >
+                  <%= character %>
+                </div>
+              </div>
+              <div>
+                <div
+                  :for={character <- ["W", "O", "R", "D", "S"]}
+                  class="inline-block rounded w-5 h-5 bg-gray-200 text-gray-800 mr-1 text-center font-bold"
+                >
+                  <%= character %>
+                </div>
+              </div>
+            </.link>
           </div>
           <.nav_links :if={@current_user} active_tab={@active_tab} />
         </div>

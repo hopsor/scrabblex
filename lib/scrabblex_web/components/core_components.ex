@@ -202,7 +202,7 @@ defmodule ScrabblexWeb.CoreComponents do
   def simple_form(assigns) do
     ~H"""
     <.form :let={f} for={@for} as={@as} {@rest}>
-      <div class="mt-10 space-y-8 bg-white">
+      <div class="mt-8 space-y-8 bg-white">
         <%= render_slot(@inner_block, f) %>
         <div :for={action <- @actions} class="mt-2 flex items-center justify-between gap-6">
           <%= render_slot(action, f) %>
@@ -427,19 +427,17 @@ defmodule ScrabblexWeb.CoreComponents do
 
   def header(assigns) do
     ~H"""
-    <div class="bg-white p-8 shadow">
-      <header class={[@actions != [] && "lg:flex lg:items-center lg:justify-between", @class]}>
-        <div class="min-w-0 flex-1">
-          <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-            <%= render_slot(@inner_block) %>
-          </h1>
-          <p :if={@subtitle != []} class="mt-2 text-sm leading-6 text-zinc-600">
-            <%= render_slot(@subtitle) %>
-          </p>
-        </div>
-        <div class="mt-5 flex lg:ml-4 lg:mt-0"><%= render_slot(@actions) %></div>
-      </header>
-    </div>
+    <header class={[@actions != [] && "flex items-center justify-between gap-6", @class]}>
+      <div>
+        <h1 class="text-3xl font-semibold leading-8 text-zinc-800">
+          <%= render_slot(@inner_block) %>
+        </h1>
+        <p :if={@subtitle != []} class="mt-2 text-sm leading-6 text-zinc-600">
+          <%= render_slot(@subtitle) %>
+        </p>
+      </div>
+      <div class="flex-none"><%= render_slot(@actions) %></div>
+    </header>
     """
   end
 
@@ -475,12 +473,14 @@ defmodule ScrabblexWeb.CoreComponents do
       end
 
     ~H"""
-    <div class="overflow-y-auto px-4 sm:overflow-visible sm:px-0">
-      <table class="w-[40rem] mt-11 sm:w-full">
-        <thead class="text-sm text-left leading-6 text-zinc-500">
+    <div class="shadow rounded-lg overflow-hidden">
+      <table class="w-full">
+        <thead class="text-sm text-left leading-6 text-zinc-500 bg-gray-100 border-gray-300 ">
           <tr>
-            <th :for={col <- @col} class="p-0 pb-4 pr-6 font-normal"><%= col[:label] %></th>
-            <th :if={@action != []} class="relative p-0 pb-4">
+            <th :for={col <- @col} class="p-4 font-normal font-semibold">
+              <%= col[:label] %>
+            </th>
+            <th :if={@action != []} class="relative p-4">
               <span class="sr-only"><%= gettext("Actions") %></span>
             </th>
           </tr>
@@ -492,24 +492,21 @@ defmodule ScrabblexWeb.CoreComponents do
         >
           <tr :for={row <- @rows} id={@row_id && @row_id.(row)} class="group hover:bg-zinc-50">
             <td
-              :for={{col, i} <- Enum.with_index(@col)}
+              :for={{col, _i} <- Enum.with_index(@col)}
               phx-click={@row_click && @row_click.(row)}
-              class={["relative p-0", @row_click && "hover:cursor-pointer"]}
+              class={["relative p-4 bg-white", @row_click && "hover:cursor-pointer"]}
             >
-              <div class="block py-4 pr-6">
+              <div class="block">
                 <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 sm:rounded-l-xl" />
-                <span class={["relative", i == 0 && "font-semibold text-zinc-900"]}>
+                <span class="relative">
                   <%= render_slot(col, @row_item.(row)) %>
                 </span>
               </div>
             </td>
-            <td :if={@action != []} class="relative w-14 p-0">
-              <div class="relative whitespace-nowrap py-4 text-right text-sm font-medium">
+            <td :if={@action != []} class="relative w-14 p-0 bg-white">
+              <div class="block">
                 <span class="absolute -inset-y-px -right-4 left-0 group-hover:bg-zinc-50 sm:rounded-r-xl" />
-                <span
-                  :for={action <- @action}
-                  class="relative ml-4 font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
-                >
+                <span :for={action <- @action} class="relative">
                   <%= render_slot(action, @row_item.(row)) %>
                 </span>
               </div>
@@ -696,10 +693,7 @@ defmodule ScrabblexWeb.CoreComponents do
       </.dropdown>
   """
   attr :id, :string, required: true
-
-  slot :img do
-    attr :src, :string
-  end
+  attr :user, :any
 
   slot :title
 
@@ -725,9 +719,8 @@ defmodule ScrabblexWeb.CoreComponents do
         >
           <span class="absolute -inset-1.5"></span>
           <span class="sr-only">Open user menu</span>
-          <%= for img <- @img do %>
-            <img class="h-8 w-8 rounded-full" alt="" {assigns_to_attributes(img)} />
-          <% end %>
+
+          <.avatar user={@user} />
         </button>
       </div>
       <div
@@ -770,5 +763,42 @@ defmodule ScrabblexWeb.CoreComponents do
          "transform opacity-0 scale-95"}
     )
     |> JS.remove_attribute("aria-expanded", to: to)
+  end
+
+  attr :class, :string, default: nil
+  attr :title, :string, default: ""
+  attr :online, :boolean, default: nil
+  attr :user, :any
+
+  def avatar(assigns) do
+    ~H"""
+    <div class="relative flex-none">
+      <div
+        :if={!@user.avatar_url}
+        class={["w-10 h-10 rounded-full bg-gray-200 flex items-center", @class]}
+        title={@title}
+      >
+        <span class="flex-auto text-center text-gray-800">
+          <%= String.at(@user.name, 0) |> String.upcase() %>
+        </span>
+      </div>
+      <img
+        :if={@user.avatar_url}
+        class={["w-10 h-10 rounded-full", @class]}
+        src={@user.avatar_url}
+        title={@title}
+      />
+      <div
+        :if={@online == true}
+        class="bottom-0 left-7 absolute w-3.5 h-3.5 border-2 border-white rounded-full bg-green-400 online"
+      >
+      </div>
+      <div
+        :if={@online == false}
+        class="bottom-0 left-7 absolute w-3.5 h-3.5 border-2 border-white rounded-full bg-red-400 offline"
+      >
+      </div>
+    </div>
+    """
   end
 end

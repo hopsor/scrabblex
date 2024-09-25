@@ -1,13 +1,17 @@
-<.header>
-  Listing Matches
-  <:actions>
-    <.link patch={~p"/matches/new"}>
-      <.button>
-        <.icon name="hero-plus" /> New Match
-      </.button>
-    </.link>
-  </:actions>
-</.header>
+<div class="bg-white shadow">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <.header>
+      Listing Matches
+      <:actions>
+        <.link patch={~p"/matches/new"}>
+          <.button>
+            <.icon name="hero-plus" /> New Match
+          </.button>
+        </.link>
+      </:actions>
+    </.header>
+  </div>
+</div>
 
 <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
   <.table
@@ -15,13 +19,20 @@
     rows={@streams.matches}
     row_click={fn {_id, match} -> JS.navigate(~p"/matches/#{match}") end}
   >
+    <:col :let={{_id, match}} label="Id"><%= match.id %></:col>
+    <:col :let={{_id, match}} label="Participants">
+      <div class="flex -space-x-2 overflow-hidden">
+        <.avatar
+          :for={user <- Enum.map(match.players, & &1.user)}
+          user={user}
+          title={user.name}
+          class="ring-2 ring-white"
+        />
+      </div>
+    </:col>
+    <:col :let={{_id, match}} label="Created at"><%= match.inserted_at %></:col>
     <:col :let={{_id, match}} label="Lexicon"><%= match.lexicon.name %></:col>
     <:col :let={{_id, match}} label="Status"><%= match.status %></:col>
-    <:action :let={{_id, match}}>
-      <div class="sr-only">
-        <.link navigate={~p"/matches/#{match}"}>Show</.link>
-      </div>
-    </:action>
   </.table>
 </div>
 

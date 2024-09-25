@@ -9,7 +9,11 @@ defmodule ScrabblexWeb.MatchLive.LobbyComponent do
   def render(assigns) do
     ~H"""
     <div>
-      <.header>New Match: Lobby</.header>
+      <div class="bg-white shadow">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <.header>New Match: Lobby</.header>
+        </div>
+      </div>
 
       <div id="lobby_users" class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div class="bg-white rounded-lg mb-4">
@@ -17,20 +21,14 @@ defmodule ScrabblexWeb.MatchLive.LobbyComponent do
             :for={lobby_user <- @lobby_users}
             id={"lobby_user_#{lobby_user.user.id}"}
             class="flex min-w-0 gap-x-4 p-4 border-b border-gray-200 items-center last:border-b-0"
+            phx-mounted={
+              JS.transition({"ease-in duration-500", "opacity-0", "opacity-100"}, time: 500)
+            }
+            phx-remove={
+              JS.transition({"ease-out duration-500", "opacity-100", "opacity-0"}, time: 500)
+            }
           >
-            <div class="relative flex-none">
-              <img
-                class="w-10 h-10 rounded-full"
-                src="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
-                alt=""
-              />
-              <span class={[
-                "bottom-0 left-7 absolute w-3.5 h-3.5 border-2 border-white dark:border-gray-800 rounded-full",
-                lobby_user.online == true && "bg-green-400 online",
-                lobby_user.online == false && "bg-red-400 offline"
-              ]}>
-              </span>
-            </div>
+            <.avatar user={lobby_user.user} online={lobby_user.online} />
 
             <div class="min-w-0 flex-auto">
               <p class="text-sm font-semibold leading-6 text-gray-900">

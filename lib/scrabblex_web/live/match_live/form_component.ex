@@ -9,7 +9,7 @@ defmodule ScrabblexWeb.MatchLive.FormComponent do
     <div>
       <.header>
         <%= @title %>
-        <:subtitle>Use this form to manage match records in your database.</:subtitle>
+        <:subtitle>Use this form to create a new match to play with friends.</:subtitle>
       </.header>
 
       <.simple_form
@@ -32,7 +32,7 @@ defmodule ScrabblexWeb.MatchLive.FormComponent do
   def mount(socket) do
     lexicon_options =
       Scrabblex.Games.list_lexicons()
-      |> Enum.map(&{"#{&1.name} (#{&1.flag})", &1.id})
+      |> Enum.map(&{"#{&1.flag} #{&1.name}", &1.id})
       |> Enum.into(%{})
 
     {:ok, assign(socket, :lexicon_options, lexicon_options)}
