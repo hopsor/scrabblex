@@ -11,18 +11,14 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
     ~H"""
     <div id="game_board" phx-hook="Drag" phx-target={@myself}>
       <div class="bg-white shadow">
-        <div class="max-w-5xl mx-auto grid grid-cols-3">
+        <div class="max-w-7xl mx-auto grid grid-cols-3 px-4">
           <div class="col-span-2 grid grid-cols-4">
             <!-- Score div -->
-            <div :for={player <- @match.players} class="flex flex-col border-l last:border-r">
+            <div :for={player <- @match.players} class="flex flex-col border-l last:border-r pt-1">
               <div class="flex items-stretch">
                 <div class="grow h-auto flex flex-col items-center justify-center mt-2">
-                  <img
-                    class="w-10 h-10 rounded-full"
-                    src="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
-                    alt=""
-                  />
-                  <div class="text-sm font-semibold leading-6 text-center text-gray-600">
+                  <.avatar user={player.user} />
+                  <div class="text-sm font-semibold leading-6 text-center text-gray-500">
                     <%= player.user.name %>
                   </div>
                 </div>
@@ -36,9 +32,13 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
 
               <div
                 :if={@player_on_turn == player}
-                class="w-full h-1 bg-green-600"
-                phx-mounted={JS.transition("animate-pulse", time: 500)}
-                phx-remove={JS.transition("animate-pulse", time: 500)}
+                class="w-full h-1 bg-green-400 mt-1"
+                phx-mounted={
+                  JS.transition({"ease-in duration-500", "opacity-0", "opacity-100"}, time: 500)
+                }
+                phx-remove={
+                  JS.transition({"ease-out duration-500", "opacity-100", "opacity-0"}, time: 500)
+                }
               >
               </div>
             </div>
@@ -75,7 +75,7 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
         </div>
       </div>
 
-      <div class="max-w-5xl mx-auto">
+      <div class="max-w-7xl mx-auto px-4">
         <div class="flex flex-row">
           <div class="basis-8/12 py-4 pr-4">
             <div id="board_wrapper" class="grid grid-cols-15 gap-1">
