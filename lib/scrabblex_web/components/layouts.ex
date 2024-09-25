@@ -17,8 +17,7 @@ defmodule ScrabblexWeb.Layouts do
 
   def nav_account_dropdown(assigns) do
     ~H"""
-    <.dropdown id={@id}>
-      <:img src={@current_user.avatar_url} />
+    <.dropdown id={@id} user={@current_user}>
       <:link navigate={~p"/users/settings"}>Settings</:link>
       <:link href={~p"/users/log_out"} method={:delete}>Sign out</:link>
     </.dropdown>
@@ -26,14 +25,12 @@ defmodule ScrabblexWeb.Layouts do
   end
 
   attr :id, :string
-  attr :current_user, :any
   attr :active_tab, :atom
 
   def nav_links(assigns) do
     ~H"""
     <div class="hidden md:block">
       <div class="ml-10 flex items-baseline space-x-4">
-        <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
         <.link
           href={~p"/matches"}
           class={"rounded-md px-3 py-2 text-sm font-medium text-gray-300 #{if @active_tab == :match, do: "bg-gray-900 text-white", else: "hover:bg-gray-700 hover:text-white"}"}
