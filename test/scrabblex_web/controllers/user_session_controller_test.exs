@@ -18,8 +18,9 @@ defmodule ScrabblexWeb.UserSessionControllerTest do
       assert redirected_to(conn) == ~p"/"
 
       # Now do a logged in request and assert on the menu
-      conn = get(conn, ~p"/")
-      assert redirected_to(conn) == ~p"/matches"
+      conn = get(conn, ~p"/matches")
+      response = html_response(conn, 200)
+      assert response =~ "Sign out"
     end
 
     test "logs the user in with remember me", %{conn: conn, user: user} do
