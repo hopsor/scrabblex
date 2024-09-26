@@ -9,6 +9,7 @@ defmodule Scrabblex.Application do
   def start(_type, _args) do
     children = [
       ScrabblexWeb.Telemetry,
+      Scrabblex.SupervisedSqids,
       Scrabblex.Repo,
       {DNSCluster, query: Application.get_env(:scrabblex, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Scrabblex.PubSub},

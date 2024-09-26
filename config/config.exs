@@ -69,6 +69,15 @@ config :assent,
     redirect_uri: System.get_env("GITHUB_REDIRECT_URL")
   ]
 
+config :scrabblex, Scrabblex.SupervisedSqids,
+  min_length: System.get_env("SQIDS_PADDING", "1") |> String.to_integer(),
+  prefix: System.get_env("SQIDS_PREFIX", "1") |> String.to_integer(),
+  alphabet:
+    System.get_env(
+      "SQIDS_ALPHABET",
+      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    )
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

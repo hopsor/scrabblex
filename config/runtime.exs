@@ -121,4 +121,9 @@ if config_env() == :prod do
       client_secret: System.get_env("GITHUB_CLIENT_SECRET"),
       redirect_uri: System.get_env("GITHUB_REDIRECT_URL")
     ]
+
+  config :scrabblex, Scrabblex.SupervisedSqids,
+    min_length: System.get_env("SQIDS_PADDING") |> String.to_integer(),
+    prefix: System.get_env("SQIDS_PREFIX") |> String.to_integer(),
+    alphabet: System.get_env("SQIDS_ALPHABET")
 end
