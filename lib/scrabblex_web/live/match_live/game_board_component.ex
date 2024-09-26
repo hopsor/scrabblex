@@ -124,7 +124,7 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
                 <.icon name="hero-x-mark" />
               </.button>
               <.button :if={@can_exchange} id="btn_exchange_tiles" title="Exchange tiles">
-                <.link patch={~p"/matches/#{@match.id}/exchange_tiles"}>
+                <.link patch={~p"/m/#{@match}/exchange_tiles"}>
                   <.icon name="hero-arrow-path-rounded-square" />
                 </.link>
               </.button>
@@ -308,7 +308,7 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
         {:noreply,
          socket
          |> put_flash(:error, "Your data was stale. Reloading the page to fetch fresh data")
-         |> push_navigate(to: ~p"/matches/#{socket.assigns.match}")}
+         |> push_navigate(to: ~p"/m/#{socket.assigns.match}")}
     end
   end
 

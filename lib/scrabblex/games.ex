@@ -32,8 +32,14 @@ defmodule Scrabblex.Games do
     |> Repo.preload([:lexicon, players: [:user]])
   end
 
+  def get_match!(friendly_id) when is_binary(friendly_id) do
+    Match
+    |> Repo.get_by!(friendly_id: friendly_id)
+    |> Repo.preload([:lexicon, players: [:user], plays: [player: :user]])
+  end
+
   @doc """
-  Gets a single match.
+  Gets a single match by its id.
 
   Raises `Ecto.NoResultsError` if the Match does not exist.
 

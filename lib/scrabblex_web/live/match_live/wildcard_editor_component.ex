@@ -71,13 +71,13 @@ defmodule ScrabblexWeb.MatchLive.WildcardEditorComponent do
       {:noreply,
        socket
        |> put_flash!(:info, "Wildcard updated to #{choice}")
-       |> push_patch(to: ~p"/matches/#{socket.assigns.match}")}
+       |> push_patch(to: ~p"/m/#{socket.assigns.match}")}
     else
       {:error, :stale_player} ->
         {:noreply,
          socket
          |> put_flash(:error, "Your data was stale. Reloading the page to fetch fresh data")
-         |> push_navigate(to: ~p"/matches/#{socket.assigns.match}")}
+         |> push_navigate(to: ~p"/m/#{socket.assigns.match}")}
     end
   end
 end

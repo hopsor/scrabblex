@@ -4,18 +4,19 @@ defmodule ScrabblexWeb.MatchLive.Show do
   alias Scrabblex.Games
 
   @impl true
-  def mount(%{"id" => match_id}, _session, socket) do
-    events_topic = "match:#{match_id}:events"
+  def mount(%{"friendly_id" => friendly_id}, _session, socket) do
+    match = Games.get_match!(friendly_id)
+    events_topic = "match:#{match.id}:events"
 
     socket =
       socket
-      |> assign(:match, Games.get_match!(match_id))
+      |> assign(:match, match)
       |> assign(:events_topic, events_topic)
       |> assign(:presences, %{})
 
     socket =
       if connected?(socket) do
-        presence_topic = "match:#{match_id}:online_users"
+        presence_topic = "match:#{match.id}:online_users"
 
         ScrabblexWeb.Presence.track_user(presence_topic, socket.assigns.current_user.id, %{})
         ScrabblexWeb.Presence.subscribe(presence_topic)
