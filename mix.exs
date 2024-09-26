@@ -60,7 +60,8 @@ defmodule Scrabblex.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
-      {:assent, "~> 0.2.10"}
+      {:assent, "~> 0.2.10"},
+      {:sqids, "~> 0.1.3"}
     ]
   end
 
