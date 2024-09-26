@@ -20,7 +20,12 @@ defmodule ScrabblexWeb.MatchLive.ExchangeTilesComponent do
           phx-value-tile-id={tile.id}
           class={["rounded-md cursor-pointer", tile in @selected_tiles && "outline outline-blue-600"]}
         >
-          <TileComponent.tile tile={tile} match_id={@match.id} draggable_class="" played={true} />
+          <TileComponent.tile
+            tile={tile}
+            friendly_id={@match.friendly_id}
+            draggable_class=""
+            played={true}
+          />
         </div>
       </div>
 

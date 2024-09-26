@@ -88,7 +88,7 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
                   id={"slot_#{row}_#{column}"}
                   tile={tile}
                   played={played}
-                  match_id={@match.id}
+                  friendly_id={@match.friendly_id}
                 />
               <% end %>
             </div>
@@ -98,7 +98,7 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
               <TileComponent.tile
                 :for={tile <- @parked_tiles}
                 tile={tile}
-                match_id={@match.id}
+                friendly_id={@match.friendly_id}
                 draggable_class="draggable"
                 played={false}
               />

@@ -23,7 +23,7 @@ defmodule ScrabblexWeb.MatchLive.BoardSlotComponent do
         :if={@tile}
         tile={@tile}
         draggable_class={@draggable_class}
-        match_id={@match_id}
+        friendly_id={@friendly_id}
         played={@played}
       />
     </div>
@@ -38,7 +38,7 @@ defmodule ScrabblexWeb.MatchLive.BoardSlotComponent do
           column: column,
           tile: tile,
           played: played,
-          match_id: match_id
+          friendly_id: friendly_id
         },
         socket
       ) do
@@ -63,7 +63,7 @@ defmodule ScrabblexWeb.MatchLive.BoardSlotComponent do
      |> assign(:tile, tile)
      |> assign(:dropzone_class, dropzone_class)
      |> assign(:draggable_class, draggable_class)
-     |> assign(:match_id, match_id)
+     |> assign(:friendly_id, friendly_id)
      |> assign(:played, played)}
   end
 end
