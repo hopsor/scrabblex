@@ -71,7 +71,6 @@ config :assent,
 
 config :scrabblex, Scrabblex.SupervisedSqids,
   min_length: System.get_env("SQIDS_PADDING", "1") |> String.to_integer(),
-  prefix: System.get_env("SQIDS_PREFIX", "1") |> String.to_integer(),
   alphabet:
     System.get_env(
       "SQIDS_ALPHABET",

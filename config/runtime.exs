@@ -124,6 +124,5 @@ if config_env() == :prod do
 
   config :scrabblex, Scrabblex.SupervisedSqids,
     min_length: System.get_env("SQIDS_PADDING") |> String.to_integer(),
-    prefix: System.get_env("SQIDS_PREFIX") |> String.to_integer(),
     alphabet: System.get_env("SQIDS_ALPHABET")
 end
