@@ -10,76 +10,90 @@ defmodule ScrabblexWeb.MatchLive.LobbyComponent do
     ~H"""
     <div>
       <div class="bg-white shadow">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="max-w-7xl mx-auto px-4 py-8">
           <.header>New Match: Lobby</.header>
         </div>
       </div>
 
-      <div id="lobby_users" class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <div class="bg-white rounded-lg mb-4">
-          <div
-            :for={lobby_user <- @lobby_users}
-            id={"lobby_user_#{lobby_user.user.id}"}
-            class="flex min-w-0 gap-x-4 p-4 border-b border-gray-200 items-center last:border-b-0"
-            phx-mounted={
-              JS.transition({"ease-in duration-500", "opacity-0", "opacity-100"}, time: 500)
-            }
-            phx-remove={
-              JS.transition({"ease-out duration-500", "opacity-100", "opacity-0"}, time: 500)
-            }
-          >
-            <.avatar user={lobby_user.user} online={lobby_user.online} />
-
-            <div class="min-w-0 flex-auto">
-              <p class="text-sm font-semibold leading-6 text-gray-900">
-                <%= lobby_user.user.name %>
-              </p>
-
-              <span
-                :if={lobby_user.owner}
-                class="inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-800 ring-1 ring-inset ring-yellow-600/20"
-              >
-                Owner
-              </span>
-            </div>
-
+      <div id="lobby_users" class="mx-auto max-w-7xl my-5 grid grid-cols-6 gap-5 px-4">
+        <div class="col-span-4">
+          <div class="bg-white rounded-lg">
             <div
-              :if={lobby_user.joined}
-              class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20"
+              :for={lobby_user <- @lobby_users}
+              id={"lobby_user_#{lobby_user.user.id}"}
+              class="flex min-w-0 gap-x-4 p-4 border-b border-gray-200 items-center last:border-b-0"
+              phx-mounted={
+                JS.transition({"ease-in duration-500", "opacity-0", "opacity-100"}, time: 500)
+              }
+              phx-remove={
+                JS.transition({"ease-out duration-500", "opacity-100", "opacity-0"}, time: 500)
+              }
             >
-              <.icon name="hero-check" /> Joined
+              <.avatar user={lobby_user.user} online={lobby_user.online} />
+
+              <div class="min-w-0 flex-auto">
+                <p class="text-sm font-semibold leading-6 text-gray-900">
+                  <%= lobby_user.user.name %>
+                </p>
+
+                <span
+                  :if={lobby_user.owner}
+                  class="inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-800 ring-1 ring-inset ring-yellow-600/20"
+                >
+                  Owner
+                </span>
+              </div>
+
+              <div
+                :if={lobby_user.joined}
+                class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20"
+              >
+                <.icon name="hero-check" /> Joined
+              </div>
             </div>
           </div>
+          <div class="mt-4">
+            <.button
+              :if={@joinable?}
+              id="btn_join"
+              phx-click="join"
+              phx-disable-with="Joining..."
+              phx-target={@myself}
+              class="text-white font-bold py-2 px-4 rounded"
+            >
+              Join
+            </.button>
+            <.button
+              :if={@leavable?}
+              id="btn_leave"
+              phx-click="leave"
+              phx-disable-with="Leaving..."
+              phx-target={@myself}
+              class="text-white font-bold py-2 px-4 rounded"
+            >
+              Leave
+            </.button>
+            <.button
+              :if={@startable?}
+              phx-click="start"
+              phx-disable-with="Starting..."
+              phx-target={@myself}
+              class="text-white font-bold py-2 px-4 rounded"
+            >
+              Start
+            </.button>
+          </div>
         </div>
-        <button
-          :if={@joinable?}
-          id="btn_join"
-          phx-click="join"
-          phx-disable-with="Joining..."
-          phx-target={@myself}
-          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Join
-        </button>
-        <button
-          :if={@leavable?}
-          id="btn_leave"
-          phx-click="leave"
-          phx-disable-with="Leaving..."
-          phx-target={@myself}
-          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Leave
-        </button>
-        <button
-          :if={@startable?}
-          phx-click="start"
-          phx-disable-with="Starting..."
-          phx-target={@myself}
-          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Start
-        </button>
+        <div class="col-span-2">
+          <div class="rounded-lg bg-white p-5">
+            <h1 class="font-bold text-2xl mb-2">Play with your friends</h1>
+            <p class="text-sm text-gray-500 mb-2">Send them the link to join the match.</p>
+            <.input id="match_url" name="match_url" value={url(~p"/m/#{@match}")} readonly />
+            <.button id="copy" data-to="#match_url" phx-hook="Copy" class="mt-2">
+              <.icon name="hero-square-2-stack" />
+            </.button>
+          </div>
+        </div>
       </div>
     </div>
     """
