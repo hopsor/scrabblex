@@ -12,11 +12,15 @@ defmodule Scrabblex.Games.Match do
 
   use Ecto.Schema
   import Ecto.Changeset
+  alias Scrabblex.SupervisedSqids
   alias Scrabblex.Games.{Lexicon, Play, Player, Tile}
+
+  @derive {Phoenix.Param, key: :friendly_id}
 
   schema "matches" do
     field :status, :string
     field :turn, :integer
+    field :friendly_id, :string
     embeds_many :bag, Tile, on_replace: :delete
     belongs_to :lexicon, Lexicon
     has_many :players, Player, preload_order: [:id]
@@ -40,6 +44,22 @@ defmodule Scrabblex.Games.Match do
     |> put_change(:turn, 0)
     |> validate_required(:lexicon_id)
     |> validate_length(:players, is: 1)
+    |> prepare_changes(fn changeset ->
+      case changeset do
+        %Ecto.Changeset{action: :insert, valid?: true} ->
+          {:ok, %Postgrex.Result{rows: [[match_id]]}} =
+            changeset.repo.query("SELECT NEXTVAL('matches_id_seq')")
+
+          friendly_id = SupervisedSqids.encode!([match_id])
+
+          changeset
+          |> put_change(:id, match_id)
+          |> put_change(:friendly_id, friendly_id)
+
+        _ ->
+          changeset
+      end
+    end)
   end
 
   def start_changeset(match, attrs) do

@@ -70,7 +70,7 @@ defmodule ScrabblexWeb.MatchLive.FormComponent do
         {:noreply,
          socket
          |> put_flash(:info, "Match created successfully")
-         |> push_navigate(to: ~p"/matches/#{match}")}
+         |> push_navigate(to: ~p"/m/#{match}")}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}

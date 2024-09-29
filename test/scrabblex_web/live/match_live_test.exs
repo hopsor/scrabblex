@@ -67,7 +67,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
     test "displays the lobby when match status is created", %{conn: conn, match: match} do
       user = user_fixture()
       conn = log_in_user(conn, user)
-      {:ok, _show_live, html} = live(conn, ~p"/matches/#{match}")
+      {:ok, _show_live, html} = live(conn, ~p"/m/#{match}")
 
       assert html =~ "Lobby"
     end
@@ -75,7 +75,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
     test "shows a join button when connected user isn't a player", %{conn: conn, match: match} do
       user = user_fixture()
       conn = log_in_user(conn, user)
-      {:ok, _show_live, html} = live(conn, ~p"/matches/#{match}")
+      {:ok, _show_live, html} = live(conn, ~p"/m/#{match}")
 
       assert html =~ "Join"
     end
@@ -87,7 +87,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
       user = user_fixture()
       _player = player_fixture(user_id: user.id, match_id: match.id)
       conn = log_in_user(conn, user)
-      {:ok, _show_live, html} = live(conn, ~p"/matches/#{match}")
+      {:ok, _show_live, html} = live(conn, ~p"/m/#{match}")
 
       assert html =~ "Leave"
     end
@@ -98,7 +98,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
     } do
       [owner_player] = match.players
       conn = log_in_user(conn, owner_player.user)
-      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+      {:ok, show_live, _html} = live(conn, ~p"/m/#{match}")
 
       refute show_live |> element("#btn_join") |> has_element?()
       refute show_live |> element("#btn_leave") |> has_element?()
@@ -107,7 +107,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
     test "after someone connect I will see him online", %{conn: conn, match: match} do
       [owner_player] = match.players
       owner_conn = log_in_user(conn, owner_player.user)
-      {:ok, show_live, _html} = live(owner_conn, ~p"/matches/#{match}")
+      {:ok, show_live, _html} = live(owner_conn, ~p"/m/#{match}")
 
       user = user_fixture()
       presence = %{id: user.id, user: user, metas: [%{phx_ref: "1234"}]}
@@ -122,7 +122,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
     } do
       [owner_player] = match.players
       owner_conn = log_in_user(conn, owner_player.user)
-      {:ok, show_live, _html} = live(owner_conn, ~p"/matches/#{match}")
+      {:ok, show_live, _html} = live(owner_conn, ~p"/m/#{match}")
 
       user = user_fixture()
       presence = %{id: user.id, user: user, metas: []}
@@ -137,7 +137,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
     } do
       [owner_player] = match.players
       owner_conn = log_in_user(conn, owner_player.user)
-      {:ok, show_live, _html} = live(owner_conn, ~p"/matches/#{match}")
+      {:ok, show_live, _html} = live(owner_conn, ~p"/m/#{match}")
 
       user = user_fixture()
       player = player_fixture(%{user_id: user.id, match_id: match.id})
@@ -156,7 +156,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
       user = user_fixture()
       player = player_fixture(%{user_id: user.id, match_id: match.id})
 
-      {:ok, show_live, _html} = live(owner_conn, ~p"/matches/#{match}")
+      {:ok, show_live, _html} = live(owner_conn, ~p"/m/#{match}")
 
       Games.delete_player(player)
       send(show_live.pid, %{event: "player_deleted", payload: player})
@@ -172,7 +172,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
       player = player_fixture(user_id: user.id, match_id: match.id)
       conn = log_in_user(conn, user)
 
-      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+      {:ok, show_live, _html} = live(conn, ~p"/m/#{match}")
       updated_match = %Match{match | players: match.players ++ [player]}
       {:ok, started_match} = Games.start_match(updated_match)
 
@@ -195,7 +195,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
       match: %Match{players: [player1 | _] = players} = match
     } do
       conn = log_in_user(conn, player1.user)
-      {:ok, show_live, html} = live(conn, ~p"/matches/#{match}")
+      {:ok, show_live, html} = live(conn, ~p"/m/#{match}")
 
       Enum.each(players, fn player ->
         assert html =~ "#{player.user.name}"
@@ -215,7 +215,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
     } do
       [tile | _] = player1.hand
       conn = log_in_user(conn, player1.user)
-      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+      {:ok, show_live, _html} = live(conn, ~p"/m/#{match}")
 
       show_live
       |> element("#game_board")
@@ -240,7 +240,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
     } do
       [tile | _] = player1.hand
       conn = log_in_user(conn, player1.user)
-      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+      {:ok, show_live, _html} = live(conn, ~p"/m/#{match}")
 
       show_live
       |> element("#game_board")
@@ -260,7 +260,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
     } do
       [tile | _] = player.hand
       conn = log_in_user(conn, player.user)
-      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+      {:ok, show_live, _html} = live(conn, ~p"/m/#{match}")
 
       # We simulate a hand update in a different session
       shuffled_hand = Enum.shuffle(player.hand)
@@ -281,7 +281,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
     test "after the player clicks on the recover button all tiles on the board are brought back to the deck",
          %{conn: conn, match: %Match{players: [player | _]} = match} do
       conn = log_in_user(conn, player.user)
-      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+      {:ok, show_live, _html} = live(conn, ~p"/m/#{match}")
 
       show_live
       |> element("#btn_recover")
@@ -299,7 +299,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
     test "after the player clicks on the shuffle button tiles on the deck are randomly rearranged",
          %{conn: conn, match: %Match{players: [player | _]} = match} do
       conn = log_in_user(conn, player.user)
-      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+      {:ok, show_live, _html} = live(conn, ~p"/m/#{match}")
 
       show_live
       |> element("#btn_shuffle")
@@ -317,7 +317,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
       match: %Match{players: [player | _]} = match
     } do
       conn = log_in_user(conn, player.user)
-      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+      {:ok, show_live, _html} = live(conn, ~p"/m/#{match}")
 
       assert show_live |> element("#btn_submit_play") |> has_element?()
     end
@@ -327,7 +327,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
       match: %Match{players: [_, player]} = match
     } do
       conn = log_in_user(conn, player.user)
-      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+      {:ok, show_live, _html} = live(conn, ~p"/m/#{match}")
 
       refute show_live |> element("#btn_submit_play") |> has_element?()
     end
@@ -361,7 +361,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
       Games.update_player_hand(player, hand_changesets)
 
       conn = log_in_user(conn, player.user)
-      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+      {:ok, show_live, _html} = live(conn, ~p"/m/#{match}")
 
       show_live
       |> element("#btn_submit_play")
@@ -379,7 +379,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
       match: %Match{players: [player | _]} = match
     } do
       conn = log_in_user(conn, player.user)
-      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+      {:ok, show_live, _html} = live(conn, ~p"/m/#{match}")
 
       show_live
       |> element("#btn_submit_play")
@@ -408,7 +408,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
       })
 
       conn = log_in_user(conn, player.user)
-      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+      {:ok, show_live, _html} = live(conn, ~p"/m/#{match}")
 
       assert show_live
              |> element("#play_log div.play")
@@ -429,7 +429,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
       })
 
       conn = log_in_user(conn, player.user)
-      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+      {:ok, show_live, _html} = live(conn, ~p"/m/#{match}")
 
       assert show_live
              |> element("#play_log div.skip")
@@ -450,7 +450,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
       })
 
       conn = log_in_user(conn, player.user)
-      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+      {:ok, show_live, _html} = live(conn, ~p"/m/#{match}")
 
       assert show_live
              |> element("#play_log div.exchange")
@@ -473,13 +473,13 @@ defmodule ScrabblexWeb.MatchLiveTest do
       wildcard_tile = Enum.at(updated_player.hand, 0)
 
       conn = log_in_user(conn, player.user)
-      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+      {:ok, show_live, _html} = live(conn, ~p"/m/#{match}")
 
       show_live
       |> element(~s{#hand .tile[data-id="#{wildcard_tile.id}"] a})
       |> render_click()
 
-      assert_patch(show_live, ~p"/matches/#{match}/edit_wildcard/#{wildcard_tile}")
+      assert_patch(show_live, ~p"/m/#{match}/edit_wildcard/#{wildcard_tile}")
     end
 
     # TODO: Add test that refutes already played wildcard tiles don't redirect to the editor on click
@@ -497,13 +497,13 @@ defmodule ScrabblexWeb.MatchLiveTest do
       wildcard_tile = Enum.at(updated_player.hand, 0)
 
       conn = log_in_user(conn, player.user)
-      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}/edit_wildcard/#{wildcard_tile}")
+      {:ok, show_live, _html} = live(conn, ~p"/m/#{match}/edit_wildcard/#{wildcard_tile}")
 
       show_live
       |> element("#choices > div", "A")
       |> render_click()
 
-      assert_patch(show_live, ~p"/matches/#{match}")
+      assert_patch(show_live, ~p"/m/#{match}")
 
       assert show_live
              |> element(~s{#hand .tile[data-id="#{wildcard_tile.id}"]"}, "A")
@@ -519,7 +519,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
       match: %Match{players: [player | _]} = match
     } do
       conn = log_in_user(conn, player.user)
-      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+      {:ok, show_live, _html} = live(conn, ~p"/m/#{match}")
 
       show_live
       |> element("#btn_skip_turn")
@@ -535,7 +535,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
       match: %Match{players: [_, player]} = match
     } do
       conn = log_in_user(conn, player.user)
-      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+      {:ok, show_live, _html} = live(conn, ~p"/m/#{match}")
 
       refute show_live
              |> element("#btn_skip_turn")
@@ -551,7 +551,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
       match: %Match{players: [player | _]} = match
     } do
       conn = log_in_user(conn, player.user)
-      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+      {:ok, show_live, _html} = live(conn, ~p"/m/#{match}")
 
       assert show_live
              |> element("#btn_exchange_tiles")
@@ -563,7 +563,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
       match: %Match{players: [_, player]} = match
     } do
       conn = log_in_user(conn, player.user)
-      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+      {:ok, show_live, _html} = live(conn, ~p"/m/#{match}")
 
       refute show_live
              |> element("#btn_exchange_tiles")
@@ -579,7 +579,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
       Scrabblex.Repo.update!(changeset)
 
       conn = log_in_user(conn, player.user)
-      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}")
+      {:ok, show_live, _html} = live(conn, ~p"/m/#{match}")
 
       refute show_live
              |> element("#btn_exchange_tiles")
@@ -592,7 +592,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
            match: %Match{players: [player | _]} = match
          } do
       conn = log_in_user(conn, player.user)
-      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}/exchange_tiles")
+      {:ok, show_live, _html} = live(conn, ~p"/m/#{match}/exchange_tiles")
 
       assert show_live
              |> element("button#submit_exchange[disabled]")
@@ -605,7 +605,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
            match: %Match{players: [player | _]} = match
          } do
       conn = log_in_user(conn, player.user)
-      {:ok, show_live, _html} = live(conn, ~p"/matches/#{match}/exchange_tiles")
+      {:ok, show_live, _html} = live(conn, ~p"/m/#{match}/exchange_tiles")
 
       show_live
       |> element("#choices > div:first-child")
@@ -615,7 +615,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
       |> element("button#submit_exchange")
       |> render_click()
 
-      assert_patch(show_live, ~p"/matches/#{match}")
+      assert_patch(show_live, ~p"/m/#{match}")
     end
   end
 end

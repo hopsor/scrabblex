@@ -17,9 +17,9 @@
   <.table
     id="matches"
     rows={@streams.matches}
-    row_click={fn {_id, match} -> JS.navigate(~p"/matches/#{match}") end}
+    row_click={fn {_id, match} -> JS.navigate(~p"/m/#{match}") end}
   >
-    <:col :let={{_id, match}} label="Id"><%= match.id %></:col>
+    <:col :let={{_id, match}} label="Id"><%= match.friendly_id %></:col>
     <:col :let={{_id, match}} label="Participants">
       <div class="flex -space-x-2 overflow-hidden">
         <.avatar

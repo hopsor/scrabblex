@@ -29,9 +29,9 @@ defmodule ScrabblexWeb.Router do
     live_session :default, on_mount: [ScrabblexWeb.UserLiveAuth, ScrabblexWeb.Nav] do
       live "/matches", MatchLive.Index, :index
       live "/matches/new", MatchLive.Index, :new
-      live "/matches/:id", MatchLive.Show, :show
-      live "/matches/:id/edit_wildcard/:wildcard_id", MatchLive.Show, :edit_wildcard
-      live "/matches/:id/exchange_tiles", MatchLive.Show, :exchange_tiles
+      live "/m/:friendly_id", MatchLive.Show, :show
+      live "/m/:friendly_id/edit_wildcard/:wildcard_id", MatchLive.Show, :edit_wildcard
+      live "/m/:friendly_id/exchange_tiles", MatchLive.Show, :exchange_tiles
     end
   end
 

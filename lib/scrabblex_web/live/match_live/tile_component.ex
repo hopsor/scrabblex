@@ -23,10 +23,7 @@ defmodule ScrabblexWeb.MatchLive.TileComponent do
         :if={@tile.wildcard && !@played}
         class="absolute bg-gray-100 left-0 top-0 opacity-0 hover:opacity-80 w-full h-full text-center flex items-center justify-center cursor-pointer"
       >
-        <.link
-          patch={~p"/matches/#{@match_id}/edit_wildcard/#{@tile}"}
-          class="rounded-full bg-white p-2"
-        >
+        <.link patch={~p"/m/#{@friendly_id}/edit_wildcard/#{@tile}"} class="rounded-full bg-white p-2">
           <.icon name="hero-pencil" />
         </.link>
       </div>

@@ -20,7 +20,12 @@ defmodule ScrabblexWeb.MatchLive.ExchangeTilesComponent do
           phx-value-tile-id={tile.id}
           class={["rounded-md cursor-pointer", tile in @selected_tiles && "outline outline-blue-600"]}
         >
-          <TileComponent.tile tile={tile} match_id={@match.id} draggable_class="" played={true} />
+          <TileComponent.tile
+            tile={tile}
+            friendly_id={@match.friendly_id}
+            draggable_class=""
+            played={true}
+          />
         </div>
       </div>
 
@@ -34,7 +39,7 @@ defmodule ScrabblexWeb.MatchLive.ExchangeTilesComponent do
           Submit exchange
         </.button>
         <.button>
-          <.link patch={~p"/matches/#{@match}"}>Cancel</.link>
+          <.link patch={~p"/m/#{@match}"}>Cancel</.link>
         </.button>
       </div>
     </div>
@@ -75,13 +80,13 @@ defmodule ScrabblexWeb.MatchLive.ExchangeTilesComponent do
       {:noreply,
        socket
        |> put_flash!(:info, "Exchange succeeded!")
-       |> push_patch(to: ~p"/matches/#{socket.assigns.match}")}
+       |> push_patch(to: ~p"/m/#{socket.assigns.match}")}
     else
       _error ->
         {:noreply,
          socket
          |> put_flash(:error, "Something went wrong")
-         |> push_navigate(to: ~p"/matches/#{socket.assigns.match}")}
+         |> push_navigate(to: ~p"/m/#{socket.assigns.match}")}
     end
   end
 end
