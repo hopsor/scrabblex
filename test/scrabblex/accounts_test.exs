@@ -147,6 +147,12 @@ defmodule Scrabblex.AccountsTest do
       assert is_nil(user.confirmed_at)
       assert is_nil(user.password)
     end
+
+    test "registers user as admin if address belongs to admin_emails" do
+      email = "admin@domain.com"
+      {:ok, user} = Accounts.register_user(valid_user_attributes(email: email))
+      assert user.admin == true
+    end
   end
 
   describe "change_user_registration/2" do
