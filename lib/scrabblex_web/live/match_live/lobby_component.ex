@@ -87,7 +87,7 @@ defmodule ScrabblexWeb.MatchLive.LobbyComponent do
         <div class="col-span-2">
           <div class="rounded-lg bg-white p-5">
             <h1 class="font-bold text-2xl mb-2">Play with your friends</h1>
-            <p class="text-sm text-gray-500 mb-2">Send them the link to join the match.</p>
+            <p class="text-sm text-gray-500 mb-2">Share the link to join the match.</p>
             <.input id="match_url" name="match_url" value={url(~p"/m/#{@match}")} readonly />
             <.button id="copy" data-to="#match_url" phx-hook="Copy" class="mt-2">
               <.icon name="hero-square-2-stack" />
