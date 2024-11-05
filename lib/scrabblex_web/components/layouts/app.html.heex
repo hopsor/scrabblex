@@ -1,4 +1,4 @@
-<div class="min-h-full">
+<div class="flex flex-col h-screen justify-between">
   <nav class="bg-gray-800 shadow">
     <div class="mx-auto max-w-7xl px-4">
       <div class="flex items-center justify-between">
@@ -75,8 +75,25 @@
     </div>
   </nav>
 
-  <main>
+  <main class="mb-auto">
     <.flash_group flash={@flash} />
     <%= @inner_content %>
   </main>
+
+  <div class=" w-full bg-gray-100">
+    <div class="mx-auto max-w-7xl px-4 border-t border-gray-200 py-5">
+      <div class="flex">
+        <div class="text-sm grow">
+          <.link href="https://hopsor.com" class="font-semibold text-brand hover:underline">
+            hopsor.com
+          </.link>
+        </div>
+        <div class="grow flex flex-row-reverse">
+          <.link href="http://github.com/hopsor/scrabblex">
+            <img src={~p"/images/github-mark.svg"} class="w-6 mr-2 self-center" />
+          </.link>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
