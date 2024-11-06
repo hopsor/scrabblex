@@ -125,4 +125,7 @@ if config_env() == :prod do
   config :scrabblex, Scrabblex.SupervisedSqids,
     min_length: System.get_env("SQIDS_PADDING") |> String.to_integer(),
     alphabet: System.get_env("SQIDS_ALPHABET")
+
+  config :scrabblex, Scrabblex.Accounts.User,
+    admin_emails: System.get_env("ADMIN_EMAILS", "") |> String.split(",", trim: true)
 end

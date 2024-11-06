@@ -77,6 +77,9 @@ config :scrabblex, Scrabblex.SupervisedSqids,
       "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
     )
 
+config :scrabblex, Scrabblex.Accounts.User,
+  admin_emails: System.get_env("ADMIN_EMAILS", "") |> String.split(",", trim: true)
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

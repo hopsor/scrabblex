@@ -213,6 +213,18 @@ defmodule ScrabblexWeb.UserAuth do
     end
   end
 
+  def require_admin_user(conn, _opts) do
+    user = conn.assigns[:current_user]
+
+    if user.admin do
+      conn
+    else
+      conn
+      |> put_flash(:error, "Forbidden access")
+      |> halt()
+    end
+  end
+
   defp put_token_in_session(conn, token) do
     conn
     |> put_session(:user_token, token)

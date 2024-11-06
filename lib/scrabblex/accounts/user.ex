@@ -7,6 +7,7 @@ defmodule Scrabblex.Accounts.User do
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :current_password, :string, virtual: true, redact: true
+    field :admin, :boolean
     field :name, :string
     field :confirmed_at, :utc_datetime
     field :avatar_url, :string
@@ -44,6 +45,7 @@ defmodule Scrabblex.Accounts.User do
     |> validate_email(opts)
     |> validate_password(opts)
     |> validate_name(opts)
+    |> maybe_set_admin()
   end
 
   defp validate_email(changeset, opts) do
@@ -110,6 +112,20 @@ defmodule Scrabblex.Accounts.User do
     else
       changeset
     end
+  end
+
+  defp maybe_set_admin(changeset) do
+    email = get_change(changeset, :email)
+
+    if email in admin_emails() do
+      put_change(changeset, :admin, true)
+    else
+      put_change(changeset, :admin, false)
+    end
+  end
+
+  defp admin_emails() do
+    Application.get_env(:scrabblex, __MODULE__)[:admin_emails]
   end
 
   @doc """

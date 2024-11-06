@@ -1,0 +1,23 @@
+<div>
+  <div class="bg-gray-800 text-white">
+    <div class="mx-auto max-w-7xl flex gap-x-4">
+      <div class="py-4 mr-5 text-xl font-semibold">Live Words Admin</div>
+      <div class="flex">
+        <.link
+          class="p-4 border-l border-gray-300 hover:bg-gray-900"
+          navigate={~p"/admin/lexicons"}
+        >
+          Lexicons
+        </.link>
+        <.link class="p-4 border-l border-r border-gray-300 hover:bg-gray-900" navigate={~p"/"}>
+          Main site
+        </.link>
+      </div>
+    </div>
+  </div>
+
+  <main class="mx-auto max-w-7xl p-4">
+    <.flash_group flash={@flash} />
+    <%= @inner_content %>
+  </main>
+</div>
