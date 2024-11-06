@@ -35,6 +35,17 @@ defmodule ScrabblexWeb.Router do
     end
   end
 
+  scope "/admin", ScrabblexWeb do
+    pipe_through [:browser, :require_authenticated_user, :require_admin_user]
+
+    live_session :admin,
+      on_mount: [ScrabblexWeb.UserLiveAuth, ScrabblexWeb.Nav],
+      layout: {ScrabblexWeb.Layouts, :admin} do
+      live "/", Admin.Index
+      live "/lexicons", Admin.LexiconLive.Index, :index
+    end
+  end
+
   # Other scopes may use custom stacks.
   # scope "/api", ScrabblexWeb do
   #   pipe_through :api
