@@ -1,4 +1,4 @@
-<.header>
+<.header class="mb-5">
   Listing lexicons
   <:actions>
     <.link patch={~p"/admin/lexicons/new"}>
@@ -16,7 +16,10 @@
   <:col :let={{_id, lexicon}} label="Name"><%= lexicon.name %></:col>
   <:col :let={{_id, lexicon}} label="Language"><%= lexicon.language %></:col>
   <:col :let={{_id, lexicon}} label="Flag"><%= lexicon.flag %></:col>
-  <:col :let={{_id, lexicon}} label="Enabled"><%= lexicon.enabled %></:col>
+  <:col :let={{_id, lexicon}} label="Enabled">
+    <.icon :if={lexicon.enabled} name="hero-check" class="text-green-500" />
+    <.icon :if={!lexicon.enabled} name="hero-x-mark" class="text-red-500" />
+  </:col>
   <:action :let={{_id, lexicon}}>
     <div class="sr-only">
       <.link navigate={~p"/admin/lexicons/#{lexicon}"}>Show</.link>

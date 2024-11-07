@@ -10,7 +10,13 @@ defmodule ScrabblexWeb.Admin.LexiconLive.Show do
 
     {:ok,
      socket
-     |> refresh_entries(lexicon)
+     |> assign(
+       lexicon: lexicon,
+       target_page: 1,
+       query: "",
+       search_form: to_form(%{"q" => ""})
+     )
+     |> refresh_entries()
      |> allow_upload(:entries_file,
        accept: ~w(.txt),
        writer: fn _name, _entry, _socket -> {EntriesUploadWriter, [lexicon_id: lexicon.id]} end
@@ -27,7 +33,7 @@ defmodule ScrabblexWeb.Admin.LexiconLive.Show do
 
     {:noreply,
      socket
-     |> refresh_entries(socket.assigns.lexicon)
+     |> refresh_entries()
      |> put_flash(:info, "#{words_counter} words have been inserted in the lexicon")}
   end
 
@@ -38,7 +44,7 @@ defmodule ScrabblexWeb.Admin.LexiconLive.Show do
     with {affected_rows, _} <- Games.clean_lexicon_entries(socket.assigns.lexicon.id) do
       {:noreply,
        socket
-       |> refresh_entries(socket.assigns.lexicon)
+       |> refresh_entries()
        |> put_flash(:info, "#{affected_rows} entries have been removed")}
     else
       _ ->
@@ -46,12 +52,26 @@ defmodule ScrabblexWeb.Admin.LexiconLive.Show do
     end
   end
 
-  defp refresh_entries(socket, lexicon) do
-    page = Games.list_lexicon_entries(lexicon.id)
-    page_assigns = Map.drop(page, [:entries, :__struct__])
+  def handle_event("search", %{"q" => query}, socket) do
+    {:noreply, assign(socket, query: query, target_page: 1) |> refresh_entries()}
+  end
+
+  def handle_event("go_to_page", %{"page" => page_number}, socket) do
+    {:noreply, assign(socket, target_page: String.to_integer(page_number)) |> refresh_entries()}
+  end
+
+  defp refresh_entries(socket) do
+    paginated =
+      Games.list_lexicon_entries(
+        socket.assigns.lexicon.id,
+        socket.assigns.target_page,
+        socket.assigns.query
+      )
+
+    page_assigns = Map.drop(paginated, [:entries, :__struct__])
 
     socket
-    |> stream(:entries, page.entries, reset: true)
-    |> assign(lexicon: lexicon, page: page_assigns)
+    |> stream(:entries, paginated.entries, reset: true)
+    |> assign(page_data: page_assigns)
   end
 end

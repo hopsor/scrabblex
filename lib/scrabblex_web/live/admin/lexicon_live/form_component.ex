@@ -17,7 +17,7 @@ defmodule ScrabblexWeb.Admin.LexiconLive.FormComponent do
         <.input field={@form[:name]} type="text" label="Name" />
         <.input field={@form[:language]} type="text" label="Language" />
         <.input field={@form[:flag]} type="text" label="Flag" />
-        <.input field={@form[:enable]} type="checkbox" label="Enabled" />
+        <.input field={@form[:enabled]} type="checkbox" label="Enabled" />
         <:actions>
           <.button phx-disable-with="Saving...">Save Lexicon</.button>
         </:actions>
@@ -54,6 +54,21 @@ defmodule ScrabblexWeb.Admin.LexiconLive.FormComponent do
         {:noreply,
          socket
          |> put_flash(:info, "Lexicon created successfully")
+         |> push_patch(to: socket.assigns.patch)}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:noreply, assign(socket, form: to_form(changeset))}
+    end
+  end
+
+  defp save_lexicon(socket, :edit, params) do
+    case Games.update_lexicon(socket.assigns.lexicon, params) do
+      {:ok, lexicon} ->
+        notify_parent({:saved, lexicon})
+
+        {:noreply,
+         socket
+         |> put_flash(:info, "Lexicon updated successfully")
          |> push_patch(to: socket.assigns.patch)}
 
       {:error, %Ecto.Changeset{} = changeset} ->

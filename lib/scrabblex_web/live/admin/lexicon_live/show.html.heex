@@ -1,23 +1,87 @@
-<h1 class="text-3xl font-semibold mt-5 mb-10"><%= @lexicon.name %></h1>
+<div class="flex items-center">
+  <div class="basis-2/3">
+    <h1 class="text-6xl font-semibold mt-5 mb-10">
+      <%= @lexicon.name %>
+    </h1>
+  </div>
 
-<form :if={@page.total_entries == 0} id="upload-form" phx-submit="upload" phx-change="validate">
-  <.live_file_input upload={@uploads.entries_file} />
-  <button type="submit">Upload</button>
-</form>
+  <div class="bg-white rounded-md p-4 grow">
+    <h2 class="font-semibold text-xl mb-3">Import data</h2>
+    <form id="upload-form" phx-submit="upload" phx-change="validate">
+      <.live_file_input upload={@uploads.entries_file} class="block" />
 
-<.button
-  type="button"
-  phx-click="reset-entries"
-  data-confirm="This will delete all entries for this Lexicon. Do you want to proceed?"
->
-  Reset Entries
-</.button>
+      <%= for entry <- @uploads.entries_file.entries do %>
+        <progress class="mt-3 w-full" value={entry.progress} max="100">
+          <%= entry.progress %>%
+        </progress>
+      <% end %>
 
-<%= for entry <- @uploads.entries_file.entries do %>
-  <progress value={entry.progress} max="100"><%= entry.progress %>%</progress>
-<% end %>
+      <div class="mt-3">
+        <.button type="submit">
+          Import <.icon name="hero-cloud-arrow-up" />
+        </.button>
+
+        <.button
+          type="button"
+          phx-click="reset-entries"
+          data-confirm="This will delete all entries for this Lexicon. Do you want to proceed?"
+          class="bg-red-600"
+        >
+          <.icon name="hero-trash" /> Reset Entries
+        </.button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="flex items-center">
+  <h2 class="text-2xl font-semibold basis-1/2">Entries</h2>
+  <.form
+    id="search-form"
+    phx-change="search"
+    class="basis-1/2 flex justify-end my-5"
+    for={@search_form}
+  >
+    <.input field={@search_form[:q]} type="text" phx-debounce="500" />
+  </.form>
+</div>
 
 <.table id="entries" rows={@streams.entries}>
   <:col :let={{_id, entry}} label="Id"><%= entry.id %></:col>
   <:col :let={{_id, entry}} label="Name"><%= entry.name %></:col>
 </.table>
+
+<div class="flex items-center mt-5 text-sm">
+  <div class="grow flex flex-row gap-x-2 basis-1/2 justify-left items-center pl-2">
+    <.button :if={@page_data.page_number > 1} phx-click="go_to_page" phx-value-page="0">
+      <.icon name="hero-chevron-double-left" /> First
+    </.button>
+    <.button
+      :if={@page_data.page_number > 1}
+      phx-click="go_to_page"
+      phx-value-page={@page_data.page_number - 1}
+    >
+      <.icon name="hero-chevron-left" /> Prev
+    </.button>
+    <div><%= @page_data.page_number %> / <%= @page_data.total_pages %></div>
+    <.button
+      :if={@page_data.page_number < @page_data.total_pages}
+      phx-click="go_to_page"
+      phx-value-page={@page_data.page_number + 1}
+    >
+      Next <.icon name="hero-chevron-right" />
+    </.button>
+
+    <.button
+      :if={@page_data.page_number < @page_data.total_pages}
+      phx-click="go_to_page"
+      phx-value-page={@page_data.total_pages}
+    >
+      Last <.icon name="hero-chevron-double-right" />
+    </.button>
+  </div>
+
+  <div class="basis-1/2 grow text-right pr-2">
+    Matching entries: <%= @page_data.total_entries %>
+  </div>
+</div>

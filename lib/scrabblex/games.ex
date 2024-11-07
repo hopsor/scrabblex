@@ -333,6 +333,24 @@ defmodule Scrabblex.Games do
   end
 
   @doc """
+  Updates a lexicon.
+
+  ## Examples
+
+      iex> update_lexicon(lexicon, %{field: new_value})
+      {:ok, %Lexicon{}}
+
+      iex> update_lexicon(lexicon, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_lexicon(%Lexicon{} = lexicon, attrs) do
+    lexicon
+    |> Lexicon.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
   Gets a single lexicon.
 
   Raises `Ecto.NoResultsError` if the Lexicon does not exist.
@@ -378,9 +396,11 @@ defmodule Scrabblex.Games do
     %Scrivener.Page{entries: [%LexiconEntry{}, ...], page_number: 1, ...}
 
   """
-  def list_lexicon_entries(lexicon_id, page \\ 0) do
+  def list_lexicon_entries(lexicon_id, page \\ 0, query \\ "") do
+    term = "%#{query}%"
+
     from(le in LexiconEntry,
-      where: le.lexicon_id == ^lexicon_id
+      where: le.lexicon_id == ^lexicon_id and like(le.name, ^term)
     )
     |> Repo.paginate(page: page)
   end
