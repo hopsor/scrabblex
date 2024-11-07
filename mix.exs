@@ -62,7 +62,8 @@ defmodule Scrabblex.MixProject do
       {:bandit, "~> 1.5"},
       {:assent, "~> 0.2.10"},
       {:sqids, "~> 0.1.3"},
-      {:scrivener_ecto, "~> 3.1"}
+      {:scrivener_ecto, "~> 3.1"},
+      {:csv, "~> 3.2"}
     ]
   end
 
