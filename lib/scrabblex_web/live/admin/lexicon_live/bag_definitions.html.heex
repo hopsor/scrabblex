@@ -38,14 +38,12 @@
   </div>
 </div>
 
-<div class="flex items-center">
+<div class="flex items-center my-5">
   <h2 class="text-2xl font-semibold basis-1/2">Bag definitions</h2>
 </div>
 
-<div>
-  <div :for={definition <- @lexicon.bag_definitions}>
-    <div><%= definition.value %></div>
-    <div><%= definition.amount %></div>
-    <div><%= definition.score %></div>
-  </div>
-</div>
+<.table id="definitions" rows={@lexicon.bag_definitions}>
+  <:col :let={definition} label="Value"><%= definition.value %></:col>
+  <:col :let={definition} label="Score"><%= definition.score %></:col>
+  <:col :let={definition} label="Amount"><%= definition.amount %></:col>
+</.table>

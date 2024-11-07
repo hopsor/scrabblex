@@ -34,12 +34,12 @@
   </div>
 </div>
 
-<div class="flex items-center">
+<div class="flex items-center my-5">
   <h2 class="text-2xl font-semibold basis-1/2">Entries</h2>
   <.form
     id="search-form"
     phx-change="search"
-    class="basis-1/2 flex justify-end my-5"
+    class="basis-1/2 flex justify-end"
     for={@search_form}
   >
     <.input field={@search_form[:q]} type="text" phx-debounce="500" />
