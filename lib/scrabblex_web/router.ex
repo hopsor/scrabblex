@@ -43,6 +43,9 @@ defmodule ScrabblexWeb.Router do
       layout: {ScrabblexWeb.Layouts, :admin} do
       live "/", Admin.Index
       live "/lexicons", Admin.LexiconLive.Index, :index
+      live "/lexicons/new", Admin.LexiconLive.Index, :new
+      live "/lexicons/:id/edit", Admin.LexiconLive.Index, :edit
+      live "/lexicons/:id", Admin.LexiconLive.Show, :show
     end
   end
 
