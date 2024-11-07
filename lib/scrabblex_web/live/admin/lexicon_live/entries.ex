@@ -1,4 +1,4 @@
-defmodule ScrabblexWeb.Admin.LexiconLive.Show do
+defmodule ScrabblexWeb.Admin.LexiconLive.Entries do
   use ScrabblexWeb, :live_view
 
   alias Scrabblex.Games
