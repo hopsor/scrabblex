@@ -10,7 +10,7 @@
 <.table
   id="lexicons"
   rows={@streams.lexicons}
-  row_click={fn {_id, lexicon} -> JS.navigate(~p"/admin/lexicons/#{lexicon}/entries") end}
+  row_click={fn {_id, lexicon} -> JS.patch(~p"/admin/lexicons/#{lexicon}/edit") end}
 >
   <:col :let={{_id, lexicon}} label="Id"><%= lexicon.id %></:col>
   <:col :let={{_id, lexicon}} label="Name"><%= lexicon.name %></:col>
@@ -21,10 +21,10 @@
     <.icon :if={!lexicon.enabled} name="hero-x-mark" class="text-red-500" />
   </:col>
   <:action :let={{_id, lexicon}}>
-    <div class="sr-only">
-      <.link navigate={~p"/admin/lexicons/#{lexicon}/entries"}>Entries</.link>
-    </div>
-    <.link patch={~p"/admin/lexicons/#{lexicon}/edit"}>Edit</.link>
+    <.link navigate={~p"/admin/lexicons/#{lexicon}/entries"}>Entries</.link>
+  </:action>
+  <:action :let={{_id, lexicon}}>
+    <.link patch={~p"/admin/lexicons/#{lexicon}/bag_definitions"}>Definitions</.link>
   </:action>
   <:action :let={{id, lexicon}}>
     <.link
