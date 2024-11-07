@@ -1,0 +1,23 @@
+<h1 class="text-3xl font-semibold mt-5 mb-10"><%= @lexicon.name %></h1>
+
+<form :if={@page.total_entries == 0} id="upload-form" phx-submit="upload" phx-change="validate">
+  <.live_file_input upload={@uploads.entries_file} />
+  <button type="submit">Upload</button>
+</form>
+
+<.button
+  type="button"
+  phx-click="reset-entries"
+  data-confirm="This will delete all entries for this Lexicon. Do you want to proceed?"
+>
+  Reset Entries
+</.button>
+
+<%= for entry <- @uploads.entries_file.entries do %>
+  <progress value={entry.progress} max="100"><%= entry.progress %>%</progress>
+<% end %>
+
+<.table id="entries" rows={@streams.entries}>
+  <:col :let={{_id, entry}} label="Id"><%= entry.id %></:col>
+  <:col :let={{_id, entry}} label="Name"><%= entry.name %></:col>
+</.table>
