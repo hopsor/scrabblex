@@ -397,10 +397,11 @@ defmodule Scrabblex.Games do
 
   """
   def list_lexicon_entries(lexicon_id, page \\ 0, query \\ "") do
-    term = "%#{query}%"
+    term = "%#{String.upcase(query)}%"
 
     from(le in LexiconEntry,
-      where: le.lexicon_id == ^lexicon_id and like(le.name, ^term)
+      where: le.lexicon_id == ^lexicon_id and like(le.name, ^term),
+      order_by: [asc: :name]
     )
     |> Repo.paginate(page: page)
   end

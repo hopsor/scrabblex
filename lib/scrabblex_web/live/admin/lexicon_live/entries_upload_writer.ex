@@ -31,7 +31,7 @@ defmodule ScrabblexWeb.Admin.LexiconLive.EntriesUploadWriter do
     {full_words, new_pending_word} = extract_words(state.pending_word, data)
 
     lexicon_entries =
-      Enum.map(full_words, &%{lexicon_id: state.lexicon_id, name: String.downcase(&1)})
+      Enum.map(full_words, &%{lexicon_id: state.lexicon_id, name: String.upcase(&1)})
 
     Repo.insert_all(
       LexiconEntry,
