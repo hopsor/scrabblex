@@ -4,7 +4,6 @@ defmodule Scrabblex.GamesFixtures do
   entities via the `Scrabblex.Games` context.
   """
 
-  alias Scrabblex.Games.BagDefinition
   alias Scrabblex.Repo
   alias Scrabblex.Games
   alias Scrabblex.Games.{BagDefinition, Match, Lexicon, LexiconEntry, Play, Tile}
@@ -85,10 +84,12 @@ defmodule Scrabblex.GamesFixtures do
   """
   def lexicon_fixture(attrs \\ %{}) do
     defaults = %{
-      name: "FISE-2",
-      language: "es",
-      flag: "🇪🇦",
-      enabled: true
+      "name" => "FISE-2",
+      "language" => "es",
+      "flag" => "🇪🇦",
+      "enabled" => true,
+      "bag_definitions" =>
+        Enum.map(bag_definitions_attrs(), &BagDefinition.changeset(%BagDefinition{}, &1))
     }
 
     {:ok, lexicon} =
@@ -106,37 +107,8 @@ defmodule Scrabblex.GamesFixtures do
     lexicon_entry
   end
 
-  def bag_definitions_fixture() do
-    [
-      %BagDefinition{value: "A", score: 1, amount: 12},
-      %BagDefinition{value: "E", score: 1, amount: 12},
-      %BagDefinition{value: "I", score: 1, amount: 6},
-      %BagDefinition{value: "L", score: 1, amount: 4},
-      %BagDefinition{value: "N", score: 1, amount: 5},
-      %BagDefinition{value: "O", score: 1, amount: 9},
-      %BagDefinition{value: "R", score: 1, amount: 5},
-      %BagDefinition{value: "S", score: 1, amount: 6},
-      %BagDefinition{value: "T", score: 1, amount: 4},
-      %BagDefinition{value: "U", score: 1, amount: 5},
-      %BagDefinition{value: "D", score: 2, amount: 5},
-      %BagDefinition{value: "G", score: 2, amount: 2},
-      %BagDefinition{value: "B", score: 3, amount: 2},
-      %BagDefinition{value: "C", score: 3, amount: 4},
-      %BagDefinition{value: "M", score: 3, amount: 2},
-      %BagDefinition{value: "P", score: 3, amount: 2},
-      %BagDefinition{value: "F", score: 4, amount: 1},
-      %BagDefinition{value: "H", score: 4, amount: 2},
-      %BagDefinition{value: "V", score: 4, amount: 1},
-      %BagDefinition{value: "Y", score: 4, amount: 1},
-      %BagDefinition{value: "CH", score: 5, amount: 1},
-      %BagDefinition{value: "Q", score: 5, amount: 1},
-      %BagDefinition{value: "J", score: 8, amount: 1},
-      %BagDefinition{value: "LL", score: 8, amount: 1},
-      %BagDefinition{value: "Ñ", score: 8, amount: 1},
-      %BagDefinition{value: "RR", score: 8, amount: 1},
-      %BagDefinition{value: "X", score: 8, amount: 1},
-      %BagDefinition{value: "Z", score: 10, amount: 1},
-      %BagDefinition{value: "*", score: 0, amount: 2}
-    ]
+  def bag_definitions_attrs() do
+    ?A..?Z
+    |> Enum.map(&%{"value" => <<&1>>, "score" => 1, "amount" => 4})
   end
 end

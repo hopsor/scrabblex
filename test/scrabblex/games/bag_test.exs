@@ -2,10 +2,18 @@ defmodule Scrabblex.Games.BagTest do
   use ExUnit.Case
 
   import Scrabblex.GamesFixtures
+  alias Scrabblex.Games.BagDefinition
   alias Scrabblex.Games.{Bag, Lexicon, Player, Tile}
 
   setup_all do
-    lexicon = %Lexicon{bag_definitions: bag_definitions_fixture()}
+    lexicon = %Lexicon{
+      bag_definitions:
+        Enum.map(
+          bag_definitions_attrs(),
+          &%BagDefinition{value: &1["value"], score: &1["score"], amount: &1["amount"]}
+        )
+    }
+
     {:ok, %{lexicon: lexicon}}
   end
 
@@ -14,7 +22,7 @@ defmodule Scrabblex.Games.BagTest do
       lexicon: lexicon
     } do
       {:ok, bag} = Bag.new(lexicon)
-      assert length(bag) == 100
+      assert length(bag) == 104
     end
   end
 
@@ -32,7 +40,7 @@ defmodule Scrabblex.Games.BagTest do
 
       {:ok, _hands, remaining} = Bag.init_hands(bag, players)
 
-      assert length(remaining) == 100 - 7 * 2
+      assert length(remaining) == 104 - 7 * 2
     end
   end
 
