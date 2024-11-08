@@ -4,9 +4,10 @@ defmodule Scrabblex.GamesFixtures do
   entities via the `Scrabblex.Games` context.
   """
 
+  alias Scrabblex.Games.BagDefinition
   alias Scrabblex.Repo
   alias Scrabblex.Games
-  alias Scrabblex.Games.{Match, Lexicon, LexiconEntry, Play, Tile}
+  alias Scrabblex.Games.{BagDefinition, Match, Lexicon, LexiconEntry, Play, Tile}
 
   @doc """
   Generate a match.
@@ -83,11 +84,16 @@ defmodule Scrabblex.GamesFixtures do
   Generate a lexicon
   """
   def lexicon_fixture(attrs \\ %{}) do
+    defaults = %{
+      name: "FISE-2",
+      language: "es",
+      flag: "🇪🇦",
+      enabled: true
+    }
+
     {:ok, lexicon} =
       %Lexicon{}
-      |> Scrabblex.Games.Lexicon.changeset(
-        Enum.into(attrs, %{name: "FISE-2", language: "es", flag: "🇪🇦", enabled: true})
-      )
+      |> Scrabblex.Games.Lexicon.changeset(Enum.into(attrs, defaults))
       |> Repo.insert()
 
     lexicon
@@ -98,5 +104,39 @@ defmodule Scrabblex.GamesFixtures do
       %LexiconEntry{} |> LexiconEntry.changeset(Enum.into(attrs, %{})) |> Repo.insert()
 
     lexicon_entry
+  end
+
+  def bag_definitions_fixture() do
+    [
+      %BagDefinition{value: "A", score: 1, amount: 12},
+      %BagDefinition{value: "E", score: 1, amount: 12},
+      %BagDefinition{value: "I", score: 1, amount: 6},
+      %BagDefinition{value: "L", score: 1, amount: 4},
+      %BagDefinition{value: "N", score: 1, amount: 5},
+      %BagDefinition{value: "O", score: 1, amount: 9},
+      %BagDefinition{value: "R", score: 1, amount: 5},
+      %BagDefinition{value: "S", score: 1, amount: 6},
+      %BagDefinition{value: "T", score: 1, amount: 4},
+      %BagDefinition{value: "U", score: 1, amount: 5},
+      %BagDefinition{value: "D", score: 2, amount: 5},
+      %BagDefinition{value: "G", score: 2, amount: 2},
+      %BagDefinition{value: "B", score: 3, amount: 2},
+      %BagDefinition{value: "C", score: 3, amount: 4},
+      %BagDefinition{value: "M", score: 3, amount: 2},
+      %BagDefinition{value: "P", score: 3, amount: 2},
+      %BagDefinition{value: "F", score: 4, amount: 1},
+      %BagDefinition{value: "H", score: 4, amount: 2},
+      %BagDefinition{value: "V", score: 4, amount: 1},
+      %BagDefinition{value: "Y", score: 4, amount: 1},
+      %BagDefinition{value: "CH", score: 5, amount: 1},
+      %BagDefinition{value: "Q", score: 5, amount: 1},
+      %BagDefinition{value: "J", score: 8, amount: 1},
+      %BagDefinition{value: "LL", score: 8, amount: 1},
+      %BagDefinition{value: "Ñ", score: 8, amount: 1},
+      %BagDefinition{value: "RR", score: 8, amount: 1},
+      %BagDefinition{value: "X", score: 8, amount: 1},
+      %BagDefinition{value: "Z", score: 10, amount: 1},
+      %BagDefinition{value: "*", score: 0, amount: 2}
+    ]
   end
 end

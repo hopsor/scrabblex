@@ -2,7 +2,7 @@ defmodule ScrabblexWeb.MatchLive.WildcardEditorComponent do
   use ScrabblexWeb, :live_component
 
   alias Scrabblex.Games
-  alias Scrabblex.Games.{Bag, Lexicon, Match}
+  alias Scrabblex.Games.{Lexicon, Match}
 
   def render(assigns) do
     ~H"""
@@ -33,15 +33,18 @@ defmodule ScrabblexWeb.MatchLive.WildcardEditorComponent do
 
   def update(
         %{
-          match: %Match{lexicon: %Lexicon{name: lexicon_name}} = match,
+          match:
+            %Match{
+              lexicon: %Lexicon{bag_definitions: bag_definitions}
+            } = match,
           wildcard: wildcard,
           current_player: current_player
         },
         socket
       ) do
     choices =
-      Bag.distribution(lexicon_name)
-      |> Map.keys()
+      bag_definitions
+      |> Enum.map(& &1.value)
       |> Enum.sort()
 
     {:ok,

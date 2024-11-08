@@ -128,7 +128,7 @@ defmodule Scrabblex.Games do
       {:ok, %Match{}}
   """
   def start_match(%Match{status: "created"} = match) do
-    with {:ok, initial_bag} <- Bag.new(match.lexicon.name),
+    with {:ok, initial_bag} <- Bag.new(match.lexicon),
          {:ok, hands, remaining_bag} <- Bag.init_hands(initial_bag, match.players) do
       players_changeset =
         hands
