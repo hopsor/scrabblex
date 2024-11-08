@@ -7,6 +7,7 @@ defmodule ScrabblexWeb.Admin.LexiconLive.FormComponent do
   def render(assigns) do
     ~H"""
     <div>
+      <h1><%= @title %></h1>
       <.simple_form
         for={@form}
         id="lexicon-form"
