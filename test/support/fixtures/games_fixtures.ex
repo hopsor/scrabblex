@@ -86,7 +86,7 @@ defmodule Scrabblex.GamesFixtures do
     {:ok, lexicon} =
       %Lexicon{}
       |> Scrabblex.Games.Lexicon.changeset(
-        Enum.into(attrs, %{name: "FISE-2", language: "es", flag: "🇪🇦"})
+        Enum.into(attrs, %{name: "FISE-2", language: "es", flag: "🇪🇦", enabled: true})
       )
       |> Repo.insert()
 
