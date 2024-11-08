@@ -50,6 +50,15 @@ defmodule ScrabblexWeb.Admin.LexiconLive.EntriesUploadWriter do
 
   @impl true
   def close(state, reason) do
+    if state.pending_word != "" do
+      Repo.insert_all(LexiconEntry, [
+        %{
+          lexicon_id: state.lexicon_id,
+          name: String.upcase(state.pending_word)
+        }
+      ])
+    end
+
     Logger.log(:info, "closing upload after #{state.total} bytes}, #{inspect(reason)}")
     Logger.log(:info, "#{state.words_counter} words have been inserted in the database")
 
