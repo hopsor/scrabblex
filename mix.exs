@@ -63,7 +63,9 @@ defmodule Scrabblex.MixProject do
       {:assent, "~> 0.2.10"},
       {:sqids, "~> 0.1.3"},
       {:scrivener_ecto, "~> 3.1"},
-      {:csv, "~> 3.2"}
+      {:csv, "~> 3.2"},
+      {:ex_cldr, "~> 2.40"},
+      {:ex_cldr_dates_times, "~> 2.20"}
     ]
   end
 

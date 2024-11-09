@@ -80,6 +80,10 @@ config :scrabblex, Scrabblex.SupervisedSqids,
 config :scrabblex, Scrabblex.Accounts.User,
   admin_emails: System.get_env("ADMIN_EMAILS", "") |> String.split(",", trim: true)
 
+config :scrabblex, Scrabblex.Cldr,
+  # a single locale, for fast compilation in dev / test
+  locales: ["en"]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
