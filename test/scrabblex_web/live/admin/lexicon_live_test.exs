@@ -116,13 +116,13 @@ defmodule ScrabblexWeb.Admin.LexiconLiveTest do
         file_input(entries_live, "#upload-form", :entries_file, [
           %{
             last_modified: 1_594_171_879_000,
-            name: "test-lexicon.txt",
-            content: File.read!("priv/repo/lexicons/test-lexicon.txt"),
+            name: "sample_entries.txt",
+            content: File.read!("test/support/fixtures/lexicon/sample_entries.txt"),
             type: "text/plain"
           }
         ])
 
-      assert render_upload(entries_file, "test-lexicon.txt") =~ "100%"
+      assert render_upload(entries_file, "sample_entries.txt") =~ "100%"
 
       assert entries_live
              |> element("#upload-form")
@@ -171,13 +171,13 @@ defmodule ScrabblexWeb.Admin.LexiconLiveTest do
         file_input(bag_definitions_live, "#upload-form", :definitions_csv, [
           %{
             last_modified: 1_594_171_879_000,
-            name: "test-bag-definition.csv",
-            content: File.read!("priv/repo/lexicons/test-bag-definition.csv"),
+            name: "sample_bag_definitions.csv",
+            content: File.read!("test/support/fixtures/lexicon/sample_bag_definitions.csv"),
             type: "text/csv"
           }
         ])
 
-      assert render_upload(definitions_csv, "test-bag-definition.csv") =~ "100%"
+      assert render_upload(definitions_csv, "sample_bag_definitions.csv") =~ "100%"
 
       bag_definitions_live
       |> element("#upload-form")
