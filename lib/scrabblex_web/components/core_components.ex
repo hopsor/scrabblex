@@ -490,7 +490,7 @@ defmodule ScrabblexWeb.CoreComponents do
           phx-update={match?(%Phoenix.LiveView.LiveStream{}, @rows) && "stream"}
           class="relative divide-y divide-zinc-100 border-t border-zinc-200 text-sm leading-6 text-zinc-700"
         >
-          <tr class="hidden only:table-row">
+          <tr id={@id <> "_no_data_row"} class="hidden only:table-row">
             <td
               class="bg-white p-4 text-center"
               colspan={Enum.count(@col) + if(@action != [], do: 1, else: 0)}
