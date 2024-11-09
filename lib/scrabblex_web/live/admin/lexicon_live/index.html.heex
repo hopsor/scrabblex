@@ -1,1 +1,53 @@
-<p>TODO</p>
+<.header class="mb-5">
+  Listing lexicons
+  <:actions>
+    <.link patch={~p"/admin/lexicons/new"}>
+      <.button>New Lexicon</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.table
+  id="lexicons"
+  rows={@streams.lexicons}
+  row_click={fn {_id, lexicon} -> JS.patch(~p"/admin/lexicons/#{lexicon}/edit") end}
+>
+  <:col :let={{_id, lexicon}} label="Id"><%= lexicon.id %></:col>
+  <:col :let={{_id, lexicon}} label="Name"><%= lexicon.name %></:col>
+  <:col :let={{_id, lexicon}} label="Language"><%= lexicon.language %></:col>
+  <:col :let={{_id, lexicon}} label="Flag"><%= lexicon.flag %></:col>
+  <:col :let={{_id, lexicon}} label="Enabled">
+    <.icon :if={lexicon.enabled} name="hero-check" class="text-green-500" />
+    <.icon :if={!lexicon.enabled} name="hero-x-mark" class="text-red-500" />
+  </:col>
+  <:action :let={{_id, lexicon}}>
+    <.link navigate={~p"/admin/lexicons/#{lexicon}/entries"}>Entries</.link>
+  </:action>
+  <:action :let={{_id, lexicon}}>
+    <.link patch={~p"/admin/lexicons/#{lexicon}/bag_definitions"}>Definitions</.link>
+  </:action>
+  <:action :let={{id, lexicon}}>
+    <.link
+      phx-click={JS.push("delete", value: %{id: lexicon.id}) |> hide("##{id}")}
+      data-confirm="Are you sure?"
+    >
+      Delete
+    </.link>
+  </:action>
+</.table>
+
+<.modal
+  :if={@live_action in [:new, :edit]}
+  id="lexicon-modal"
+  show
+  on_cancel={JS.patch(~p"/admin/lexicons")}
+>
+  <.live_component
+    module={ScrabblexWeb.Admin.LexiconLive.FormComponent}
+    id={@lexicon.id || :new}
+    title={@page_title}
+    action={@live_action}
+    lexicon={@lexicon}
+    patch={~p"/admin/lexicons"}
+  />
+</.modal>

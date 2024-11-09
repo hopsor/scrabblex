@@ -1,30 +1,46 @@
 defmodule Scrabblex.Games.BagTest do
   use ExUnit.Case
 
-  alias Scrabblex.Games.{Bag, Player, Tile}
+  import Scrabblex.GamesFixtures
+  alias Scrabblex.Games.BagDefinition
+  alias Scrabblex.Games.{Bag, Lexicon, Player, Tile}
+
+  setup_all do
+    lexicon = %Lexicon{
+      bag_definitions:
+        Enum.map(
+          bag_definitions_attrs(),
+          &%BagDefinition{value: &1["value"], score: &1["score"], amount: &1["amount"]}
+        )
+    }
+
+    {:ok, %{lexicon: lexicon}}
+  end
 
   describe "new/1" do
-    test "returns a list of structs with as many items as the distribution has available" do
-      {:ok, bag} = Bag.new("FISE-2")
-      assert length(bag) == 100
+    test "returns a list of structs with as many items as the distribution has available", %{
+      lexicon: lexicon
+    } do
+      {:ok, bag} = Bag.new(lexicon)
+      assert length(bag) == 104
     end
   end
 
   describe "init_hands/2" do
-    test "returns as many hands as players are provided" do
-      {:ok, bag} = Bag.new("FISE-2")
+    test "returns as many hands as players are provided", %{lexicon: lexicon} do
+      {:ok, bag} = Bag.new(lexicon)
       players = [%Player{}, %Player{}]
 
       assert {:ok, [_, _], _remaining} = Bag.init_hands(bag, players)
     end
 
-    test "returns a bag with the remaining tiles" do
-      {:ok, bag} = Bag.new("FISE-2")
+    test "returns a bag with the remaining tiles", %{lexicon: lexicon} do
+      {:ok, bag} = Bag.new(lexicon)
       players = [%Player{}, %Player{}]
 
       {:ok, _hands, remaining} = Bag.init_hands(bag, players)
 
-      assert length(remaining) == 100 - 7 * 2
+      assert length(remaining) == 104 - 7 * 2
     end
   end
 

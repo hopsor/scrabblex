@@ -1,0 +1,50 @@
+<div class="flex items-center">
+  <div class="basis-2/3">
+    <h1 class="text-6xl font-semibold mt-5 mb-10">
+      <%= @lexicon.name %>
+    </h1>
+  </div>
+
+  <div class="bg-white rounded-md p-4 grow">
+    <h2 class="font-semibold text-xl mb-3">Import definitions</h2>
+    <div class="mb-3">
+      <p class="text-sm">Import definitions from a csv file with following format:</p>
+      <p class="text-sm"><pre>value,score,amount</pre></p>
+    </div>
+    <form id="upload-form" phx-submit="upload" phx-change="validate">
+      <.live_file_input upload={@uploads.definitions_csv} class="block" />
+
+      <%= for entry <- @uploads.definitions_csv.entries do %>
+        <progress class="mt-3 w-full" value={entry.progress} max="100">
+          <%= entry.progress %>%
+        </progress>
+      <% end %>
+
+      <div class="mt-3">
+        <.button type="submit">
+          Import <.icon name="hero-cloud-arrow-up" />
+        </.button>
+
+        <.button
+          type="button"
+          id="reset-definitions"
+          phx-click="reset-definitions"
+          data-confirm="This will clean up the bag definitions. Do you want to proceed?"
+          class="bg-red-600"
+        >
+          <.icon name="hero-trash" /> Reset definitions
+        </.button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="flex items-center my-5">
+  <h2 class="text-2xl font-semibold basis-1/2">Bag definitions</h2>
+</div>
+
+<.table id="definitions" rows={@lexicon.bag_definitions}>
+  <:col :let={definition} label="Value"><%= definition.value %></:col>
+  <:col :let={definition} label="Score"><%= definition.score %></:col>
+  <:col :let={definition} label="Amount"><%= definition.amount %></:col>
+</.table>

@@ -6,7 +6,7 @@ defmodule Scrabblex.GamesFixtures do
 
   alias Scrabblex.Repo
   alias Scrabblex.Games
-  alias Scrabblex.Games.{Match, Lexicon, LexiconEntry, Play, Tile}
+  alias Scrabblex.Games.{BagDefinition, Match, Lexicon, LexiconEntry, Play, Tile}
 
   @doc """
   Generate a match.
@@ -83,11 +83,18 @@ defmodule Scrabblex.GamesFixtures do
   Generate a lexicon
   """
   def lexicon_fixture(attrs \\ %{}) do
+    defaults = %{
+      "name" => "FISE-2",
+      "language" => "es",
+      "flag" => "🇪🇦",
+      "enabled" => true,
+      "bag_definitions" =>
+        Enum.map(bag_definitions_attrs(), &BagDefinition.changeset(%BagDefinition{}, &1))
+    }
+
     {:ok, lexicon} =
       %Lexicon{}
-      |> Scrabblex.Games.Lexicon.changeset(
-        Enum.into(attrs, %{name: "FISE-2", language: "es", flag: "🇪🇦"})
-      )
+      |> Scrabblex.Games.Lexicon.changeset(Enum.into(attrs, defaults))
       |> Repo.insert()
 
     lexicon
@@ -98,5 +105,10 @@ defmodule Scrabblex.GamesFixtures do
       %LexiconEntry{} |> LexiconEntry.changeset(Enum.into(attrs, %{})) |> Repo.insert()
 
     lexicon_entry
+  end
+
+  def bag_definitions_attrs() do
+    ?A..?Z
+    |> Enum.map(&%{"value" => <<&1>>, "score" => 1, "amount" => 4})
   end
 end

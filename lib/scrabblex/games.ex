@@ -9,6 +9,7 @@ defmodule Scrabblex.Games do
   alias Scrabblex.Games.{
     Bag,
     Lexicon,
+    LexiconEntry,
     LexiconResolver,
     Match,
     Maptrix,
@@ -127,7 +128,7 @@ defmodule Scrabblex.Games do
       {:ok, %Match{}}
   """
   def start_match(%Match{status: "created"} = match) do
-    with {:ok, initial_bag} <- Bag.new(match.lexicon.name),
+    with {:ok, initial_bag} <- Bag.new(match.lexicon),
          {:ok, hands, remaining_bag} <- Bag.init_hands(initial_bag, match.players) do
       players_changeset =
         hands
@@ -298,6 +299,134 @@ defmodule Scrabblex.Games do
   def list_lexicons() do
     Lexicon
     |> Repo.all()
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking lexicon changes.
+
+  ## Examples
+
+      iex> change_lexicon(lexicon)
+      %Ecto.Changeset{data: %Lexicon{}}
+
+  """
+  def change_lexicon(%Lexicon{} = lexicon, attrs \\ %{}) do
+    Lexicon.changeset(lexicon, attrs)
+  end
+
+  @doc """
+  Creates a lexicon.
+
+  ## Examples
+
+      iex> create_lexicon(%{field: value})
+      {:ok, %Lexicon{}}
+
+      iex> create_lexicon(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_lexicon(attrs \\ %{}) do
+    %Lexicon{}
+    |> Lexicon.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a lexicon.
+
+  ## Examples
+
+      iex> update_lexicon(lexicon, %{field: new_value})
+      {:ok, %Lexicon{}}
+
+      iex> update_lexicon(lexicon, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_lexicon(%Lexicon{} = lexicon, attrs) do
+    lexicon
+    |> Lexicon.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Gets a single lexicon.
+
+  Raises `Ecto.NoResultsError` if the Lexicon does not exist.
+
+  ## Examples
+
+      iex> get_lexicon!(123)
+      %Lexicon{}
+
+      iex> get_lexicon!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_lexicon!(lexicon_id), do: Repo.get!(Lexicon, lexicon_id)
+
+  @doc """
+  Deletes a lexicon.
+
+  ## Examples
+
+      iex> delete_lexicon(lexicon)
+      {:ok, %Lexicon{}}
+
+      iex> delete_lexicon(lexicon)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_lexicon(%Lexicon{} = lexicon) do
+    Repo.delete(lexicon)
+  end
+
+  @doc """
+  Returns a paginated list of lexicon entries for a given lexicon.
+
+  ## Parameters
+
+    * lexicon_id - The ID of the lexicon to fetch entries for
+    * page - The page number to fetch (defaults to 0)
+
+  ## Examples
+
+    iex> list_lexicon_entries(123)
+    %Scrivener.Page{entries: [%LexiconEntry{}, ...], page_number: 1, ...}
+
+  """
+  def list_lexicon_entries(lexicon_id, page \\ 0, query \\ "") do
+    term = "%#{String.upcase(query)}%"
+
+    from(le in LexiconEntry,
+      where: le.lexicon_id == ^lexicon_id and like(le.name, ^term),
+      order_by: [asc: :name]
+    )
+    |> Repo.paginate(page: page)
+  end
+
+  @doc """
+  Deletes all lexicon entries for a given lexicon.
+
+  This is typically used when rebuilding or replacing a lexicon's word list.
+
+  ## Parameters
+
+    * lexicon_id - The ID of the lexicon to clean entries for
+
+  ## Examples
+
+    iex> clean_lexicon_entries(123)
+    {n, nil}
+
+  Where n is the number of entries deleted.
+  """
+  def clean_lexicon_entries(lexicon_id) do
+    from(le in LexiconEntry,
+      where: le.lexicon_id == ^lexicon_id
+    )
+    |> Repo.delete_all()
   end
 
   @doc """
