@@ -288,7 +288,7 @@ defmodule Scrabblex.Games do
   end
 
   @doc """
-  Returns the list of lexicons.
+  Returns the list of lexicons. They can be filtered by enabled flag
 
   ## Examples
 
@@ -296,9 +296,16 @@ defmodule Scrabblex.Games do
       [%Lexicon{}, ...]
 
   """
-  def list_lexicons() do
-    Lexicon
-    |> Repo.all()
+  def list_lexicons(opts \\ []) do
+    case Keyword.get(opts, :enabled) do
+      nil ->
+        Repo.all(Lexicon)
+
+      enabled ->
+        Lexicon
+        |> where([lex], lex.enabled == ^enabled)
+        |> Repo.all()
+    end
   end
 
   @doc """
