@@ -32,7 +32,7 @@ defmodule ScrabblexWeb.MatchLive.FormComponent do
   @impl true
   def mount(socket) do
     lexicon_options =
-      Scrabblex.Games.list_lexicons()
+      Scrabblex.Games.list_lexicons(enabled: true)
       |> Enum.map(&{"#{&1.flag} #{&1.name}", &1.id})
       |> Enum.into(%{})
 
