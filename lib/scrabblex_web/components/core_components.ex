@@ -498,7 +498,11 @@ defmodule ScrabblexWeb.CoreComponents do
               No data available
             </td>
           </tr>
-          <tr :for={row <- @rows} id={@row_id && @row_id.(row)} class="group hover:bg-zinc-50">
+          <tr
+            :for={row <- @rows}
+            id={@row_id && @row_id.(row)}
+            class="group hover:bg-zinc-50 data-row"
+          >
             <td
               :for={{col, _i} <- Enum.with_index(@col)}
               phx-click={@row_click && @row_click.(row)}

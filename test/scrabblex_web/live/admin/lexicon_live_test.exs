@@ -148,13 +148,13 @@ defmodule ScrabblexWeb.Admin.LexiconLiveTest do
     test "reset definitions", %{conn: conn, lexicon: lexicon} do
       {:ok, definitions_live, _html} = live(conn, ~p"/admin/lexicons/#{lexicon}/bag_definitions")
 
-      assert definitions_live |> element("tbody#definitions tr") |> has_element?()
+      assert definitions_live |> element("tbody#definitions tr.data-row") |> has_element?()
 
       definitions_live
       |> element("#reset-definitions")
       |> render_click()
 
-      refute definitions_live |> element("tbody#definitions tr") |> has_element?()
+      refute definitions_live |> element("tbody#definitions tr.data-row") |> has_element?()
     end
 
     test "upload definitions", %{conn: conn} do
