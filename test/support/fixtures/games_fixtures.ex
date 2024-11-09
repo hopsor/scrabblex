@@ -27,7 +27,8 @@ defmodule Scrabblex.GamesFixtures do
     {:ok, match} =
       %{
         lexicon_id: attrs[:lexicon_id] || lexicon_fixture() |> Map.get(:id),
-        players: [%{user_id: owner.id, owner: true}]
+        players: [%{user_id: owner.id, owner: true}],
+        private: attrs[:private] || false
       }
       |> Games.create_match()
 
