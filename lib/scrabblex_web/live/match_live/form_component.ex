@@ -20,6 +20,7 @@ defmodule ScrabblexWeb.MatchLive.FormComponent do
         phx-submit="save"
       >
         <.input field={@form[:lexicon_id]} type="select" label="Lexicon" options={@lexicon_options} />
+        <.input field={@form[:private]} type="checkbox" label="Private" />
         <:actions>
           <.button phx-disable-with="Saving...">Save Match</.button>
         </:actions>

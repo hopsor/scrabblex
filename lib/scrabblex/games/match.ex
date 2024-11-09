@@ -21,6 +21,7 @@ defmodule Scrabblex.Games.Match do
     field :status, :string
     field :turn, :integer
     field :friendly_id, :string
+    field :private, :boolean
     embeds_many :bag, Tile, on_replace: :delete
     belongs_to :lexicon, Lexicon
     has_many :players, Player, preload_order: [:id]
@@ -38,7 +39,7 @@ defmodule Scrabblex.Games.Match do
 
   def create_changeset(match, attrs) do
     match
-    |> cast(attrs, [:lexicon_id])
+    |> cast(attrs, [:lexicon_id, :private])
     |> cast_assoc(:players, with: &Scrabblex.Games.Player.owner_changeset/2)
     |> put_change(:status, "created")
     |> put_change(:turn, 0)
