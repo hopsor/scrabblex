@@ -37,11 +37,11 @@ defmodule Scrabblex.Games do
       )
 
     case Keyword.get(opts, :lexicon_id) do
-      value when is_integer(value) ->
-        where(query, [m], m.lexicon_id == ^value)
-
-      _ ->
+      nil ->
         query
+
+      value ->
+        where(query, [m], m.lexicon_id == ^value)
     end
     |> Repo.all()
     |> Repo.preload([:lexicon, players: [:user]])
