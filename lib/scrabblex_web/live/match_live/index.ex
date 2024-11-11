@@ -42,7 +42,7 @@ defmodule ScrabblexWeb.MatchLive.Index do
         {String.to_existing_atom(key), value}
       end)
 
-    matches = Games.list_matches(socket.assigns.current_user, list_opts)
+    matches = Games.list_open_matches(socket.assigns.current_user, list_opts)
 
     socket
     |> assign(:page_title, "Open matches")

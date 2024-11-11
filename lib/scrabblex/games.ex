@@ -27,13 +27,17 @@ defmodule Scrabblex.Games do
   Returns the list of public matches including the private ones where the user has
   been part of. This list can be filtered by lexicon
   """
-  def list_matches(%User{id: user_id}, opts \\ []) do
+  def list_open_matches(%User{id: user_id}, opts \\ []) do
     query =
       from(m in Match,
         left_join: p in Player,
         on: m.id == p.match_id,
-        where: m.status == "created" and (p.user_id == ^user_id or m.private == false),
-        order_by: [desc: :inserted_at]
+        where:
+          m.status == "created" and
+            m.inserted_at > datetime_add(^NaiveDateTime.utc_now(), -1, "day") and
+            (p.user_id == ^user_id or m.private == false),
+        order_by: [desc: :inserted_at],
+        preload: [:lexicon, players: [:user]]
       )
 
     case Keyword.get(opts, :lexicon_id) do
@@ -44,7 +48,6 @@ defmodule Scrabblex.Games do
         where(query, [m], m.lexicon_id == ^value)
     end
     |> Repo.all()
-    |> Repo.preload([:lexicon, players: [:user]])
   end
 
   @doc """
