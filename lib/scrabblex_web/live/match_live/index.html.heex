@@ -1,7 +1,8 @@
 <div class="bg-white shadow">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <.header>
-      Listing Matches
+      Open Matches
+      <:subtitle>Find open matches to join and play with other people.</:subtitle>
       <:actions>
         <.link patch={~p"/matches/new"}>
           <.button>
@@ -14,12 +15,30 @@
 </div>
 
 <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+  <div>
+    <.form
+      id="search-form"
+      phx-change="filter"
+      class="basis-1/2 flex justify-start mb-5"
+      for={@search_form}
+    >
+      <.input
+        field={@search_form[:lexicon_id]}
+        type="select"
+        label="Lexicon"
+        options={@lexicon_options}
+        prompt="Not selected"
+      />
+    </.form>
+  </div>
+
   <.table
     id="matches"
     rows={@streams.matches}
     row_click={fn {_id, match} -> JS.navigate(~p"/m/#{match}") end}
   >
     <:col :let={{_id, match}} label="Id"><%= match.friendly_id %></:col>
+    <:col :let={{_id, match}} label="Lexicon"><%= match.lexicon.name %></:col>
     <:col :let={{_id, match}} label="Participants">
       <div class="flex -space-x-2 overflow-hidden">
         <.avatar
@@ -30,19 +49,9 @@
         />
       </div>
     </:col>
-    <:col :let={{_id, match}} label="Visibility">
-      <span :if={match.private}>
-        <.icon name="hero-eye-slash" /> Private
-      </span>
-      <span :if={!match.private}>
-        <.icon name="hero-eye" /> Public
-      </span>
+    <:col :let={{_id, match}} label="">
+      <%= Scrabblex.Cldr.DateTime.Relative.to_string!(match.inserted_at) %>
     </:col>
-    <:col :let={{_id, match}} label="Created at">
-      <%= Scrabblex.Cldr.DateTime.to_string!(match.inserted_at, format: :short) %>
-    </:col>
-    <:col :let={{_id, match}} label="Lexicon"><%= match.lexicon.name %></:col>
-    <:col :let={{_id, match}} label="Status"><%= match.status %></:col>
   </.table>
 </div>
 
