@@ -38,7 +38,9 @@
     row_click={fn {_id, match} -> JS.navigate(~p"/m/#{match}") end}
   >
     <:col :let={{_id, match}} label="Id"><%= match.friendly_id %></:col>
-    <:col :let={{_id, match}} label="Lexicon"><%= match.lexicon.name %></:col>
+    <:col :let={{_id, match}} label="Lexicon">
+      <%= match.lexicon.flag %> <%= match.lexicon.name %>
+    </:col>
     <:col :let={{_id, match}} label="Participants">
       <div class="flex -space-x-2 overflow-hidden">
         <.avatar
@@ -53,6 +55,8 @@
       <%= Scrabblex.Cldr.DateTime.Relative.to_string!(match.inserted_at) %>
     </:col>
   </.table>
+
+  <p class="text-center text-zinc-400 mt-5">Showing open matches created in the last 24 hours</p>
 </div>
 
 <.modal :if={@live_action == :new} id="match-modal" show on_cancel={JS.patch(~p"/matches")}>
