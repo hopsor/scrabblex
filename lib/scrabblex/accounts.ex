@@ -63,6 +63,11 @@ defmodule Scrabblex.Accounts do
   end
 
   @doc """
+  Gets a user by name.
+  """
+  def get_user_by_name(name), do: Repo.get_by(User, name: name)
+
+  @doc """
   Gets a single user.
 
   Raises `Ecto.NoResultsError` if the User does not exist.

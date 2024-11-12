@@ -49,6 +49,18 @@ defmodule Scrabblex.AccountsTest do
     end
   end
 
+  describe "get_user_by_name/1" do
+    test "returns the user if the name does not exist" do
+      %{id: id} = user_fixture(name: "john")
+      assert %User{id: ^id} = Accounts.get_user_by_name("john")
+    end
+
+    test "does not return the user if the name does not exist" do
+      user_fixture(name: "john")
+      refute Accounts.get_user_by_name("jane")
+    end
+  end
+
   describe "get_user!/1" do
     test "raises if id is invalid" do
       assert_raise Ecto.NoResultsError, fn ->
