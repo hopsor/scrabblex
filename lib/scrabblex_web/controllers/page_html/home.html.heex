@@ -10,13 +10,15 @@
     </div>
     <div class="flex flex-row gap-1 mt-1">
       <div
-        :for={char <- ~w(T I L E S)}
+        :for={char <- ~w(W O R D S)}
         class="w-14 h-14 bg-yellow-200 rounded-md flex items-center justify-center font-bold shadow"
       >
         <%= char %>
       </div>
     </div>
-    <div class="mt-5">A web based Scrabble-like game built with Elixir and Phoenix LiveView.</div>
+    <div class="mt-5 text-sm">
+      An open source web based Scrabble-like game developed with Elixir, Phoenix LiveView and Tailwind.
+    </div>
     <div class="mt-5">
       <.button>
         <.link href={~p"/matches"}>Start</.link>

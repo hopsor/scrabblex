@@ -16,5 +16,9 @@ config :swoosh, local: false
 # Do not print debug messages in production
 config :logger, level: :info
 
+config :scrabblex, Scrabblex.Cldr,
+  # these will take a while to compile
+  locales: ["fr", "en", "es", "it"]
+
 # Runtime production configuration, including reading
 # of environment variables, is done on config/runtime.exs.

@@ -13,6 +13,13 @@ defmodule Scrabblex.GamesTest do
       lexicon = lexicon_fixture()
       assert Games.list_lexicons() == [lexicon]
     end
+
+    test "list_lexicons/1 filters by enabled true/false" do
+      lexicon = lexicon_fixture()
+      _lexicon = lexicon_fixture(%{"enabled" => false})
+
+      assert Games.list_lexicons(enabled: true) == [lexicon]
+    end
   end
 
   describe "matches" do
@@ -22,13 +29,43 @@ defmodule Scrabblex.GamesTest do
 
     @invalid_attrs %{lexicon_id: nil}
 
-    test "list_matches/1 returns all matches scoped by user" do
-      match1 = match_fixture()
+    test "list_open_matches/1 returns given user private matches" do
+      match1 = match_fixture(private: true)
       match1_id = match1.id
-      _match2 = match_fixture(lexicon_id: match1.lexicon_id)
+      _match2 = match_fixture(private: true, lexicon_id: match1.lexicon_id)
 
       owner_player = Match.owner(match1)
-      assert [%Match{id: ^match1_id}] = Games.list_matches(owner_player.user)
+      assert [%Match{id: ^match1_id}] = Games.list_open_matches(owner_player.user)
+    end
+
+    test "list_open_matches/1 returns other users public matches" do
+      match1 = match_fixture(private: false)
+      match1_id = match1.id
+      other_user = user_fixture()
+
+      assert [%Match{id: ^match1_id}] = Games.list_open_matches(other_user)
+    end
+
+    test "list_open_matches/1 filters by lexicon_id" do
+      match1 = match_fixture(private: true)
+      match1_id = match1.id
+      _match2 = match_fixture()
+
+      owner_player = Match.owner(match1)
+
+      assert [%Match{id: ^match1_id}] =
+               Games.list_open_matches(owner_player.user, lexicon_id: match1.lexicon_id)
+    end
+
+    test "list_match_history/1 returns all matches for a given user" do
+      match1 = match_fixture()
+      match1_id = match1.id
+      _match2 = match_fixture()
+
+      owner_player = Match.owner(match1)
+
+      assert [%Match{id: ^match1_id}] =
+               Games.list_match_history(owner_player.user)
     end
 
     test "get_match!/1 returns the match with given id" do

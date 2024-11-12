@@ -490,7 +490,19 @@ defmodule ScrabblexWeb.CoreComponents do
           phx-update={match?(%Phoenix.LiveView.LiveStream{}, @rows) && "stream"}
           class="relative divide-y divide-zinc-100 border-t border-zinc-200 text-sm leading-6 text-zinc-700"
         >
-          <tr :for={row <- @rows} id={@row_id && @row_id.(row)} class="group hover:bg-zinc-50">
+          <tr id={@id <> "_no_data_row"} class="hidden only:table-row">
+            <td
+              class="bg-white p-4 text-center"
+              colspan={Enum.count(@col) + if(@action != [], do: 1, else: 0)}
+            >
+              No data available
+            </td>
+          </tr>
+          <tr
+            :for={row <- @rows}
+            id={@row_id && @row_id.(row)}
+            class="group hover:bg-zinc-50 data-row"
+          >
             <td
               :for={{col, _i} <- Enum.with_index(@col)}
               phx-click={@row_click && @row_click.(row)}

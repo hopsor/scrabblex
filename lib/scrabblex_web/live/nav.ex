@@ -2,6 +2,7 @@ defmodule ScrabblexWeb.Nav do
   import Phoenix.LiveView
   use Phoenix.Component
 
+  alias ScrabblexWeb.DashboardLive
   alias ScrabblexWeb.MatchLive.{Index, Show}
 
   def on_mount(:default, _params, _session, socket) do
@@ -15,6 +16,9 @@ defmodule ScrabblexWeb.Nav do
       case {socket.view, socket.assigns.live_action} do
         {match_live, _} when match_live in [Index, Show] ->
           :match
+
+        {dashboard_live, _} when dashboard_live in [DashboardLive] ->
+          :dashboard
 
         {_, _} ->
           nil

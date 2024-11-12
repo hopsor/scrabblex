@@ -24,12 +24,42 @@ defmodule Scrabblex.Games do
   alias Scrabblex.Accounts.User
 
   @doc """
-  Returns the list of matches scoped by user
+  Returns the list of public matches including the private ones where the user has
+  been part of. This list can be filtered by lexicon
   """
-  def list_matches(%User{id: user_id}) do
-    query = from m in Match, join: p in Player, on: m.id == p.match_id and p.user_id == ^user_id
+  def list_open_matches(%User{id: user_id}, opts \\ []) do
+    query =
+      from(m in Match,
+        left_join: p in Player,
+        on: m.id == p.match_id,
+        where:
+          m.status == "created" and
+            m.inserted_at > datetime_add(^NaiveDateTime.utc_now(), -1, "day") and
+            (p.user_id == ^user_id or m.private == false),
+        order_by: [desc: :inserted_at],
+        preload: [:lexicon, players: [:user]]
+      )
 
-    Repo.all(query)
+    case Keyword.get(opts, :lexicon_id) do
+      nil ->
+        query
+
+      value ->
+        where(query, [m], m.lexicon_id == ^value)
+    end
+    |> Repo.all()
+  end
+
+  @doc """
+  Lists all the matches a user has been part of
+  """
+  def list_match_history(%User{id: user_id}) do
+    from(m in Match,
+      join: p in Player,
+      on: m.id == p.match_id and p.user_id == ^user_id,
+      order_by: [desc: :inserted_at]
+    )
+    |> Repo.all()
     |> Repo.preload([:lexicon, players: [:user]])
   end
 
@@ -288,7 +318,7 @@ defmodule Scrabblex.Games do
   end
 
   @doc """
-  Returns the list of lexicons.
+  Returns the list of lexicons. They can be filtered by enabled flag
 
   ## Examples
 
@@ -296,9 +326,16 @@ defmodule Scrabblex.Games do
       [%Lexicon{}, ...]
 
   """
-  def list_lexicons() do
-    Lexicon
-    |> Repo.all()
+  def list_lexicons(opts \\ []) do
+    case Keyword.get(opts, :enabled) do
+      nil ->
+        Repo.all(Lexicon)
+
+      enabled ->
+        Lexicon
+        |> where([lex], lex.enabled == ^enabled)
+        |> Repo.all()
+    end
   end
 
   @doc """

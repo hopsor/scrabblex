@@ -20,6 +20,7 @@ defmodule ScrabblexWeb.MatchLive.FormComponent do
         phx-submit="save"
       >
         <.input field={@form[:lexicon_id]} type="select" label="Lexicon" options={@lexicon_options} />
+        <.input field={@form[:private]} type="checkbox" label="Private" />
         <:actions>
           <.button phx-disable-with="Saving...">Save Match</.button>
         </:actions>
@@ -31,7 +32,7 @@ defmodule ScrabblexWeb.MatchLive.FormComponent do
   @impl true
   def mount(socket) do
     lexicon_options =
-      Scrabblex.Games.list_lexicons()
+      Scrabblex.Games.list_lexicons(enabled: true)
       |> Enum.map(&{"#{&1.flag} #{&1.name}", &1.id})
       |> Enum.into(%{})
 
