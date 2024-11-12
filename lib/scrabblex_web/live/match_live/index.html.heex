@@ -27,7 +27,7 @@
         type="select"
         label="Lexicon"
         options={@lexicon_options}
-        prompt="Not selected"
+        prompt="All"
       />
     </.form>
   </div>
@@ -43,12 +43,9 @@
     </:col>
     <:col :let={{_id, match}} label="Participants">
       <div class="flex -space-x-2 overflow-hidden">
-        <.avatar
-          :for={user <- Enum.map(match.players, & &1.user)}
-          user={user}
-          title={user.name}
-          class="ring-2 ring-white"
-        />
+        <.link :for={user <- Enum.map(match.players, & &1.user)} navigate={~p"/u/#{user.name}"}>
+          <.avatar user={user} title={user.name} class="ring-2 ring-white" />
+        </.link>
       </div>
     </:col>
     <:col :let={{_id, match}} label="">
