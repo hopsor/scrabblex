@@ -41,7 +41,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
       assert html =~ "Open Matches"
     end
 
-    test "open matches live updates insert new ones when they are broadcasted", %{conn: conn} do
+    test "open matches live updates insert new ones when they are created", %{conn: conn} do
       user = user_fixture()
       conn = log_in_user(conn, user)
       {:ok, index_live, _html} = live(conn, ~p"/matches")
