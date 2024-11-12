@@ -1,6 +1,8 @@
 defmodule ScrabblexWeb.MatchLive.Index do
   use ScrabblexWeb, :live_view
 
+  require Logger
+
   alias Scrabblex.Games
   alias Scrabblex.Games.Match
 
@@ -45,6 +47,7 @@ defmodule ScrabblexWeb.MatchLive.Index do
     matches = Games.list_open_matches(socket.assigns.current_user, list_opts)
 
     socket
+    |> subscribe_to_live_updates(list_opts)
     |> assign(:page_title, "Open matches")
     |> assign(:match, nil)
     |> stream(:matches, matches, reset: true)
@@ -55,6 +58,19 @@ defmodule ScrabblexWeb.MatchLive.Index do
     {:noreply, stream_insert(socket, :matches, match)}
   end
 
+  # Open matches live updates
+  def handle_info(%{event: "match_update", payload: %Match{status: "created"} = match}, socket) do
+    {:noreply,
+     socket
+     |> stream_insert(:matches, match, at: 0)}
+  end
+
+  def handle_info(%{event: "match_update", payload: %Match{status: "started"} = match}, socket) do
+    {:noreply,
+     socket
+     |> stream_delete(:matches, match)}
+  end
+
   @impl true
   def handle_event("filter", params, socket) do
     url_params =
@@ -63,5 +79,27 @@ defmodule ScrabblexWeb.MatchLive.Index do
       |> Map.reject(fn {_k, v} -> v == "" end)
 
     {:noreply, push_patch(socket, to: ~p"/matches?#{url_params}")}
+  end
+
+  defp subscribe_to_live_updates(socket, opts) do
+    if current_topic = socket.assigns[:current_live_updates_topic] do
+      Logger.info("Unsubscribing from topic: #{current_topic}")
+      ScrabblexWeb.Endpoint.unsubscribe(current_topic)
+    end
+
+    new_topic = live_updates_topic(opts)
+
+    Logger.info("Subscribing to topic: #{new_topic}")
+    ScrabblexWeb.Endpoint.subscribe(new_topic)
+
+    socket
+    |> assign(:current_live_updates_topic, new_topic)
+  end
+
+  defp live_updates_topic(opts) do
+    case Keyword.get(opts, :lexicon_id) do
+      nil -> "open_matches:*"
+      lexicon_id -> "open_matches:#{lexicon_id}"
+    end
   end
 end
