@@ -33,10 +33,10 @@ defmodule ScrabblexWeb.Layouts do
     <div class="hidden md:block">
       <div class="ml-10 flex items-baseline space-x-4">
         <.link
-          href={~p"/dashboard"}
+          href={~p"/u/#{@current_user.name}"}
           class={"rounded-md px-3 py-2 text-sm font-medium text-gray-300 #{if @active_tab == :dashboard, do: "bg-gray-900 text-white", else: "hover:bg-gray-700 hover:text-white"}"}
         >
-          Dashboard
+          Profile
         </.link>
         <.link
           href={~p"/matches"}
