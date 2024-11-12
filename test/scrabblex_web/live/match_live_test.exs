@@ -41,6 +41,30 @@ defmodule ScrabblexWeb.MatchLiveTest do
       assert html =~ "Open Matches"
     end
 
+    test "open matches live updates insert new ones when they are broadcasted", %{conn: conn} do
+      user = user_fixture()
+      conn = log_in_user(conn, user)
+      {:ok, index_live, _html} = live(conn, ~p"/matches")
+
+      match = match_fixture()
+
+      assert index_live |> element("tbody#matches tr#matches-#{match.id}") |> has_element?()
+    end
+
+    test "open matches live updates removes existing matches when they are started", %{conn: conn} do
+      user = user_fixture()
+      conn = log_in_user(conn, user)
+      match = match_fixture()
+
+      {:ok, index_live, _html} = live(conn, ~p"/matches")
+      assert index_live |> element("tbody#matches tr#matches-#{match.id}") |> has_element?()
+
+      player = player_fixture(%{match_id: match.id})
+      Games.start_match(%Match{match | players: match.players ++ [player]})
+
+      refute index_live |> element("tbody#matches tr#matches-#{match.id}") |> has_element?()
+    end
+
     test "saves new match", %{conn: conn, match: match} do
       user = user_fixture()
       conn = log_in_user(conn, user)
