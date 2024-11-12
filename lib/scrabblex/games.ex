@@ -604,4 +604,6 @@ defmodule Scrabblex.Games do
       match
     )
   end
+
+  defp notify_open_match_live_update(_), do: nil
 end
