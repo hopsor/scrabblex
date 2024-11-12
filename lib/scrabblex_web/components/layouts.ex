@@ -27,6 +27,7 @@ defmodule ScrabblexWeb.Layouts do
 
   attr :id, :string
   attr :active_tab, :atom
+  attr :current_user, :any
 
   def nav_links(assigns) do
     ~H"""
