@@ -85,7 +85,7 @@ defmodule Scrabblex.GamesFixtures do
   """
   def lexicon_fixture(attrs \\ %{}) do
     defaults = %{
-      "name" => "FISE-2",
+      "name" => "lexicon_#{System.unique_integer()}",
       "language" => "es",
       "flag" => "🇪🇦",
       "enabled" => true,

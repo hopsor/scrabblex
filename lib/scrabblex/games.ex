@@ -53,7 +53,7 @@ defmodule Scrabblex.Games do
   @doc """
   Lists all the matches a user has been part of
   """
-  def list_matches_for_user(%User{id: user_id}) do
+  def list_match_history(%User{id: user_id}) do
     from(m in Match,
       join: p in Player,
       on: m.id == p.match_id and p.user_id == ^user_id,

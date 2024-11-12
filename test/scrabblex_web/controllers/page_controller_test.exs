@@ -5,6 +5,6 @@ defmodule ScrabblexWeb.PageControllerTest do
     conn = get(conn, ~p"/")
 
     assert html_response(conn, 200) =~
-             "A web based Scrabble-like game built with Elixir and Phoenix LiveView"
+             "An open source web based Scrabble-like game developed with Elixir, Phoenix LiveView and Tailwind"
   end
 end
