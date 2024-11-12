@@ -37,6 +37,7 @@ defmodule Scrabblex.Games do
             m.inserted_at > datetime_add(^NaiveDateTime.utc_now(), -1, "day") and
             (p.user_id == ^user_id or m.private == false),
         order_by: [desc: :inserted_at],
+        distinct: true,
         preload: [:lexicon, players: [:user]]
       )
 
@@ -108,8 +109,15 @@ defmodule Scrabblex.Games do
       |> Repo.insert()
 
     case result do
-      {:ok, match} -> {:ok, Repo.preload(match, [:plays, :lexicon, players: [:user]])}
-      error -> error
+      {:ok, match} ->
+        match_with_data = Repo.preload(match, [:plays, :lexicon, players: [:user]])
+
+        notify_open_match_live_update(match_with_data)
+
+        {:ok, match_with_data}
+
+      error ->
+        error
     end
   end
 
@@ -177,8 +185,15 @@ defmodule Scrabblex.Games do
       changeset
       |> Repo.update()
       |> case do
-        {:ok, match} -> {:ok, Repo.preload(match, [:plays, :lexicon, players: [:user]])}
-        error -> error
+        {:ok, match} ->
+          match_with_data = Repo.preload(match, [:plays, :lexicon, players: [:user]])
+
+          notify_open_match_live_update(match_with_data)
+
+          {:ok, match_with_data}
+
+        error ->
+          error
       end
     end
   end
@@ -579,4 +594,16 @@ defmodule Scrabblex.Games do
     index = Enum.find_index(players, &(&1 == player))
     if rem(turn, length(players)) == index, do: :ok, else: {:error, :invalid_turn}
   end
+
+  defp notify_open_match_live_update(%Match{private: false} = match) do
+    ScrabblexWeb.Endpoint.broadcast("open_matches:*", "match_update", match)
+
+    ScrabblexWeb.Endpoint.broadcast(
+      "open_matches:#{match.lexicon_id}",
+      "match_update",
+      match
+    )
+  end
+
+  defp notify_open_match_live_update(_), do: nil
 end
