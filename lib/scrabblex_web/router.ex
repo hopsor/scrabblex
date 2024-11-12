@@ -27,7 +27,7 @@ defmodule ScrabblexWeb.Router do
     pipe_through [:browser, :require_authenticated_user]
 
     live_session :default, on_mount: [ScrabblexWeb.UserLiveAuth, ScrabblexWeb.Nav] do
-      live "/dashboard", DashboardLive
+      live "/u/:name", UserProfileLive
       live "/matches", MatchLive.Index, :index
       live "/matches/new", MatchLive.Index, :new
       live "/m/:friendly_id", MatchLive.Show, :show
