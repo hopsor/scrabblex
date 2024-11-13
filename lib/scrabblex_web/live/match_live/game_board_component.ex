@@ -10,13 +10,25 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
   def render(assigns) do
     ~H"""
     <div id="game_board" phx-hook="Drag" phx-target={@myself}>
+      <div
+        :if={!@current_player}
+        class="bg-gradient-to-b from-green-500 bg-green-400 border-b text-white font-semibold text-center py-2"
+      >
+        <.icon name="hero-tv" /> Viewer mode
+      </div>
       <div class="bg-white shadow">
         <div class="max-w-7xl mx-auto grid grid-cols-3 px-4">
           <div class="col-span-2 grid grid-cols-4">
             <!-- Score div -->
-            <div :for={player <- @match.players} class="flex flex-col border-l last:border-r pt-1">
+            <div
+              :for={player <- @match.players}
+              class={[
+                "flex flex-col border-l last:border-r pt-1",
+                @player_on_turn == player && "bg-gray-100 animate-pulse"
+              ]}
+            >
               <div class="flex items-stretch">
-                <div class="grow h-auto flex flex-col items-center justify-center mt-2">
+                <div class="grow h-auto flex flex-col items-center justify-center my-2">
                   <.avatar user={player.user} />
                   <div class="text-sm font-semibold leading-6 text-center text-gray-500">
                     <%= player.user.name %>
@@ -28,18 +40,6 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
                   </p>
                   <p class="text-xs text-center text-gray-400">points</p>
                 </div>
-              </div>
-
-              <div
-                :if={@player_on_turn == player}
-                class="w-full h-1 bg-green-400 mt-1"
-                phx-mounted={
-                  JS.transition({"ease-in duration-500", "opacity-0", "opacity-100"}, time: 500)
-                }
-                phx-remove={
-                  JS.transition({"ease-out duration-500", "opacity-100", "opacity-0"}, time: 500)
-                }
-              >
               </div>
             </div>
           </div>
@@ -94,7 +94,11 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
             </div>
           </div>
           <div class="basis-4/12">
-            <div id="hand" class="grid grid-cols-7 gap-2 dropzone min-w-full max-w-md mx-auto mt-4">
+            <div
+              :if={@current_player}
+              id="hand"
+              class="grid grid-cols-7 gap-2 dropzone min-w-full max-w-md mx-auto mt-4"
+            >
               <TileComponent.tile
                 :for={tile <- @parked_tiles}
                 tile={tile}
@@ -103,7 +107,7 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
                 played={false}
               />
             </div>
-            <div id="actions" class="mt-5 text-center">
+            <div :if={@current_player} id="actions" class="mt-5 text-center">
               <.button
                 :if={@can_submit}
                 id="btn_submit_play"
@@ -174,7 +178,7 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
 
   @impl true
   def update(%{match: match, current_user: current_user, events_topic: events_topic}, socket) do
-    {current_player, current_player_index} =
+    current_player_tuple =
       match.players
       |> Enum.with_index()
       |> Enum.find(fn {player, _index} ->
@@ -182,27 +186,32 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
       end)
 
     turn_index = rem(match.turn, length(match.players))
-
-    parked_tiles = Enum.filter(current_player.hand, &is_nil(&1.position))
-
-    can_submit = turn_index == current_player_index
-
-    can_exchange = can_submit && length(match.bag) > 0
-
-    board_cells = board_cells(match, current_player)
-
     player_on_turn = Enum.at(match.players, turn_index)
+
+    custom_assigns =
+      case current_player_tuple do
+        nil ->
+          [current_player: nil, board_cells: board_cells(match, nil)]
+
+        {current_player, current_player_index} ->
+          can_submit = turn_index == current_player_index
+          can_exchange = can_submit && length(match.bag) > 0
+
+          [
+            current_player: current_player,
+            can_submit: can_submit,
+            can_exchange: can_exchange,
+            parked_tiles: Enum.filter(current_player.hand, &is_nil(&1.position)),
+            board_cells: board_cells(match, current_player)
+          ]
+      end
 
     {:ok,
      socket
-     |> assign(:current_player, current_player)
-     |> assign(:parked_tiles, parked_tiles)
      |> assign(:match, match)
-     |> assign(:can_submit, can_submit)
-     |> assign(:can_exchange, can_exchange)
-     |> assign(:board_cells, board_cells)
      |> assign(:events_topic, events_topic)
-     |> assign(:player_on_turn, player_on_turn)}
+     |> assign(:player_on_turn, player_on_turn)
+     |> assign(custom_assigns)}
   end
 
   @impl true
@@ -335,6 +344,15 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
         end
 
       {row, column, booster, tile, played}
+    end)
+  end
+
+  defp board_cells(%Match{} = match, nil) do
+    plays_matrix = Maptrix.from_match(match)
+
+    board_cells()
+    |> Enum.map(fn {row, column, booster, _, _} ->
+      {row, column, booster, Map.get(plays_matrix, {row, column}), true}
     end)
   end
 
