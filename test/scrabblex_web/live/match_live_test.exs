@@ -214,6 +214,19 @@ defmodule ScrabblexWeb.MatchLiveTest do
   describe "Show / Game Board" do
     setup [:create_started_match, :presence_callback]
 
+    test "loading the component as a non player shows it in viewer mode", %{
+      conn: conn,
+      match: %Match{} = match
+    } do
+      viewer_user = user_fixture()
+      conn = log_in_user(conn, viewer_user)
+      {:ok, show_live, html} = live(conn, ~p"/m/#{match}")
+
+      assert html =~ "Viewer mode"
+      refute show_live |> has_element?("#hand")
+      refute show_live |> has_element?("#actions")
+    end
+
     test "loading the component shows current score and my hand", %{
       conn: conn,
       match: %Match{players: [player1 | _] = players} = match
