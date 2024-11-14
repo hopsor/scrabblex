@@ -19,12 +19,12 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
       <div class="bg-white shadow">
         <div class="max-w-7xl mx-auto grid grid-cols-3 px-4">
           <div class="col-span-2 grid grid-cols-4">
-            <!-- Score div -->
             <div
               :for={player <- @match.players}
               class={[
                 "flex flex-col border-l last:border-r pt-1",
-                @player_on_turn == player && "bg-gray-100 animate-pulse"
+                @player_on_turn == player && @match.status != "finished" &&
+                  "bg-gray-100 animate-pulse"
               ]}
             >
               <div class="flex items-stretch">
@@ -107,7 +107,11 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
                 played={false}
               />
             </div>
-            <div :if={@current_player} id="actions" class="mt-5 text-center">
+            <div
+              :if={@current_player && @match.status != "finished"}
+              id="actions"
+              class="mt-5 text-center"
+            >
               <.button
                 :if={@can_submit}
                 id="btn_submit_play"
