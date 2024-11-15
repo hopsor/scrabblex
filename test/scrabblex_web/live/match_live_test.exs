@@ -493,6 +493,11 @@ defmodule ScrabblexWeb.MatchLiveTest do
              |> element("#play_log div.exchange")
              |> has_element?()
     end
+
+    # TODO: Implement when having better fixtures
+    @tag skip: "Pending to implement"
+    test "when the match is finished it shows a modal with winner's name and points" do
+    end
   end
 
   describe "Show / Wildcard Edition" do

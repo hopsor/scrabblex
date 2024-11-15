@@ -19,12 +19,12 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
       <div class="bg-white shadow">
         <div class="max-w-7xl mx-auto grid grid-cols-3 px-4">
           <div class="col-span-2 grid grid-cols-4">
-            <!-- Score div -->
             <div
               :for={player <- @match.players}
               class={[
                 "flex flex-col border-l last:border-r pt-1",
-                @player_on_turn == player && "bg-gray-100 animate-pulse"
+                @player_on_turn == player && @match.status != "finished" &&
+                  "bg-gray-100 animate-pulse"
               ]}
             >
               <div class="flex items-stretch">
@@ -107,7 +107,11 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
                 played={false}
               />
             </div>
-            <div :if={@current_player} id="actions" class="mt-5 text-center">
+            <div
+              :if={@current_player && @match.status != "finished"}
+              id="actions"
+              class="mt-5 text-center"
+            >
               <.button
                 :if={@can_submit}
                 id="btn_submit_play"
@@ -166,6 +170,21 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
           </div>
         </div>
       </div>
+
+      <.modal :if={@winner} id="winner-modal" show>
+        <div class="flex flex-col items-center gap-y-2">
+          <div>
+            <.icon class="w-32 h-32 text-yellow-400" name="hero-trophy" />
+          </div>
+          <h1 class="font-semibold text-3xl">Winner</h1>
+          <p>
+            <.avatar user={@winner.user} />
+            <strong><%= @winner.user.name %></strong>
+          </p>
+          <p class="text-4xl"><%= @winner.score %></p>
+          <span>points</span>
+        </div>
+      </.modal>
     </div>
     """
   end
@@ -211,6 +230,7 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
      |> assign(:match, match)
      |> assign(:events_topic, events_topic)
      |> assign(:player_on_turn, player_on_turn)
+     |> assign(:winner, detect_winner(match))
      |> assign(custom_assigns)}
   end
 
@@ -355,6 +375,12 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
       {row, column, booster, Map.get(plays_matrix, {row, column}), true}
     end)
   end
+
+  defp detect_winner(%Match{status: "finished", players: players}) do
+    Enum.max_by(players, & &1.score)
+  end
+
+  defp detect_winner(_), do: nil
 
   # TODO: Consider using gettext
   defp submit_play_error_message({:error, :empty_play}) do
