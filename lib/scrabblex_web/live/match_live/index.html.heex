@@ -37,9 +37,9 @@
     rows={@streams.matches}
     row_click={fn {_id, match} -> JS.navigate(~p"/m/#{match}") end}
   >
-    <:col :let={{_id, match}} label="Id"><%= match.friendly_id %></:col>
+    <:col :let={{_id, match}} label="Id">{match.friendly_id}</:col>
     <:col :let={{_id, match}} label="Lexicon">
-      <%= match.lexicon.flag %> <%= match.lexicon.name %>
+      {match.lexicon.flag} {match.lexicon.name}
     </:col>
     <:col :let={{_id, match}} label="Participants">
       <div class="flex -space-x-2 overflow-hidden">
@@ -49,7 +49,7 @@
       </div>
     </:col>
     <:col :let={{_id, match}} label="">
-      <%= Scrabblex.Cldr.DateTime.Relative.to_string!(match.inserted_at) %>
+      {Scrabblex.Cldr.DateTime.Relative.to_string!(match.inserted_at)}
     </:col>
   </.table>
 

@@ -12,10 +12,10 @@
   rows={@streams.lexicons}
   row_click={fn {_id, lexicon} -> JS.patch(~p"/admin/lexicons/#{lexicon}/edit") end}
 >
-  <:col :let={{_id, lexicon}} label="Id"><%= lexicon.id %></:col>
-  <:col :let={{_id, lexicon}} label="Name"><%= lexicon.name %></:col>
-  <:col :let={{_id, lexicon}} label="Language"><%= lexicon.language %></:col>
-  <:col :let={{_id, lexicon}} label="Flag"><%= lexicon.flag %></:col>
+  <:col :let={{_id, lexicon}} label="Id">{lexicon.id}</:col>
+  <:col :let={{_id, lexicon}} label="Name">{lexicon.name}</:col>
+  <:col :let={{_id, lexicon}} label="Language">{lexicon.language}</:col>
+  <:col :let={{_id, lexicon}} label="Flag">{lexicon.flag}</:col>
   <:col :let={{_id, lexicon}} label="Enabled">
     <.icon :if={lexicon.enabled} name="hero-check" class="text-green-500" />
     <.icon :if={!lexicon.enabled} name="hero-x-mark" class="text-red-500" />

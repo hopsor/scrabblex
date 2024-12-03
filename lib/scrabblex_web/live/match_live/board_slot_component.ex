@@ -16,7 +16,7 @@ defmodule ScrabblexWeb.MatchLive.BoardSlotComponent do
       data-column={@column}
     >
       <div :if={@booster} class="absolute text-white font-bold">
-        <%= @booster %>
+        {@booster}
       </div>
 
       <TileComponent.tile
