@@ -6,6 +6,8 @@ defmodule ScrabblexWeb.Admin.LexiconLive.EntriesUploadWriter do
 
   require Logger
 
+  @batch_size 100
+
   @impl true
   def init(opts) do
     lexicon_id = Keyword.get(opts, :lexicon_id)
@@ -33,10 +35,14 @@ defmodule ScrabblexWeb.Admin.LexiconLive.EntriesUploadWriter do
     lexicon_entries =
       Enum.map(full_words, &%{lexicon_id: state.lexicon_id, name: String.upcase(&1)})
 
-    Repo.insert_all(
-      LexiconEntry,
-      lexicon_entries
-    )
+    lexicon_entries
+    |> Enum.chunk_every(@batch_size)
+    |> Enum.map(fn batch ->
+      Repo.insert_all(
+        LexiconEntry,
+        batch
+      )
+    end)
 
     {:ok,
      %{
