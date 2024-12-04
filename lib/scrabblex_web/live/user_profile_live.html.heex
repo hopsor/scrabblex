@@ -8,7 +8,7 @@
           class="ring-2 ring-white w-20 h-20 mb-2 mx-auto mt-4"
         />
 
-        <div class="mb-2"><%= @user.name %></div>
+        <div class="mb-2">{@user.name}</div>
 
         <.link :if={@user.github_url} href={@user.github_url} class="text-xs">
           <img src={~p"/images/github-mark.svg"} class="w-5 self-center" />
@@ -17,15 +17,15 @@
         <div class="grid grid-cols-3 w-full text-center mt-5 border-t">
           <div class="border-r py-3">
             <h3 class="font-semibold text-sm">Played</h3>
-            <span class="text-xl"><%= @played_count %></span>
+            <span class="text-xl">{@played_count}</span>
           </div>
           <div class="border-r py-3">
             <h3 class="font-semibold text-sm">Won</h3>
-            <span class="text-xl"><%= @won_count %></span>
+            <span class="text-xl">{@won_count}</span>
           </div>
           <div class="py-3">
             <h3 class="font-semibold text-sm">Points</h3>
-            <span class="text-xl"><%= @points %></span>
+            <span class="text-xl">{@points}</span>
           </div>
         </div>
       </div>
@@ -38,7 +38,7 @@
         rows={@streams.matches}
         row_click={fn {_id, match} -> JS.navigate(~p"/m/#{match}") end}
       >
-        <:col :let={{_id, match}} label="Id"><%= match.friendly_id %></:col>
+        <:col :let={{_id, match}} label="Id">{match.friendly_id}</:col>
         <:col :let={{_id, match}} label="Participants">
           <div class="flex -space-x-2 overflow-hidden">
             <.avatar
@@ -58,12 +58,12 @@
           </span>
         </:col>
         <:col :let={{_id, match}} label="Created at">
-          <%= Scrabblex.Cldr.DateTime.to_string!(match.inserted_at, format: :short) %>
+          {Scrabblex.Cldr.DateTime.to_string!(match.inserted_at, format: :short)}
         </:col>
         <:col :let={{_id, match}} label="Lexicon">
-          <%= match.lexicon.flag %> <%= match.lexicon.name %>
+          {match.lexicon.flag} {match.lexicon.name}
         </:col>
-        <:col :let={{_id, match}} label="Status"><%= match.status %></:col>
+        <:col :let={{_id, match}} label="Status">{match.status}</:col>
       </.table>
     </div>
   </div>

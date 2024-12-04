@@ -8,7 +8,7 @@ defmodule ScrabblexWeb.MatchLive.FormComponent do
     ~H"""
     <div>
       <.header>
-        <%= @title %>
+        {@title}
         <:subtitle>Use this form to create a new match to play with friends.</:subtitle>
       </.header>
 

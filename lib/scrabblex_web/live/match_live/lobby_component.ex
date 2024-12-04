@@ -33,7 +33,7 @@ defmodule ScrabblexWeb.MatchLive.LobbyComponent do
 
               <div class="min-w-0 flex-auto">
                 <p class="text-sm font-semibold leading-6 text-gray-900">
-                  <%= lobby_user.user.name %>
+                  {lobby_user.user.name}
                 </p>
 
                 <span

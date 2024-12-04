@@ -21,7 +21,7 @@ defmodule ScrabblexWeb.MatchLive.WildcardEditorComponent do
           class="cursor-pointer bg-yellow-200 rounded-md aspect-square w-full h-auto relative shadow-inner"
         >
           <div class="text-md font-bold text-center absolute inset-0 h-full w-full flex items-center justify-center select-none">
-            <%= choice %>
+            {choice}
           </div>
 
           <div class="text-xs text-right absolute right-0.5 top-0.5">0</div>

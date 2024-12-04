@@ -10,7 +10,7 @@
                   :for={character <- ["L", "I", "V", "E"]}
                   class="inline-block rounded w-5 h-5 bg-gray-200 text-gray-800 mr-1 text-center font-bold"
                 >
-                  <%= character %>
+                  {character}
                 </div>
               </div>
               <div>
@@ -18,7 +18,7 @@
                   :for={character <- ["W", "O", "R", "D", "S"]}
                   class="inline-block rounded w-5 h-5 bg-gray-200 text-gray-800 mr-1 text-center font-bold"
                 >
-                  <%= character %>
+                  {character}
                 </div>
               </div>
             </.link>
@@ -77,7 +77,7 @@
 
   <main class="mb-auto">
     <.flash_group flash={@flash} />
-    <%= @inner_content %>
+    {@inner_content}
   </main>
 
   <div class=" w-full bg-gray-100">

@@ -31,12 +31,12 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
                 <div class="grow h-auto flex flex-col items-center justify-center my-2">
                   <.avatar user={player.user} />
                   <div class="text-sm font-semibold leading-6 text-center text-gray-500">
-                    <%= player.user.name %>
+                    {player.user.name}
                   </div>
                 </div>
                 <div class="grow h-auto flex flex-col items-center justify-center">
                   <p class="text-2xl font-bold text-center text-gray-600">
-                    <%= player.score %>
+                    {player.score}
                   </p>
                   <p class="text-xs text-center text-gray-400">points</p>
                 </div>
@@ -49,7 +49,7 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
               <div class="grow h-full flex flex-col items-center justify-center">
                 <p class="text-xs text-center text-gray-300 font-bold">TURN #</p>
                 <p class="text-2xl font-bold text-center text-gray-600">
-                  <%= @match.turn + 1 %>
+                  {@match.turn + 1}
                 </p>
               </div>
             </div>
@@ -58,7 +58,7 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
               <div class="grow h-full flex flex-col items-center justify-center">
                 <p class="text-xs text-center text-gray-300 font-bold">TILES LEFT</p>
                 <p class="text-2xl font-bold text-center text-gray-600">
-                  <%= length(@match.bag) %>
+                  {length(@match.bag)}
                 </p>
               </div>
             </div>
@@ -67,7 +67,7 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
               <div class="grow h-full flex flex-col items-center justify-center">
                 <p class="text-xs text-center text-gray-300 font-bold">LEXICON</p>
                 <p class="text-2xl font-bold text-center text-gray-600">
-                  <%= @match.lexicon.name %>
+                  {@match.lexicon.name}
                 </p>
               </div>
             </div>
@@ -179,9 +179,9 @@ defmodule ScrabblexWeb.MatchLive.GameBoardComponent do
           <h1 class="font-semibold text-3xl">Winner</h1>
           <p>
             <.avatar user={@winner.user} />
-            <strong><%= @winner.user.name %></strong>
+            <strong>{@winner.user.name}</strong>
           </p>
-          <p class="text-4xl"><%= @winner.score %></p>
+          <p class="text-4xl">{@winner.score}</p>
           <span>points</span>
         </div>
       </.modal>
