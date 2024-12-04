@@ -10,6 +10,17 @@
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
     </script>
+    <%= if @google_analytics_tag do %>
+      <!-- Google tag (gtag.js) -->
+      <script async src={"https://www.googletagmanager.com/gtag/js?id=#{@google_analytics_tag}"}>
+      </script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '<%= @google_analytics_tag %>');
+      </script>
+    <% end %>
   </head>
   <body class="h-full">
     {@inner_content}

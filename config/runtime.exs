@@ -128,4 +128,6 @@ if config_env() == :prod do
 
   config :scrabblex, Scrabblex.Accounts.User,
     admin_emails: System.get_env("ADMIN_EMAILS", "") |> String.split(",", trim: true)
+
+  config :scrabblex, :google_analytics, tag: System.get_env("GOOGLE_ANALYTICS_TAG")
 end
