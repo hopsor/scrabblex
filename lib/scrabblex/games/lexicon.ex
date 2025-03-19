@@ -17,7 +17,12 @@ defmodule Scrabblex.Games.Lexicon do
   def changeset(lexicon, attrs) do
     lexicon
     |> cast(attrs, [:name, :language, :flag, :enabled])
-    |> put_embed(:bag_definitions, attrs["bag_definitions"] || [])
     |> validate_required([:name, :language, :flag])
+  end
+
+  def bag_definitions_changeset(lexicon, attrs) do
+    lexicon
+    |> cast(attrs, [])
+    |> put_embed(:bag_definitions, attrs["bag_definitions"] || [])
   end
 end

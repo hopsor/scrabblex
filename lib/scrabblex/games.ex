@@ -402,6 +402,12 @@ defmodule Scrabblex.Games do
     |> Repo.update()
   end
 
+  def update_lexicon_definitions(%Lexicon{} = lexicon, attrs) do
+    lexicon
+    |> Lexicon.bag_definitions_changeset(attrs)
+    |> Repo.update()
+  end
+
   @doc """
   Gets a single lexicon.
 

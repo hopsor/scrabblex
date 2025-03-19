@@ -25,7 +25,7 @@ defmodule ScrabblexWeb.Admin.LexiconLive.BagDefinitions do
       end)
 
     {:ok, updated_lexicon} =
-      Games.update_lexicon(socket.assigns.lexicon, %{"bag_definitions" => definitions})
+      Games.update_lexicon_definitions(socket.assigns.lexicon, %{"bag_definitions" => definitions})
 
     {:noreply,
      socket
@@ -38,7 +38,9 @@ defmodule ScrabblexWeb.Admin.LexiconLive.BagDefinitions do
 
   def handle_event("reset-definitions", _params, socket) do
     with {:ok, updated_lexicon} <-
-           Games.update_lexicon(socket.assigns.lexicon, %{"bag_definitions" => nil}) do
+           Games.update_lexicon_definitions(socket.assigns.lexicon, %{
+             "bag_definitions" => nil
+           }) do
       {:noreply,
        socket
        |> assign(:lexicon, updated_lexicon)
