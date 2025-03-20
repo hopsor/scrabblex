@@ -89,8 +89,7 @@ defmodule Scrabblex.GamesFixtures do
       "language" => "es",
       "flag" => "🇪🇦",
       "enabled" => true,
-      "bag_definitions" =>
-        Enum.map(bag_definitions_attrs(), &BagDefinition.changeset(%BagDefinition{}, &1))
+      "bag_definitions" => bag_definitions_attrs()
     }
 
     {:ok, lexicon} =
