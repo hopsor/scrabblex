@@ -6,7 +6,7 @@ defmodule Scrabblex.GamesFixtures do
 
   alias Scrabblex.Repo
   alias Scrabblex.Games
-  alias Scrabblex.Games.{BagDefinition, Match, Lexicon, LexiconEntry, Play, Tile}
+  alias Scrabblex.Games.{Match, Lexicon, LexiconEntry, Play, Tile}
 
   @doc """
   Generate a match.

@@ -1,5 +1,4 @@
 defmodule ScrabblexWeb.Admin.LexiconLive.BagDefinitions do
-  alias Scrabblex.Games.BagDefinition
   use ScrabblexWeb, :live_view
 
   alias Scrabblex.Games
