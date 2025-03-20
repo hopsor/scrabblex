@@ -189,8 +189,9 @@ defmodule ScrabblexWeb.MatchLiveTest do
     end
 
     test "as owner, after I start the match I'm shown the game board", %{conn: conn, match: match} do
-      _player = player_fixture(match_id: match.id)
       [owner_player] = match.players
+      IO.inspect(owner_player)
+      _player = player_fixture(match_id: match.id)
       conn = log_in_user(conn, owner_player.user)
 
       {:ok, show_live, _html} = live(conn, ~p"/m/#{match}")
@@ -204,7 +205,7 @@ defmodule ScrabblexWeb.MatchLiveTest do
              |> has_element?()
     end
 
-    test "as non owner, after the match it's started I'm shown the game board and the lobby is gone",
+    test "as non owner, after the match is started I'm shown the game board and the lobby is gone",
          %{
            conn: conn,
            match: match
