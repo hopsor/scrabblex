@@ -188,13 +188,29 @@ defmodule ScrabblexWeb.MatchLiveTest do
       refute show_live |> element("#lobby_user_#{user.id}") |> has_element?()
     end
 
-    test "after the match it's started players are shown the game board and the lobby is gone", %{
-      conn: conn,
-      match: match
-    } do
-      user = user_fixture()
-      player = player_fixture(user_id: user.id, match_id: match.id)
-      conn = log_in_user(conn, user)
+    test "as owner, after I start the match I'm shown the game board", %{conn: conn, match: match} do
+      _player = player_fixture(match_id: match.id)
+      [owner_player] = match.players
+      conn = log_in_user(conn, owner_player.user)
+
+      {:ok, show_live, _html} = live(conn, ~p"/m/#{match}")
+
+      show_live
+      |> element("#btn_start")
+      |> render_click()
+
+      assert show_live
+             |> element("#game_board")
+             |> has_element?()
+    end
+
+    test "as non owner, after the match it's started I'm shown the game board and the lobby is gone",
+         %{
+           conn: conn,
+           match: match
+         } do
+      player = player_fixture(match_id: match.id)
+      conn = log_in_user(conn, player.user)
 
       {:ok, show_live, _html} = live(conn, ~p"/m/#{match}")
       updated_match = %Match{match | players: match.players ++ [player]}
