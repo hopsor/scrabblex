@@ -1,5 +1,4 @@
 defmodule ScrabblexWeb.Admin.LexiconLive.BagDefinitions do
-  alias Scrabblex.Games.BagDefinition
   use ScrabblexWeb, :live_view
 
   alias Scrabblex.Games
@@ -21,7 +20,7 @@ defmodule ScrabblexWeb.Admin.LexiconLive.BagDefinitions do
         {:ok,
          File.stream!(path)
          |> CSV.decode!(headers: true)
-         |> Enum.map(&BagDefinition.changeset(%BagDefinition{}, &1))}
+         |> Enum.map(& &1)}
       end)
 
     {:ok, updated_lexicon} =
@@ -37,8 +36,14 @@ defmodule ScrabblexWeb.Admin.LexiconLive.BagDefinitions do
   def handle_event("validate", _params, socket), do: {:noreply, socket}
 
   def handle_event("reset-definitions", _params, socket) do
+    definitions_to_delete =
+      socket.assigns.lexicon.bag_definitions
+      |> Enum.map(fn bd -> %{"id" => bd.id, "delete" => "true"} end)
+
     with {:ok, updated_lexicon} <-
-           Games.update_lexicon(socket.assigns.lexicon, %{"bag_definitions" => nil}) do
+           Games.update_lexicon(socket.assigns.lexicon, %{
+             "bag_definitions" => definitions_to_delete
+           }) do
       {:noreply,
        socket
        |> assign(:lexicon, updated_lexicon)

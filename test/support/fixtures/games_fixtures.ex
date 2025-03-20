@@ -6,7 +6,7 @@ defmodule Scrabblex.GamesFixtures do
 
   alias Scrabblex.Repo
   alias Scrabblex.Games
-  alias Scrabblex.Games.{BagDefinition, Match, Lexicon, LexiconEntry, Play, Tile}
+  alias Scrabblex.Games.{Match, Lexicon, LexiconEntry, Play, Tile}
 
   @doc """
   Generate a match.
@@ -89,8 +89,7 @@ defmodule Scrabblex.GamesFixtures do
       "language" => "es",
       "flag" => "🇪🇦",
       "enabled" => true,
-      "bag_definitions" =>
-        Enum.map(bag_definitions_attrs(), &BagDefinition.changeset(%BagDefinition{}, &1))
+      "bag_definitions" => bag_definitions_attrs()
     }
 
     {:ok, lexicon} =
