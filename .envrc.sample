@@ -1,0 +1,9 @@
+export POSTGRES_USER=postgres
+export POSTGRES_PW=postgres
+export POSTGRES_DB=scrabblex_dev
+export GITHUB_CLIENT_ID=your_client_id
+export GITHUB_CLIENT_SECRET=your_client_secret
+export GITHUB_REDIRECT_URL=http://127.0.0.1:4000/auth/github/callback
+export SQIDS_ALPHABET=abcdefghijklmnopqrstuvwxyz0123456789
+export SQIDS_PADDING=10
+export ADMIN_EMAILS="hopsor@gmail.com"
