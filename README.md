@@ -1,5 +1,15 @@
 # Scrabblex
 
+Scrabblex is a clone of the popular board game written in Elixir using Phoenix Framework and LiveView with minimum javascript.
+
+## Requirements
+
+This project persists the data in a Postgresql database. A `compose.yaml` file is included to help you satisfying that dependency.
+
+In addition to that you should load a bunch of env vars listed in the `.envrc.sample` file.
+
+## Setup
+
 To start your Phoenix server:
 
   * Run `mix setup` to install and setup dependencies
